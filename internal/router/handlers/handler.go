@@ -1,0 +1,121 @@
+package handler
+
+import (
+	"encoding/json"
+	"fmt"
+	"main/internal/repositories"
+	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
+	"github.com/sirupsen/logrus"
+)
+
+type Handlers struct {
+	logger *logrus.Logger
+	repo   repositories.Repository
+}
+
+func NewHandlers(logger *logrus.Logger, rep repositories.Repository) *Handlers {
+	return &Handlers{
+		logger: logger,
+		repo:   rep,
+	}
+}
+
+func (h *Handlers) HealthCheck() http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Content-Type", "application/json")
+        w.WriteHeader(http.StatusOK)
+        json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+    }
+}
+
+// Логирование
+func LoggingMiddleware(logger *logrus.Logger) func(http.Handler) http.Handler {
+    return func(next http.Handler) http.Handler {
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+            logger.Infof("%s %s", r.Method, r.URL.Path)
+            next.ServeHTTP(w, r)
+        })
+    }
+}
+
+// CORS
+func CorsMiddleware() func(http.Handler) http.Handler {
+    return func(next http.Handler) http.Handler {
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+            w.Header().Set("Access-Control-Allow-Origin", "*")
+            w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+            w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+            
+            if r.Method == "OPTIONS" {
+                w.WriteHeader(http.StatusOK)
+                return
+            }
+            
+            next.ServeHTTP(w, r)
+        })
+    }
+}
+
+func (h *Handlers) getIDFromRequest(r *http.Request) (int, error) {
+	vars := mux.Vars(r)
+	idStr := vars["id"]
+	return strconv.Atoi(idStr)
+}
+
+func (h *Handlers) getLoginFromRequest(r *http.Request) (string, error) {
+	vars := mux.Vars(r)
+	Str := vars["login"]
+	l:= len(Str)
+	if l>3 && l<31 {
+		return Str, nil
+	}
+	return Str, fmt.Errorf("Validation Error;%s; len in bait no is 3<l<31",Str)
+}
+
+func (h *Handlers) executeInTransaction(w http.ResponseWriter, r *http.Request, fn func(tx repositories.Transaction) error) error {
+	tx, err := h.repo.BeginTx(r.Context())
+	if err != nil {
+		h.handleError(w, "Failed to begin transaction", err)
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := fn(tx); err != nil {
+		h.handleError(w, "Operation failed in TX", err)
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		h.handleError(w, "Failed to commit transaction", err)
+		return err
+	}
+	return nil
+}
+
+func (h *Handlers) handleError(w http.ResponseWriter, message string, err error) {
+	h.logger.Errorf("%s: %v", message, err)
+	http.Error(w, message, httpStatusCode(err))
+}
+
+func httpStatusCode(err error) int {
+	switch err {
+	case repositories.ErrNotFound:
+		return http.StatusNotFound
+	case repositories.ErrInvalidInput:
+		return http.StatusBadRequest
+	default:
+		return http.StatusInternalServerError
+	}
+}
+
+func jsonResponse(w http.ResponseWriter, data interface{}, statusCode ...int) {
+	w.Header().Set("Content-Type", "application/json")
+	if len(statusCode) > 0 {
+		w.WriteHeader(statusCode[0])
+	}
+	json.NewEncoder(w).Encode(data)
+}

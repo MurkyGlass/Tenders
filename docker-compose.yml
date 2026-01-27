@@ -1,0 +1,40 @@
+services:
+  go-app:
+    container_name: go-tender-app
+    image: arthurkolobov/go-tender-app:1.0.0
+    build:
+      context: . 
+    environment:
+      DATABASE_URL: "host=go_db_tender user=postgres password=postgres dbname=postgres sslmode=disable"
+      SECRET_KEY: "TypoOchenSlogniiKey"
+    ports:
+      - "80:80"
+      - "8080:8080" # Маппинг порта приложения
+    depends_on:
+      - go_db
+    restart: always #  Указываем политику перезапуска
+    networks:
+      - app-network # Объединяем в сеть
+
+  go_db:
+    container_name: go_db_tender
+    image: postgres:16-cron
+    build:
+      context: ./cmd/db
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./cmd/db/migrations/:/docker-entrypoint-initdb.d
+    restart: always #  Указываем политику перезапуска
+    networks:
+      - app-network # Объединяем в сеть
+
+networks: # Создаем сеть
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
