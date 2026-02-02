@@ -8,7 +8,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// UserRepository interface
 type UserRepository interface {
 	GetAll(ctx context.Context) ([]models.User, error)
 	GetByID(ctx context.Context, id int) (*models.User, error)
@@ -86,10 +85,11 @@ func (r *userRepository) Update(ctx context.Context, user *models.User) error {
 	if err != nil {
 		return err
 	}
+	//password not updates
 	query := `
 		UPDATE users 
 		SET login = :login, name = :name, email = :email, 
-			password = :password, id_company = :id_company,
+			id_company = :id_company,
 			id_role_in_company = :id_role_in_company,
 			id_role = :id_role
 		WHERE id_user = :id_user

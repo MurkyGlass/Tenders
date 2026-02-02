@@ -20,6 +20,13 @@ type Repository interface {
 	Company() CompanyRepository
 	Offer() OfferRepository
 	Doc() DocRepository
+	Log() LogRepository
+	RoleInCompany() RoleInCompanyRepository
+	Category() CategoryRepository
+	District() DistrictRepository
+	Right() RightRepository
+	Role() RoleRepository
+	Status() StatusRepository
 	BeginTx(ctx context.Context) (Transaction, error)
 }
 
@@ -32,6 +39,13 @@ type Transaction interface {
 	Company() CompanyRepository
 	Offer() OfferRepository
 	Doc() DocRepository
+	Log() LogRepository
+	RoleInCompany() RoleInCompanyRepository
+	Category() CategoryRepository
+	District() DistrictRepository
+	Right() RightRepository
+	Role() RoleRepository
+	Status() StatusRepository
 }
 
 type repository struct {
@@ -57,7 +71,27 @@ func (r *repository) Offer() OfferRepository {
 func (r *repository) Doc() DocRepository {
 	return NewDocRepository(r.db)
 }
-
+func (r *repository) Log() LogRepository {
+	return NewLogRepository(r.db)
+}
+func (r *repository) RoleInCompany() RoleInCompanyRepository {
+	return NewRoleInCompanyRepository(r.db)
+}
+func (r *repository) Category() CategoryRepository {
+	return NewCategoryRepository(r.db)
+}
+func (r *repository) District() DistrictRepository {
+	return NewDistrictRepository(r.db)
+}
+func (r *repository) Right() RightRepository {
+	return NewRightRepository(r.db)
+}
+func (r *repository) Role() RoleRepository {
+	return NewRoleRepository(r.db)
+}
+func (r *repository) Status() StatusRepository {
+	return NewStatusRepository(r.db)
+}
 func (r *repository) BeginTx(ctx context.Context) (Transaction, error) {
 	tx, err := r.db.BeginTxx(ctx, nil)
 	if err != nil {
@@ -90,4 +124,25 @@ func (t *transaction) Offer() OfferRepository {
 }
 func (t *transaction) Doc() DocRepository {
 	return NewDocRepository(t.tx)
+}
+func (t *transaction) Log() LogRepository {
+	return NewLogRepository(t.tx)
+}
+func (t *transaction) RoleInCompany() RoleInCompanyRepository {
+	return NewRoleInCompanyRepository(t.tx)
+}
+func (t *transaction) Category() CategoryRepository {
+	return NewCategoryRepository(t.tx)
+}
+func (t *transaction) District() DistrictRepository {
+	return NewDistrictRepository(t.tx)
+}
+func (t *transaction) Right() RightRepository {
+	return NewRightRepository(t.tx)
+}
+func (t *transaction) Role() RoleRepository {
+	return NewRoleRepository(t.tx)
+}
+func (t *transaction) Status() StatusRepository {
+	return NewStatusRepository(t.tx)
 }
