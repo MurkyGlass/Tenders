@@ -50,11 +50,18 @@ func (r *companyRepository) Create(ctx context.Context, company *models.Company)
 	query := `
 		INSERT INTO companies (name, description, email, address, inn, egrul) 
 		VALUES (:name, :description, :email, :address, :inn, :egrul)
+		RETURNING id_company
 	`
-	_, err = r.db.NamedExecContext(ctx, query, company)
-	if err != nil {
-		return fmt.Errorf("failed to create company: %w", err)
-	}
+	namedQuery, err := r.db.PrepareNamedContext(ctx, query)
+    if err != nil {
+        return fmt.Errorf("failed to prepare query(company): %w", err)
+    }
+    defer namedQuery.Close()
+    
+    err = namedQuery.QueryRowContext(ctx, company).Scan(&company.ID)
+    if err != nil {
+        return fmt.Errorf("failed to create company and get its ID: %w", err)
+    }
 
 	return nil
 }

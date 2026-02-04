@@ -9,7 +9,7 @@ import (
 )
 
 type Offer struct {
-	Id             int       `db:"id_offer" json:"id_offer"`
+	ID             int       `db:"id_offer" json:"id_offer"`
 	Description    string    `db:"description" json:"description" validate:"max=500"`
 	Price          float64   `db:"price" json:"price" validate:"required"`
 	DateTimeCreate time.Time `db:"datetime_create" json:"datetime_create" validate:"required"`

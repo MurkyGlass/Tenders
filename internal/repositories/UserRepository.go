@@ -71,11 +71,18 @@ func (r *userRepository) Create(ctx context.Context, user *models.User) error {
 	query := `
 		INSERT INTO users (login, name, email, password, id_company, id_role_in_company, id_role) 
 		VALUES (:login, :name, :email, :password, :id_company, :id_role_in_company, :id_role)
+		RETURNING id_user
 	`
-	_, err = r.db.NamedExecContext(ctx, query, user)
-	if err != nil {
-		return fmt.Errorf("failed to create user: %w", err)
-	}
+	namedQuery, err := r.db.PrepareNamedContext(ctx, query)
+    if err != nil {
+        return fmt.Errorf("failed to prepare query(user): %w", err)
+    }
+    defer namedQuery.Close()
+    
+    err = namedQuery.QueryRowContext(ctx, user).Scan(&user.ID)
+    if err != nil {
+        return fmt.Errorf("failed to create user and get its ID: %w", err)
+    }
 
 	return nil
 }

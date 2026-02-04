@@ -13,6 +13,7 @@ type QueryExecutor interface {
 	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
 	NamedExecContext(ctx context.Context, query string, arg interface{}) (sql.Result, error)
 	PreparexContext(ctx context.Context, query string) (*sqlx.Stmt, error)
+	PrepareNamedContext(ctx context.Context, query string) (*sqlx.NamedStmt, error)
 }
 
 var _ QueryExecutor = (*sqlx.DB)(nil)

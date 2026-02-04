@@ -9,7 +9,7 @@ import (
 )
 
 type Tender struct {
-	Id            int       `db:"id_tender" json:"id_tender"`
+	ID            int       `db:"id_tender" json:"id_tender"`
 	Name          string    `db:"name" json:"name" validate:"required,min=3,max=100"`
 	Description   string    `db:"description" json:"description" validate:"max=500"`
 	DateTimeStart time.Time `db:"datetime_start" json:"datetime_start" validate:"required"`

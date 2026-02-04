@@ -75,7 +75,7 @@ func (h *Handlers) getLoginFromRequest(r *http.Request) (string, error) {
 	}
 	return Str, fmt.Errorf("Validation Error;%s; len in bait no is 3<l<31",Str)
 }
-
+//Runing in TX
 func (h *Handlers) executeInTransaction(w http.ResponseWriter, r *http.Request, fn func(tx repositories.Transaction) error) error {
 	tx, err := h.repo.BeginTx(r.Context())
 	if err != nil {

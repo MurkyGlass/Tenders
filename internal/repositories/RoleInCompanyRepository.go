@@ -51,11 +51,18 @@ func (r *roleincompanyRepository) Create(ctx context.Context, role *models.RoleI
 	query := `
 		INSERT INTO Role_in_Company (name, id_company, is_creater) 
 		VALUES (:name, :id_company, :is_creater)
+		RETURNING id_role
 	`
-	_, err = r.db.NamedExecContext(ctx, query, role)
-	if err != nil {
-		return fmt.Errorf("failed to create role: %w", err)
-	}
+	namedQuery, err := r.db.PrepareNamedContext(ctx, query)
+    if err != nil {
+        return fmt.Errorf("failed to prepare query(ric): %w", err)
+    }
+    defer namedQuery.Close()
+    
+    err = namedQuery.QueryRowContext(ctx, role).Scan(&role.ID)
+    if err != nil {
+        return fmt.Errorf("failed to create roleincompany and get its ID: %w", err)
+    }
 
 	return nil
 }

@@ -8,7 +8,7 @@ import (
 )
 
 type Company struct {
-	Id          int    `db:"id_company" json:"id_company"`
+	ID          int    `db:"id_company" json:"id_company"`
 	Name        string `db:"name" json:"name" validate:"required,min=3,max=100"`
 	Email       string `db:"email" json:"email" validate:"required,email,max=50"`
 	Address     string `db:"address" json:"address" validate:"required,min=3,max=100"`

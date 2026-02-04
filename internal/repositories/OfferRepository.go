@@ -50,11 +50,18 @@ func (r *offerRepository) Create(ctx context.Context, offer *models.Offer) error
 	query := `
 		INSERT INTO offers (name, description, datetime_create, price, id_company, id_status, id_tender) 
 		VALUES (:name, :description, :datetime_create, :price, :id_company, :id_status, :id_tender)
+		RETURNING id_offer
 	`
-	_, err = r.db.NamedExecContext(ctx, query, offer)
-	if err != nil {
-		return fmt.Errorf("failed to create offer: %w", err)
-	}
+	namedQuery, err := r.db.PrepareNamedContext(ctx, query)
+    if err != nil {
+        return fmt.Errorf("failed to prepare query(offer): %w", err)
+    }
+    defer namedQuery.Close()
+    
+    err = namedQuery.QueryRowContext(ctx, offer).Scan(&offer.ID)
+    if err != nil {
+        return fmt.Errorf("failed to create offer and get its ID: %w", err)
+    }
 
 	return nil
 }

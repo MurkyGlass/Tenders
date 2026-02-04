@@ -50,11 +50,18 @@ func (r *tenderRepository) Create(ctx context.Context, tender *models.Tender) er
 	query := `
 		INSERT INTO tenders (name, description, datetime_start, datetime_end, id_company, id_status, id_district) 
 		VALUES (:name, :description, :datetime_start, :datetime_end, :id_company, :id_status, :id_district)
+		RETURNING id_tender
 	`
-	_, err = r.db.NamedExecContext(ctx, query, tender)
-	if err != nil {
-		return fmt.Errorf("failed to create tender: %w", err)
-	}
+	namedQuery, err := r.db.PrepareNamedContext(ctx, query)
+    if err != nil {
+        return fmt.Errorf("failed to prepare query(tender): %w", err)
+    }
+    defer namedQuery.Close()
+    
+    err = namedQuery.QueryRowContext(ctx, tender).Scan(&tender.ID)
+    if err != nil {
+        return fmt.Errorf("failed to create tender and get its ID: %w", err)
+    }
 
 	return nil
 }
