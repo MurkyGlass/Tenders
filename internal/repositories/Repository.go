@@ -28,6 +28,8 @@ type Repository interface {
 	Role() RoleRepository
 	Status() StatusRepository
 	BeginTx(ctx context.Context) (Transaction, error)
+
+	LinkerDoc(idDoc int) LinkerDoc
 }
 
 type Transaction interface {
@@ -46,6 +48,8 @@ type Transaction interface {
 	Right() RightRepository
 	Role() RoleRepository
 	Status() StatusRepository
+
+	LinkerDoc(idDoc int) LinkerDoc
 }
 
 type repository struct {
@@ -91,6 +95,10 @@ func (r *repository) Role() RoleRepository {
 }
 func (r *repository) Status() StatusRepository {
 	return NewStatusRepository(r.db)
+}
+
+func (r *repository) LinkerDoc(idDoc int) LinkerDoc {
+	return NewLinkerDoc(idDoc,r.db,nil)
 }
 func (r *repository) BeginTx(ctx context.Context) (Transaction, error) {
 	tx, err := r.db.BeginTxx(ctx, nil)
@@ -145,4 +153,8 @@ func (t *transaction) Role() RoleRepository {
 }
 func (t *transaction) Status() StatusRepository {
 	return NewStatusRepository(t.tx)
+}
+
+func (t *transaction) LinkerDoc(idDoc int) LinkerDoc {
+	return NewLinkerDoc(idDoc,t.tx,nil)
 }

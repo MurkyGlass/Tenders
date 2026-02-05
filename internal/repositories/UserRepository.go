@@ -39,7 +39,7 @@ func (r *userRepository) GetByID(ctx context.Context, id int) (*models.User, err
 	var user models.User
 
 	query := `SELECT * FROM users WHERE id_user = $1`
-	
+
 	err := r.db.GetContext(ctx, &user, query, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
@@ -50,7 +50,7 @@ func (r *userRepository) GetByLogin(ctx context.Context, login string) (*models.
 	var user models.User
 
 	query := `SELECT * FROM users WHERE login = $1`
-	
+
 	err := r.db.GetContext(ctx, &user, query, login)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
@@ -73,16 +73,11 @@ func (r *userRepository) Create(ctx context.Context, user *models.User) error {
 		VALUES (:login, :name, :email, :password, :id_company, :id_role_in_company, :id_role)
 		RETURNING id_user
 	`
-	namedQuery, err := r.db.PrepareNamedContext(ctx, query)
-    if err != nil {
-        return fmt.Errorf("failed to prepare query(user): %w", err)
-    }
-    defer namedQuery.Close()
-    
-    err = namedQuery.QueryRowContext(ctx, user).Scan(&user.ID)
-    if err != nil {
-        return fmt.Errorf("failed to create user and get its ID: %w", err)
-    }
+
+	err = r.db.QueryRowxContext(ctx, query, user).Scan(&user.ID)
+	if err != nil {
+		return fmt.Errorf("failed to create user and get its ID: %w", err)
+	}
 
 	return nil
 }

@@ -9,7 +9,7 @@ import (
 type DocRepository interface {
 	GetAll(ctx context.Context) ([]models.Doc, error)
 	GetByID(ctx context.Context, id int) (*models.Doc, error)
-	Create(ctx context.Context, doc *models.Doc) Linker
+	Create(ctx context.Context, doc *models.Doc) LinkerDoc
 	Update(ctx context.Context, doc *models.Doc) error
 	Delete(ctx context.Context, id int) error
 }
@@ -43,7 +43,7 @@ func (r *docRepository) GetByID(ctx context.Context, id int) (*models.Doc, error
 	return &doc, nil
 }
 //UNSAFE!!! Только с установкой связей! Вызывать метод интерфейса в любом случае!
-func (r *docRepository) Create(ctx context.Context, doc *models.Doc) Linker {
+func (r *docRepository) Create(ctx context.Context, doc *models.Doc) LinkerDoc {
 	err := doc.Validate()
 	if err != nil {
 		return &linkerDoc{err: err}
@@ -54,18 +54,13 @@ func (r *docRepository) Create(ctx context.Context, doc *models.Doc) Linker {
 		VALUES (:name, :description, :filename)
 		RETURNING id_doc
 	`
-	namedQuery, err := r.db.PrepareNamedContext(ctx, query)
-	if err != nil {
-		return &linkerDoc{err : fmt.Errorf("failed to prepare query(doc): %w", err)}
-	}
-	defer namedQuery.Close()
 
-	err = namedQuery.QueryRowContext(ctx, doc).Scan(&doc.ID)
+	err = r.db.QueryRowxContext(ctx, query,doc).Scan(&doc.ID)
 	if err != nil {
 		return &linkerDoc{err :  fmt.Errorf("failed to create doc and get its ID: %w", err)}
 	}
 
-	return &linkerDoc{idDoc: doc.ID, doc: r,err: nil}
+	return &linkerDoc{idDoc: doc.ID, db: r.db,err: nil}
 }
 func (r *docRepository) Update(ctx context.Context, doc *models.Doc) error {
 	err := doc.Validate()

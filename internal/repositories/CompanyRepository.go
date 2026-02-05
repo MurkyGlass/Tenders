@@ -52,16 +52,11 @@ func (r *companyRepository) Create(ctx context.Context, company *models.Company)
 		VALUES (:name, :description, :email, :address, :inn, :egrul)
 		RETURNING id_company
 	`
-	namedQuery, err := r.db.PrepareNamedContext(ctx, query)
-    if err != nil {
-        return fmt.Errorf("failed to prepare query(company): %w", err)
-    }
-    defer namedQuery.Close()
-    
-    err = namedQuery.QueryRowContext(ctx, company).Scan(&company.ID)
-    if err != nil {
-        return fmt.Errorf("failed to create company and get its ID: %w", err)
-    }
+
+	err = r.db.QueryRowxContext(ctx, query, company).Scan(&company.ID)
+	if err != nil {
+		return fmt.Errorf("failed to create company and get its ID: %w", err)
+	}
 
 	return nil
 }

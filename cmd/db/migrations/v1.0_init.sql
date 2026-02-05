@@ -119,21 +119,21 @@ CREATE TABLE IF NOT EXISTS Logs(
 );
 CREATE TABLE IF NOT EXISTS Log_Tender(
     id_log INT FOREIGN KEY REFERENCES Logs(id_log) ON DELETE CASCADE,
-    id_tender INT FOREIGN KEY REFERENCES Tenders(id_tender) ON DELETE CASCADE,
+    id_tender INT FOREIGN KEY REFERENCES Tenders(id_tender),
     PRIMARY KEY(id_log,id_tender)
 );
 CREATE TABLE IF NOT EXISTS Log_Company(
     id_log INT FOREIGN KEY REFERENCES Logs(id_log) ON DELETE CASCADE,
-    id_company INT FOREIGN KEY REFERENCES Companies(id_company) ON DELETE CASCADE,
+    id_company INT FOREIGN KEY REFERENCES Companies(id_company),
     PRIMARY KEY(id_log,id_company)
 );
 CREATE TABLE IF NOT EXISTS Log_Offer(
     id_log INT FOREIGN KEY REFERENCES Logs(id_log) ON DELETE CASCADE,
-    id_offer INT FOREIGN KEY REFERENCES Offers(id_offer) ON DELETE CASCADE,
+    id_offer INT FOREIGN KEY REFERENCES Offers(id_offer),
     PRIMARY KEY(id_log,id_offer)
 );
 CREATE TABLE IF NOT EXISTS Log_Doc(
     id_log INT FOREIGN KEY REFERENCES Logs(id_log) ON DELETE CASCADE,
-    id_doc INT FOREIGN KEY REFERENCES Docs(id_doc) ON DELETE CASCADE,
+    id_doc INT FOREIGN KEY REFERENCES Docs(id_doc),
     PRIMARY KEY(id_log,id_doc)
 );

@@ -65,7 +65,7 @@ func (h *Handlers) CreateUser() http.HandlerFunc {
 		}); err != nil {
 			return
 		}
-
+	
 		jsonResponse(w, user, http.StatusCreated)
 	}
 }
