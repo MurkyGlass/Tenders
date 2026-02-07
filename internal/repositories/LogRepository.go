@@ -9,7 +9,7 @@ import (
 type LogRepository interface {
 	GetAll(ctx context.Context) ([]models.Log, error)
 	GetByID(ctx context.Context, id int) (*models.Log, error)
-	Create(ctx context.Context, log *models.Log) error
+	Create(ctx context.Context, log *models.Log) LinkerLog
 	Update(ctx context.Context, log *models.Log) error
 	Delete(ctx context.Context, id int) error
 }
@@ -43,21 +43,22 @@ func (r *logRepository) GetByID(ctx context.Context, id int) (*models.Log, error
 	}
 	return &log, nil
 }
-func (r *logRepository) Create(ctx context.Context, log *models.Log) error {
+func (r *logRepository) Create(ctx context.Context, log *models.Log) LinkerLog {
 	err := log.Validate()
 	if err != nil {
-		return err
+		return &linkerLog{err: err}
 	}
 	query := `
 		INSERT INTO logs (id_user, id_entity, id_type, datetime_create) 
 		VALUES (:id_user, :id_entity, :id_type, :datetime_create)
+		RETURNING id_log
 	`
-	_, err = r.db.NamedExecContext(ctx, query, log)
+	err = r.db.QueryRowxContext(ctx, query, log).Scan(&log.ID)
 	if err != nil {
-		return fmt.Errorf("failed to create log: %w", err)
+		return &linkerLog{err: fmt.Errorf("failed to create log: %w", err)}
 	}
 
-	return nil
+	return &linkerLog{idLog: log.ID, db: r.db, err: nil}
 }
 
 func (r *logRepository) Update(ctx context.Context, log *models.Log) error {

@@ -30,6 +30,7 @@ type Repository interface {
 	BeginTx(ctx context.Context) (Transaction, error)
 
 	LinkerDoc(idDoc int) LinkerDoc
+	LinkerLog(idLog int) LinkerLog
 }
 
 type Transaction interface {
@@ -50,6 +51,7 @@ type Transaction interface {
 	Status() StatusRepository
 
 	LinkerDoc(idDoc int) LinkerDoc
+	LinkerLog(idLog int) LinkerLog
 }
 
 type repository struct {
@@ -98,7 +100,10 @@ func (r *repository) Status() StatusRepository {
 }
 
 func (r *repository) LinkerDoc(idDoc int) LinkerDoc {
-	return NewLinkerDoc(idDoc,r.db,nil)
+	return NewLinkerDoc(idDoc, r.db, nil)
+}
+func (r *repository) LinkerLog(idLog int) LinkerLog {
+	return NewLinkerLog(idLog, r.db, nil)
 }
 func (r *repository) BeginTx(ctx context.Context) (Transaction, error) {
 	tx, err := r.db.BeginTxx(ctx, nil)
@@ -156,5 +161,8 @@ func (t *transaction) Status() StatusRepository {
 }
 
 func (t *transaction) LinkerDoc(idDoc int) LinkerDoc {
-	return NewLinkerDoc(idDoc,t.tx,nil)
+	return NewLinkerDoc(idDoc, t.tx, nil)
+}
+func (t *transaction) LinkerLog(idLog int) LinkerLog {
+	return NewLinkerLog(idLog, t.tx, nil)
 }

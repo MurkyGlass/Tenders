@@ -8,9 +8,9 @@ import (
 // Только в TX! Обновление програмно не предусмотренно, следует удалить старую связь и создать новую.
 // Get - методы вызывать только через репозиторий!
 type LinkerDoc interface {
-	Company() LCompany
-	Tender() LTender
-	Offer() LOffer
+	Company() LdCompany
+	Tender() LdTender
+	Offer() LdOffer
 	Exists(ctx context.Context) (bool, error)
 }
 type linkerDoc struct {
@@ -43,23 +43,23 @@ func (l *linkerDoc) Exists(ctx context.Context) (bool, error) {
 	return ex, nil
 }
 
-type LCompany interface {
+type LdCompany interface {
 	Create(ctx context.Context, idComp int) error
 	Delete(ctx context.Context, idComp int) error
 	Exists(ctx context.Context) (bool, error)
 	ExistsByID(ctx context.Context, Id int) (bool, error)
 }
-type lcompany struct {
+type ldcompany struct {
 	l *linkerDoc
 }
 
-func NewLCompany(l *linkerDoc) LCompany {
-	return &lcompany{l: l}
+func NewLdCompany(l *linkerDoc) LdCompany {
+	return &ldcompany{l: l}
 }
-func (l *linkerDoc) Company() LCompany {
-	return NewLCompany(l)
+func (l *linkerDoc) Company() LdCompany {
+	return NewLdCompany(l)
 }
-func (l *lcompany) Create(ctx context.Context, idComp int) error {
+func (l *ldcompany) Create(ctx context.Context, idComp int) error {
 	if l.l.err != nil {
 		return l.l.err
 	}
@@ -73,7 +73,7 @@ func (l *lcompany) Create(ctx context.Context, idComp int) error {
 	}
 	return nil
 }
-func (l *lcompany) Delete(ctx context.Context, idComp int) error {
+func (l *ldcompany) Delete(ctx context.Context, idComp int) error {
 	if l.l.err != nil {
 		return l.l.err
 	}
@@ -88,7 +88,7 @@ func (l *lcompany) Delete(ctx context.Context, idComp int) error {
 }
 
 // return true where this doc have links by company, else false. If error, return false and error
-func (l *lcompany) Exists(ctx context.Context) (bool, error) {
+func (l *ldcompany) Exists(ctx context.Context) (bool, error) {
 
 	q := `
 		SELECT EXISTS (
@@ -104,7 +104,7 @@ func (l *lcompany) Exists(ctx context.Context) (bool, error) {
 }
 
 // return true where this doc have link by this company(IdC), else false. If error, return false and error
-func (l *lcompany) ExistsByID(ctx context.Context, IdC int) (bool, error) {
+func (l *ldcompany) ExistsByID(ctx context.Context, IdC int) (bool, error) {
 
 	q := `
 		SELECT EXISTS (
@@ -119,23 +119,23 @@ func (l *lcompany) ExistsByID(ctx context.Context, IdC int) (bool, error) {
 	return ex, nil
 }
 
-type LTender interface {
+type LdTender interface {
 	Create(ctx context.Context, idT int) error
 	Delete(ctx context.Context, idT int) error
 	Exists(ctx context.Context) (bool, error)
 	ExistsByID(ctx context.Context, Id int) (bool, error)
 }
-type ltender struct {
+type ldtender struct {
 	l *linkerDoc
 }
 
-func NewLTender(l *linkerDoc) LTender {
-	return &ltender{l: l}
+func NewLdTender(l *linkerDoc) LdTender {
+	return &ldtender{l: l}
 }
-func (l *linkerDoc) Tender() LTender {
-	return NewLTender(l)
+func (l *linkerDoc) Tender() LdTender {
+	return NewLdTender(l)
 }
-func (l *ltender) Create(ctx context.Context, idT int) error {
+func (l *ldtender) Create(ctx context.Context, idT int) error {
 	if l.l.err != nil {
 		return l.l.err
 	}
@@ -150,7 +150,7 @@ func (l *ltender) Create(ctx context.Context, idT int) error {
 	return nil
 }
 
-func (l *ltender) Delete(ctx context.Context, idT int) error {
+func (l *ldtender) Delete(ctx context.Context, idT int) error {
 	if l.l.err != nil {
 		return l.l.err
 	}
@@ -165,7 +165,7 @@ func (l *ltender) Delete(ctx context.Context, idT int) error {
 }
 
 // return true where this doc have links by tender, else false. If error, return false and error
-func (l *ltender) Exists(ctx context.Context) (bool, error) {
+func (l *ldtender) Exists(ctx context.Context) (bool, error) {
 
 	q := `
 		SELECT EXISTS (
@@ -181,7 +181,7 @@ func (l *ltender) Exists(ctx context.Context) (bool, error) {
 }
 
 // return true where this doc have link by this tender(IdT), else false. If error, return false and error
-func (l *ltender) ExistsByID(ctx context.Context, IdT int) (bool, error) {
+func (l *ldtender) ExistsByID(ctx context.Context, IdT int) (bool, error) {
 
 	q := `
 		SELECT EXISTS (
@@ -196,23 +196,23 @@ func (l *ltender) ExistsByID(ctx context.Context, IdT int) (bool, error) {
 	return ex, nil
 }
 
-type LOffer interface {
+type LdOffer interface {
 	Create(ctx context.Context, idOf int) error
 	Delete(ctx context.Context, idOf int) error
 	Exists(ctx context.Context) (bool, error)
 	ExistsByID(ctx context.Context, Id int) (bool, error)
 }
-type loffer struct {
+type ldoffer struct {
 	l *linkerDoc
 }
 
-func NewLOffer(l *linkerDoc) LOffer {
-	return &loffer{l: l}
+func NewLdOffer(l *linkerDoc) LdOffer {
+	return &ldoffer{l: l}
 }
-func (l *linkerDoc) Offer() LOffer {
-	return NewLOffer(l)
+func (l *linkerDoc) Offer() LdOffer {
+	return NewLdOffer(l)
 }
-func (l *loffer) Create(ctx context.Context, idO int) error {
+func (l *ldoffer) Create(ctx context.Context, idO int) error {
 	if l.l.err != nil {
 		return l.l.err
 	}
@@ -226,7 +226,7 @@ func (l *loffer) Create(ctx context.Context, idO int) error {
 	}
 	return nil
 }
-func (l *loffer) Delete(ctx context.Context, idO int) error {
+func (l *ldoffer) Delete(ctx context.Context, idO int) error {
 	if l.l.err != nil {
 		return l.l.err
 	}
@@ -241,7 +241,7 @@ func (l *loffer) Delete(ctx context.Context, idO int) error {
 }
 
 // return true where this doc have links by offer, else false. If error, return false and error
-func (l *loffer) Exists(ctx context.Context) (bool, error) {
+func (l *ldoffer) Exists(ctx context.Context) (bool, error) {
 
 	q := `
 		SELECT EXISTS (
@@ -257,7 +257,7 @@ func (l *loffer) Exists(ctx context.Context) (bool, error) {
 }
 
 // return true where this doc have link by this offer(IdOf), else false. If error, return false and error
-func (l *loffer) ExistsByID(ctx context.Context, IdOf int) (bool, error) {
+func (l *ldoffer) ExistsByID(ctx context.Context, IdOf int) (bool, error) {
 
 	q := `
 		SELECT EXISTS (
