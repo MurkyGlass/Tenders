@@ -276,8 +276,8 @@ func (l *lloffer) ExistsByID(ctx context.Context, IdOf int) (bool, error) {
 }
 
 type LlDoc interface {
-	Create(ctx context.Context, idOf int) error
-	Delete(ctx context.Context, idOf int) error
+	Create(ctx context.Context, idD int) error
+	Delete(ctx context.Context, idD int) error
 	Exists(ctx context.Context) (bool, error)
 	ExistsByID(ctx context.Context, Id int) (bool, error)
 }

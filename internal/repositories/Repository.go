@@ -31,6 +31,7 @@ type Repository interface {
 
 	LinkerDoc(idDoc int) LinkerDoc
 	LinkerLog(idLog int) LinkerLog
+	LinkerTCategory(idTender int) LinkerCategory
 }
 
 type Transaction interface {
@@ -52,6 +53,7 @@ type Transaction interface {
 
 	LinkerDoc(idDoc int) LinkerDoc
 	LinkerLog(idLog int) LinkerLog
+	LinkerTCategory(idTender int) LinkerCategory
 }
 
 type repository struct {
@@ -105,6 +107,10 @@ func (r *repository) LinkerDoc(idDoc int) LinkerDoc {
 func (r *repository) LinkerLog(idLog int) LinkerLog {
 	return NewLinkerLog(idLog, r.db, nil)
 }
+func (r *repository) LinkerTCategory(idTender int) LinkerCategory {
+	return NewLinkerCategory(idTender, r.db)
+}
+
 func (r *repository) BeginTx(ctx context.Context) (Transaction, error) {
 	tx, err := r.db.BeginTxx(ctx, nil)
 	if err != nil {
@@ -165,4 +171,7 @@ func (t *transaction) LinkerDoc(idDoc int) LinkerDoc {
 }
 func (t *transaction) LinkerLog(idLog int) LinkerLog {
 	return NewLinkerLog(idLog, t.tx, nil)
+}
+func (t *transaction) LinkerTCategory(idTender int) LinkerCategory {
+	return NewLinkerCategory(idTender, t.tx)
 }
