@@ -8,8 +8,8 @@ import (
 // Только в TX! Обновление програмно не предусмотренно, следует удалить старую связь и создать новую.
 // Get - методы вызывать только через репозиторий!
 type LinkerCategory interface {
-	Create(ctx context.Context, idT int) error
-	Delete(ctx context.Context, idT int) error
+	Create(ctx context.Context, idCat int) error
+	Delete(ctx context.Context, idCat int) error
 	Exists(ctx context.Context) (bool, error)
 	ExistsByID(ctx context.Context, Id int) (bool, error)
 }
