@@ -14,6 +14,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/jmoiron/sqlx"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -41,6 +42,7 @@ type RefreshToken struct {
 type Service struct {
 	db     *sqlx.DB
 	config Config
+	logger *logrus.Logger
 }
 
 // Claims для JWT токена
@@ -50,7 +52,7 @@ type Claims struct {
 }
 
 // Инициализация сервиса
-func NewService(db *sqlx.DB) *Service {
+func NewService(db *sqlx.DB, log *logrus.Logger) *Service {
 	return &Service{
 		db: db,
 		config: Config{
@@ -58,6 +60,7 @@ func NewService(db *sqlx.DB) *Service {
 			AccessExpiry:  15 * time.Minute,
 			RefreshExpiry: 7 * 24 * time.Hour,
 		},
+		logger: log,
 	}
 }
 
@@ -67,18 +70,42 @@ func (s *Service) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		Login    string `json:"login"`
 		Password string `json:"password"`
 	}
+	s.logger.Info(r.Header.Get("Content-Type"))
+	contentType := r.Header.Get("Content-Type")
 
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+	if contentType == "application/json" {
+		if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+			respondError(w, http.StatusBadRequest, "Failed decode json")
+			s.logger.Info(1)
+			return
+		}
+	} else if strings.Contains(contentType, "multipart/form-data") {
+		if err := r.ParseMultipartForm(10 << 20); err != nil {
+			respondError(w, http.StatusBadRequest, "Failed form-parsing")
+			s.logger.Info(2)
+			return
+		}
+		if request.Login = r.PostForm.Get("login"); request.Login == "" {
+			respondError(w, http.StatusBadRequest, "Empety data")
+			s.logger.Info(3)
+			return
+		}
+		if request.Password = r.PostForm.Get("password"); request.Password == "" {
+			respondError(w, http.StatusBadRequest, "Empety data")
+			s.logger.Info(4)
+			return
+		}
+	} else {
 		respondError(w, http.StatusBadRequest, "Invalid request format")
+		s.logger.Info(5)
 		return
 	}
 
-	// Получаем пользователя из БД
 	var user User
 	err := s.db.Get(&user, "SELECT id_user, password FROM Users WHERE login = $1", request.Login)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			respondError(w, http.StatusUnauthorized, "Invalid credentials")
+			respondError(w, http.StatusForbidden, "Invalid credentials")
 		} else {
 			respondError(w, http.StatusInternalServerError, "Database error")
 		}
@@ -87,7 +114,7 @@ func (s *Service) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Проверяем пароль
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
-		respondError(w, http.StatusUnauthorized, "Invalid credentials")
+		respondError(w, http.StatusForbidden, "Invalid credentials")
 		return
 	}
 
@@ -114,37 +141,47 @@ func (s *Service) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondJSON(w, http.StatusOK, map[string]interface{}{
-		"access_token":  accessToken,
-		"refresh_token": refreshToken,
-		"expires_in":    int(s.config.AccessExpiry.Seconds()),
+	http.SetCookie(w, &http.Cookie{
+		Name:     "refresh_token",
+		Value:    refreshToken,
+		HttpOnly: true, // Недоступен через JavaScript
+		SameSite: http.SameSiteStrictMode,
+		Path:     "/auth/refresh",
+		MaxAge:   7 * 24 * 60 * 60, // 7 дней
+	})
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
+		"access_token": accessToken,
+		"token_type":   "Bearer",
+		"expires_in":   "900",
 	})
 }
 
-// Обработчик обновления токена
 func (s *Service) RefreshHandler(w http.ResponseWriter, r *http.Request) {
-	var request struct {
-		RefreshToken string `json:"refresh_token"`
-	}
 
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		respondError(w, http.StatusBadRequest, "Invalid request format")
+	var refreshToken string
+
+	for _, c := range r.Cookies() {
+		if c.Name == "refresh_token" {
+			refreshToken = c.Value
+		}
+	}
+	if refreshToken == "" {
+		respondError(w, http.StatusUnauthorized, "Coocie unknown")
 		return
 	}
-
-	// Проверяем refresh токен
 	var token RefreshToken
 	err := s.db.Get(&token, `
 		SELECT id, id_user, expires_at 
 		FROM refresh_tokens 
 		WHERE token = $1 AND expires_at > NOW()`,
-		request.RefreshToken)
+		refreshToken)
 	if err != nil {
 		respondError(w, http.StatusUnauthorized, "Invalid or expired refresh token")
 		return
 	}
 
-	// Генерируем новые токены
 	newAccessToken, err := s.generateAccessToken(token.UserID)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "Failed to generate token")
@@ -157,7 +194,6 @@ func (s *Service) RefreshHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Обновляем refresh токен
 	_, err = s.db.Exec(`
 		UPDATE refresh_tokens 
 		SET token = $1, expires_at = $2 
@@ -168,26 +204,33 @@ func (s *Service) RefreshHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondJSON(w, http.StatusOK, map[string]interface{}{
-		"access_token":  newAccessToken,
-		"refresh_token": newRefreshToken,
-		"expires_in":    int(s.config.AccessExpiry.Seconds()),
+	http.SetCookie(w, &http.Cookie{
+		Name:     "refresh_token",
+		Value:    newRefreshToken,
+		HttpOnly: true, // Недоступен через JavaScript
+		SameSite: http.SameSiteStrictMode,
+		Path:     "/auth/refresh",
+		MaxAge:   7 * 24 * 60 * 60, // 7 дней
+	})
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
+		"access_token": newAccessToken,
+		"token_type":   "Bearer",
+		"expires_in":   "900",
 	})
 }
 
-// Обработчик выхода
 func (s *Service) RevokeHandler(w http.ResponseWriter, r *http.Request) {
-	var request struct {
-		RefreshToken string `json:"refresh_token"`
+	var refreshToken string
+
+	for _, c := range r.Cookies() {
+		if c.Name == "refresh_token" {
+			refreshToken = c.Value
+		}
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		respondError(w, http.StatusBadRequest, "Invalid request format")
-		return
-	}
-
-	// Удаляем refresh токен
-	result, err := s.db.Exec("DELETE FROM refresh_tokens WHERE token = $1", request.RefreshToken)
+	result, err := s.db.Exec("DELETE FROM refresh_tokens WHERE token = $1", refreshToken)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "Failed to revoke token")
 		return
@@ -205,7 +248,7 @@ func (s *Service) RevokeHandler(w http.ResponseWriter, r *http.Request) {
 func (s *Service) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
-		if authHeader == "" {
+		if authHeader == "null" {
 			respondError(w, http.StatusUnauthorized, "Authorization header required")
 			return
 		}
@@ -218,7 +261,7 @@ func (s *Service) Middleware(next http.Handler) http.Handler {
 		})
 
 		if err != nil || !token.Valid {
-			respondError(w, http.StatusUnauthorized, "Invalid token")
+			respondError(w, http.StatusForbidden, "Invalid token")
 			return
 		}
 

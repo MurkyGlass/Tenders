@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Портал тендеров</title>
+    <link rel="stylesheet" href="/static/.css">
+    <script src="/static/main.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <div class="logo-icon">Т</div>
+                <div class="logo-text">
+                    <h1>Портал государственных тендеров</h1>
+                    <p>Официальная площадка для проведения торгов</p>
+                </div>
+            </div>
+            <button class="account-btn" id="accountBtn">
+                <i class="fas fa-user-circle btn-icon"></i>
+                Личный кабинет
+            </button>
+        </div>
+    </header>
+    <div class="login-modal" id="loginModal">
+        <div class="login-overlay" id="loginOverlay">
+        </div>
+        <div class="login-container">
+            <div class="login-header">
+                <h2>Вход в личный кабинет</h2>
+                <button class="login-close" id="loginClose">&times;</button>
+            </div>
+        
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label for="loginInput" class="form-label">
+                        <i class="fas fa-user"></i> Логин
+                    </label>
+                    <input 
+                        type="text" 
+                        id="loginInput" 
+                        name="login"
+                        class="form-input"
+                        placeholder="Введите ваш логин"
+                        required
+                        autocomplete="username">
+                </div>
+            
+                <div class="form-group">
+                    <label for="passwordInput" class="form-label">
+                        <i class="fas fa-lock"></i> Пароль
+                    </label>
+                    <div class="password-wrapper">
+                        <input 
+                            type="password" 
+                            id="passwordInput" 
+                            name="password"
+                            class="form-input"
+                            placeholder="Введите ваш пароль"
+                            required
+                            autocomplete="current-password">
+                        <button type="button" class="password-toggle" id="passwordToggle">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+            
+                <div class="form-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="rememberMe">
+                        <span>Запомнить меня</span>
+                    </label>
+                    <a href="#" class="forgot-link">Забыли пароль?</a>
+                </div>
+            
+                <button type="button" class="login-submit" id="loginSubmit">
+                    <i class="fas fa-sign-in-alt"></i> Войти
+                </button>
+            
+                <div class="form-footer">
+                    <p>Нет аккаунта? <a href="#" class="register-link">Зарегистрироваться</a></p>
+                </div>
+            </form>
+        
+            <div class="login-status" id="loginStatus"></div>
+        </div>
+    </div>
+
+    <nav>
+        <div class="nav-container">
+            <ul class="nav-menu">
+                <li><a href="#" class="active"><i class="fas fa-home"></i> Главная</a></li>
+                <li><a href="#"><i class="fas fa-gavel"></i> Активные тендеры</a></li>
+                <li><a href="#"><i class="fas fa-archive"></i> Архив торгов</a></li>
+                <li><a href="#"><i class="fas fa-newspaper"></i> Новости</a></li>
+                <li><a href="#"><i class="fas fa-book"></i> Документация</a></li>
+                <li><a href="#"><i class="fas fa-question-circle"></i> Помощь</a></li>
+                <li><a href="#"><i class="fas fa-phone-alt"></i> Контакты</a></li>
+            </ul>
+        </div>
+    </nav>
+    <main>
+        <div class="content-container">
+            <h2 class="content-title">Добро пожаловать на портал государственных тендеров</h2>
+            <div class="content-body">
+                <div>
+                    <i class="fas fa-cogs" style="font-size: 3rem; color: #1e3c72; margin-bottom: 1rem;"></i>
+                    <p>ТЕЛО САЙТА</p>
+                    <p style="font-size: 1rem; margin-top: 1rem; color: #888;">
+                        Здесь будет основное содержимое портала тендеров
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>О портале</h3>
+                <ul class="footer-links">
+                    <li><a href="#"><i class="fas fa-info-circle"></i> О нас</a></li>
+                    <li><a href="#"><i class="fas fa-balance-scale"></i> Правовая информация</a></li>
+                    <li><a href="#"><i class="fas fa-shield-alt"></i> Безопасность</a></li>
+                    <li><a href="#"><i class="fas fa-chart-line"></i> Статистика</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Участникам</h3>
+                <ul class="footer-links">
+                    <li><a href="#"><i class="fas fa-user-plus"></i> Регистрация</a></li>
+                    <li><a href="#"><i class="fas fa-file-signature"></i> Как подать заявку</a></li>
+                    <li><a href="#"><i class="fas fa-comments-dollar"></i> Финансовое обеспечение</a></li>
+                    <li><a href="#"><i class="fas fa-question"></i> Частые вопросы</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Контакты</h3>
+                <div class="footer-contact">
+                    <p><i class="fas fa-phone"></i> 8-800-xxx-xx-xx</p>
+                    <p><i class="fas fa-envelope"></i> support@tender-portal.ru</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Москва, ул. Тендерная, д. 1</p>
+                    <p><i class="fas fa-clock"></i> Пн-Пт: 9:00-18:00</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <p>© 2024 Портал государственных тендеров. Все права защищены.</p>
+            <p style="margin-top: 5px;">ПОДВАЛ САЙТА</p>
+        </div>
+    </footer>
+</body>
+</html>

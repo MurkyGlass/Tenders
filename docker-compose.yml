@@ -3,7 +3,7 @@ services:
     container_name: go-tender-app
     image: arthurkolobov/go-tender-app:1.0.0
     build:
-      context: . 
+      context: .
     environment:
       DATABASE_URL: "host=go_db_tender user=postgres password=postgres dbname=postgres sslmode=disable"
       SECRET_KEY: "TypoOchenSlogniiKey"
@@ -20,14 +20,14 @@ services:
     container_name: go_db_tender
     image: postgres:16-cron
     build:
-      context: ./cmd/db
+      context: ./db
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
       POSTGRES_DB: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./cmd/db/migrations/:/docker-entrypoint-initdb.d
+      - ./db/migrations/:/docker-entrypoint-initdb.d
     restart: always #  Указываем политику перезапуска
     networks:
       - app-network # Объединяем в сеть

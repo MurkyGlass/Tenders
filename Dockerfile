@@ -2,7 +2,8 @@ FROM golang:1.23
 
 WORKDIR /app
 COPY . . 
-RUN go get -d -v ./...
-RUN go build -o application cmd/app/main.go
+#go get -d -v ./... - скачивает и обновляет зависимости, go mod dowland - скачивает зависимости
+RUN cd server && go get -d -v ./...
+RUN cd server && go build -o ../application ./src/app/main.go
 EXPOSE 80
 CMD ["./application"]

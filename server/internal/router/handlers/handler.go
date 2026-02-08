@@ -13,51 +13,53 @@ import (
 )
 
 type Handlers struct {
-	logger *logrus.Logger
+	Logger *logrus.Logger
 	repo   repositories.Repository
 }
 
 func NewHandlers(logger *logrus.Logger, rep repositories.Repository) *Handlers {
 	return &Handlers{
-		logger: logger,
+		Logger: logger,
 		repo:   rep,
 	}
 }
 
 func (h *Handlers) HealthCheck() http.HandlerFunc {
-    return func(w http.ResponseWriter, r *http.Request) {
-        w.Header().Set("Content-Type", "application/json")
-        w.WriteHeader(http.StatusOK)
-        json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
-    }
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+	}
 }
 
 // Логирование
 func LoggingMiddleware(logger *logrus.Logger) func(http.Handler) http.Handler {
-    return func(next http.Handler) http.Handler {
-        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-            logger.Infof("%s %s", r.Method, r.URL.Path)
-            next.ServeHTTP(w, r)
-        })
-    }
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			logger.Infof("%s %s", r.Method, r.URL.Path)
+			next.ServeHTTP(w, r)
+		})
+	}
 }
 
 // CORS
 func CorsMiddleware() func(http.Handler) http.Handler {
-    return func(next http.Handler) http.Handler {
-        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-            w.Header().Set("Access-Control-Allow-Origin", "*")
-            w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
-            w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-            
-            if r.Method == "OPTIONS" {
-                w.WriteHeader(http.StatusOK)
-                return
-            }
-            
-            next.ServeHTTP(w, r)
-        })
-    }
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
+			w.Header().Set("Access-Control-Max-Age", "86400")
+
+			if r.Method == "OPTIONS" {
+				w.WriteHeader(http.StatusOK)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
 }
 
 func (h *Handlers) getIDFromRequest(r *http.Request) (int, error) {
@@ -69,13 +71,14 @@ func (h *Handlers) getIDFromRequest(r *http.Request) (int, error) {
 func (h *Handlers) getLoginFromRequest(r *http.Request) (string, error) {
 	vars := mux.Vars(r)
 	Str := vars["login"]
-	l:= len(Str)
-	if l>3 && l<31 {
+	l := len(Str)
+	if l > 3 && l < 31 {
 		return Str, nil
 	}
-	return Str, fmt.Errorf("Validation Error;%s; len in bait no is 3<l<31",Str)
+	return Str, fmt.Errorf("Validation Error;%s; len in bait no is 3<l<31", Str)
 }
-//Runing in TX
+
+// Runing in TX
 func (h *Handlers) executeInTransaction(w http.ResponseWriter, r *http.Request, fn func(tx repositories.Transaction) error) error {
 	tx, err := h.repo.BeginTx(r.Context())
 	if err != nil {
@@ -97,7 +100,7 @@ func (h *Handlers) executeInTransaction(w http.ResponseWriter, r *http.Request, 
 }
 
 func (h *Handlers) handleError(w http.ResponseWriter, message string, err error) {
-	h.logger.Errorf("%s: %v", message, err)
+	h.Logger.Errorf("%s: %v", message, err)
 	http.Error(w, message, httpStatusCode(err))
 }
 
