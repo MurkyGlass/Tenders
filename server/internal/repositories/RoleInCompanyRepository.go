@@ -53,8 +53,12 @@ func (r *roleincompanyRepository) Create(ctx context.Context, role *models.RoleI
 		VALUES (:name, :id_company, :is_creater)
 		RETURNING id_role
 	`
-
-	err = r.db.QueryRowxContext(ctx, query, role).Scan(&role.ID)
+	stmt, err := r.db.PrepareNamedContext(ctx, query)
+	if err != nil {
+		return fmt.Errorf("failed to prepare query: %w", err)
+	}
+	defer stmt.Close()
+	err = stmt.QueryRowxContext(ctx, role).Scan(&role.ID)
 	if err != nil {
 		return fmt.Errorf("failed to create roleincompany and get its ID: %w", err)
 	}

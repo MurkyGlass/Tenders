@@ -14,27 +14,22 @@ func NewRouter(h *handler.Handlers, db *sqlx.DB) *mux.Router {
 	r := mux.NewRouter()
 	// Инициализация
 	jwtService := jwt.NewService(db,h.Logger)
-
+	//client static
 	fs := http.FileServer(http.Dir("./client/static"))
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fs))
-
-	r.HandleFunc("/main",h.GetMainwindow()).Methods("GET")
-
+	//main page
+	mainRouter:=r.PathPrefix("/main").Subrouter()
+	mainRouter.HandleFunc("",h.GetMainwindow()).Methods("GET")
+	mainRouter.HandleFunc("/registration", h.Registration()).Methods("POST")
+	//authentification
 	r.HandleFunc("/auth/login", jwtService.LoginHandler).Methods("POST")
 	r.HandleFunc("/auth/refresh", jwtService.RefreshHandler).Methods("GET")
 	r.HandleFunc("/auth/revoke", jwtService.RevokeHandler).Methods("POST")
-	r.HandleFunc("/users", h.CreateUser()).Methods("POST")
-
-	apiRouter := r.PathPrefix("/api").Subrouter()
+	//protected
+	apiRouter := r.PathPrefix("/protected").Subrouter()
 	apiRouter.Use(jwtService.Middleware)
+	
 	apiRouter.HandleFunc("/lk",h.GetProfilwindow()).Methods("GET")
-	// Users routes
-	userRouter := apiRouter.PathPrefix("/users").Subrouter()
-	userRouter.HandleFunc("", h.GetUsers()).Methods("GET")
-	userRouter.HandleFunc("/{id:[0-9]+}", h.GetUserByID()).Methods("GET")
-	userRouter.HandleFunc("/{login}", h.GetUserByLogin()).Methods("GET")
-	userRouter.HandleFunc("/{id:[0-9]+}", h.UpdateUser()).Methods("PUT")
-	userRouter.HandleFunc("/{id:[0-9]+}", h.DeleteUser()).Methods("DELETE")
 
 	// Health check
 	r.HandleFunc("/health", h.HealthCheck()).Methods("GET")

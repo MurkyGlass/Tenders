@@ -42,7 +42,8 @@ func (r *docRepository) GetByID(ctx context.Context, id int) (*models.Doc, error
 	}
 	return &doc, nil
 }
-//UNSAFE!!! Только с установкой связей! Вызывать метод интерфейса в любом случае!
+
+// UNSAFE!!! Только с установкой связей! Вызывать метод интерфейса в любом случае!
 func (r *docRepository) Create(ctx context.Context, doc *models.Doc) LinkerDoc {
 	err := doc.Validate()
 	if err != nil {
@@ -54,13 +55,17 @@ func (r *docRepository) Create(ctx context.Context, doc *models.Doc) LinkerDoc {
 		VALUES (:name, :description, :filename)
 		RETURNING id_doc
 	`
-
-	err = r.db.QueryRowxContext(ctx, query,doc).Scan(&doc.ID)
+	stmt, err := r.db.PrepareNamedContext(ctx, query)
 	if err != nil {
-		return &linkerDoc{err :  fmt.Errorf("failed to create doc and get its ID: %w", err)}
+		return &linkerDoc{err: fmt.Errorf("failed to prepare query: %w", err)}
+	}
+	defer stmt.Close()
+	err = stmt.QueryRowxContext(ctx, doc).Scan(&doc.ID)
+	if err != nil {
+		return &linkerDoc{err: fmt.Errorf("failed to create doc and get its ID: %w", err)}
 	}
 
-	return &linkerDoc{idDoc: doc.ID, db: r.db,err: nil}
+	return &linkerDoc{idDoc: doc.ID, db: r.db, err: nil}
 }
 func (r *docRepository) Update(ctx context.Context, doc *models.Doc) error {
 	err := doc.Validate()

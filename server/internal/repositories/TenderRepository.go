@@ -52,8 +52,12 @@ func (r *tenderRepository) Create(ctx context.Context, tender *models.Tender) er
 		VALUES (:name, :description, :datetime_start, :datetime_end, :id_company, :id_status, :id_district)
 		RETURNING id_tender
 	`
-
-	err = r.db.QueryRowxContext(ctx, query, tender).Scan(&tender.ID)
+	stmt, err := r.db.PrepareNamedContext(ctx, query)
+	if err != nil {
+		return fmt.Errorf("failed to prepare query: %w", err)
+	}
+	defer stmt.Close()
+	err = stmt.QueryRowxContext(ctx, tender).Scan(&tender.ID)
 	if err != nil {
 		return fmt.Errorf("failed to create tender and get its ID: %w", err)
 	}

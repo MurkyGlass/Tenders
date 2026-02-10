@@ -70,34 +70,28 @@ func (s *Service) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		Login    string `json:"login"`
 		Password string `json:"password"`
 	}
-	s.logger.Info(r.Header.Get("Content-Type"))
 	contentType := r.Header.Get("Content-Type")
 
 	if contentType == "application/json" {
 		if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 			respondError(w, http.StatusBadRequest, "Failed decode json")
-			s.logger.Info(1)
 			return
 		}
 	} else if strings.Contains(contentType, "multipart/form-data") {
 		if err := r.ParseMultipartForm(10 << 20); err != nil {
 			respondError(w, http.StatusBadRequest, "Failed form-parsing")
-			s.logger.Info(2)
 			return
 		}
 		if request.Login = r.PostForm.Get("login"); request.Login == "" {
 			respondError(w, http.StatusBadRequest, "Empety data")
-			s.logger.Info(3)
 			return
 		}
 		if request.Password = r.PostForm.Get("password"); request.Password == "" {
 			respondError(w, http.StatusBadRequest, "Empety data")
-			s.logger.Info(4)
 			return
 		}
 	} else {
 		respondError(w, http.StatusBadRequest, "Invalid request format")
-		s.logger.Info(5)
 		return
 	}
 
@@ -144,7 +138,7 @@ func (s *Service) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "refresh_token",
 		Value:    refreshToken,
-		HttpOnly: true, // Недоступен через JavaScript
+		HttpOnly: true, 
 		SameSite: http.SameSiteStrictMode,
 		Path:     "/auth/refresh",
 		MaxAge:   7 * 24 * 60 * 60, // 7 дней
@@ -207,7 +201,7 @@ func (s *Service) RefreshHandler(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "refresh_token",
 		Value:    newRefreshToken,
-		HttpOnly: true, // Недоступен через JavaScript
+		HttpOnly: true, 
 		SameSite: http.SameSiteStrictMode,
 		Path:     "/auth/refresh",
 		MaxAge:   7 * 24 * 60 * 60, // 7 дней

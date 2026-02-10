@@ -53,7 +53,12 @@ func (r *logRepository) Create(ctx context.Context, log *models.Log) LinkerLog {
 		VALUES (:id_user, :id_entity, :id_type, :datetime_create)
 		RETURNING id_log
 	`
-	err = r.db.QueryRowxContext(ctx, query, log).Scan(&log.ID)
+	stmt, err := r.db.PrepareNamedContext(ctx, query)
+	if err != nil {
+		return &linkerLog{err: fmt.Errorf("failed to prepare query: %w", err)}
+	}
+	defer stmt.Close()
+	err = stmt.QueryRowxContext(ctx, log).Scan(&log.ID)
 	if err != nil {
 		return &linkerLog{err: fmt.Errorf("failed to create log: %w", err)}
 	}

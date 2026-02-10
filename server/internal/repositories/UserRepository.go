@@ -73,8 +73,12 @@ func (r *userRepository) Create(ctx context.Context, user *models.User) error {
 		VALUES (:login, :name, :email, :password, :id_company, :id_role_in_company, :id_role)
 		RETURNING id_user
 	`
-
-	err = r.db.QueryRowxContext(ctx, query, user).Scan(&user.ID)
+	stmt, err := r.db.PrepareNamedContext(ctx, query)
+	if err != nil {
+		return fmt.Errorf("failed to prepare query: %w", err)
+	}
+	defer stmt.Close()
+	err = stmt.QueryRowxContext(ctx, user).Scan(&user.ID)
 	if err != nil {
 		return fmt.Errorf("failed to create user and get its ID: %w", err)
 	}

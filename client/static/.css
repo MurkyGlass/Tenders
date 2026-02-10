@@ -351,7 +351,6 @@
 
 .login-close:hover {
     background: rgba(255, 255, 255, 0.25);
-    transform: rotate(90deg);
 }
 
 /* Форма */
@@ -424,41 +423,6 @@
     color: #2a5298;
 }
 
-/* Опции формы */
-.form-options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-    font-size: 0.9rem;
-}
-
-.checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    color: #555;
-}
-
-.checkbox-label input {
-    width: 18px;
-    height: 18px;
-    accent-color: #2a5298;
-}
-
-.forgot-link {
-    color: #2a5298;
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.3s ease;
-}
-
-.forgot-link:hover {
-    color: #1e3c72;
-    text-decoration: underline;
-}
-
 /* Кнопка входа */
 .login-submit {
     width: 100%;
@@ -496,42 +460,34 @@
     font-size: 0.9rem;
 }
 
-.register-link {
+.form-btn {
+    background: none;
+    border: none;
     color: #2a5298;
     font-weight: 500;
     text-decoration: none;
-    margin-left: 5px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    padding: 0;
+    margin: 0 5px;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    display: inline;
 }
-
-.register-link:hover {
+.form-btn:hover {
     text-decoration: underline;
+    color: #1e3c72;
+}
+.form-link {
+    color: #666;
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-left: 10px;
 }
 
-/* Статус входа */
-.login-status {
-    padding: 15px 30px 25px;
-    text-align: center;
-    min-height: 24px;
-}
-
-.status-error {
-    color: #dc3545;
-    background: #f8d7da;
-    padding: 12px;
-    border-radius: 6px;
-    border-left: 4px solid #dc3545;
-    margin: 0 30px 25px;
-    display: none;
-}
-
-.status-success {
-    color: #28a745;
-    background: #d4edda;
-    padding: 12px;
-    border-radius: 6px;
-    border-left: 4px solid #28a745;
-    margin: 0 30px 25px;
-    display: none;
+.form-link:hover {
+    text-decoration: underline;
+    color: #2a5298;
 }
 
 /* Анимации */
@@ -579,4 +535,322 @@
 .login-modal.show {
     display: block;
 }
+/* === МОДАЛЬНОЕ ОКНО РЕГИСТРАЦИИ === */
+.register-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2001;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow-y: auto;
+}
 
+/* Затемнение фона */
+.register-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.3s ease;
+}
+
+/* Контейнер формы */
+.register-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 80px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideIn 0.4s ease;
+}
+
+/* Заголовок */
+.register-header {
+    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+    color: white;
+    padding: 25px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.register-header h2 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.register-close {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: white;
+    font-size: 1.8rem;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.register-close:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* Форма */
+.register-form {
+    padding: 30px;
+}
+
+/* Секции формы */
+.form-section {
+    margin-bottom: 30px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.form-section:last-of-type {
+    border-bottom: none;
+    margin-bottom: 20px;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #2c3e50;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.section-title i {
+    color: #3498db;
+}
+
+/* Строка с двумя полями */
+.form-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.form-group.half {
+    flex: 1;
+}
+
+/* Подсказки */
+.form-hint {
+    font-size: 0.85rem;
+    color: #7f8c8d;
+    margin-top: 5px;
+}
+
+/* Textarea */
+.form-textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e1e5eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+    color: #333;
+    resize: vertical;
+    font-family: inherit;
+    min-height: 80px;
+    max-height: 120px;
+}
+
+.form-textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+/* Соглашение */
+.form-agreement {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 20px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #3498db;
+}
+
+.form-agreement input[type="checkbox"] {
+    margin-top: 3px;
+    accent-color: #3498db;
+}
+
+.form-agreement label {
+    font-size: 0.9rem;
+    color: #2c3e50;
+    line-height: 1.4;
+}
+
+.link {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
+/* Кнопка регистрации */
+.register-submit {
+    width: 100%;
+    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.register-submit:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(44, 62, 80, 0.3);
+}
+
+.register-submit:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.register-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Футер формы */
+.form-footer {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    text-align: center;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.login-link {
+    color: #3498db;
+    font-weight: 500;
+    text-decoration: none;
+    margin-left: 5px;
+}
+
+.login-link:hover {
+    text-decoration: underline;
+}
+
+/* Статус регистрации */
+.register-status {
+    padding: 15px 30px 25px;
+    text-align: center;
+    min-height: 24px;
+}
+
+.status-error {
+    color: #dc3545;
+    background: #f8d7da;
+    padding: 12px;
+    border-radius: 6px;
+    border-left: 4px solid #dc3545;
+    margin: 0 30px 25px;
+    display: none;
+}
+
+.status-success {
+    color: #28a745;
+    background: #d4edda;
+    padding: 12px;
+    border-radius: 6px;
+    border-left: 4px solid #28a745;
+    margin: 0 30px 25px;
+    display: none;
+}
+
+/* Класс для показа формы */
+.register-modal.show {
+    display: block;
+}
+
+/* Анимация ошибки */
+@keyframes shakeError {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.form-input.error {
+    border-color: #e74c3c;
+    background: #fff5f5;
+    animation: shakeError 0.5s ease;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .register-container {
+        max-width: 95%;
+        margin: 20px auto;
+        max-height: 85vh;
+        top: 45%;
+    }
+    
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+    
+    .form-group.half {
+        flex: none;
+    }
+    
+    .register-header, .register-form {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .register-header h2 {
+        font-size: 1.2rem;
+    }
+    
+    .section-title {
+        font-size: 1.1rem;
+    }
+    
+    .form-agreement label {
+        font-size: 0.85rem;
+    }
+}

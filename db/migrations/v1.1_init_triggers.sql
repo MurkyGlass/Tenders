@@ -17,5 +17,14 @@ VALUES
 ('Update'),
 ('Delete')
 ON CONFLICT (name) DO NOTHING;
--- TODO Insert Rights,Roles,Districts,Categories,Statuses
--- Insert master role by Role in company
+-- TODO Insert Rights,Districts,Categories,Statuses
+INSERT INTO Role_in_Company(id_role,name, is_creater)
+VALUES
+(1,'Директор',TRUE)
+ON CONFLICT (id_role) DO NOTHING;
+INSERT INTO Role(name)
+VALUES
+('User'),
+('Admin'),
+('Moderator')
+ON CONFLICT (name) DO NOTHING;

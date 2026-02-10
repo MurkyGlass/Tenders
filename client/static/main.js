@@ -1,9 +1,89 @@
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('accountBtn').addEventListener('click', LKbtn_Click);
-    document.getElementById('loginSubmit').addEventListener('click', Authorization);
+    document.getElementById('loginForm').addEventListener('submit', async function(event) {
+
+        event.preventDefault()
+        const loginForm = document.getElementById('loginForm');
+        const formData = new FormData(loginForm);
+  
+        const response = await fetch('/auth/login', {
+            method: 'POST',
+            body: formData
+        });
+        if (response.ok){
+            data = await response.json()
+            let token = data.token_type +" "+ data.access_token
+            localStorage.setItem("access",token)
+            alert("Авторизация успешна")
+            document.getElementById('loginModal').classList.remove("show")
+        }
+        if(response.status == 403){
+            alert("Неправильный логин или пароль")        
+        }
+        await LKbtn_Click()
+    });
+    document.getElementById('loginClose').addEventListener('click',LogFormClose);
+    document.getElementById('passwordToggle').addEventListener('click',PassToggle);
+    document.getElementById('regisBtn').addEventListener('click',RegistrShow);
+    document.getElementById('registerClose').addEventListener('click',RegistrClose);
+    document.getElementById('userPasswordToggle').addEventListener('click',UserPassToggle)
+    document.getElementById('confirmPasswordToggle').addEventListener('click',ConfirmPassToggle)
+    document.getElementById('registerForm').addEventListener('submit',async function(event){
+        event.preventDefault()
+        const Form = document.getElementById('registerForm');
+        const formData = new FormData(Form);
+  
+        const response = await fetch('/main/registration', {
+            method: 'POST',
+            body: formData
+        });
+        if (response.ok){
+            alert("Регистрация успешна")
+            RegistrClose()
+            return
+        }
+
+        RegistrShow()
+    })
+    
 });
+
+function ConfirmPassToggle() {
+    let password = document.getElementById("confirmPassword")
+    if(password.type == "password"){
+        password.type = "text"
+    }else if (password.type == "text"){
+        password.type = "password"
+    }
+}
+function UserPassToggle() {
+    let password = document.getElementById("userPassword")
+    if(password.type == "password"){
+        password.type = "text"
+    }else if (password.type == "text"){
+        password.type = "password"
+    }
+}
+function RegistrClose() {
+    document.getElementById('registerModal').classList.remove("show")
+}
+function RegistrShow() {
+    LogFormClose()
+    document.getElementById('registerModal').classList.add("show")
+}
+function PassToggle() {
+    let password = document.getElementById("passwordInput")
+    if(password.type == "password"){
+        password.type = "text"
+    }else if (password.type == "text"){
+        password.type = "password"
+    }
+}
+function LogFormClose() {
+    document.getElementById('loginModal').classList.remove("show")
+}
 async function LKbtn_Click() {
-            const resp = await fetch("../api/lk",{
+            const resp = await fetch("/protected/lk",{
                             method: 'GET',
                             headers:{
                                 'Authorization':localStorage.getItem("access")
@@ -17,46 +97,19 @@ async function LKbtn_Click() {
                 }
             }
        }
-async function Authorization() {
-    alert("нач")
-    let login = document.getElementById("loginInput").value
-    let password = document.getElementById("passwordInput").value
-    if(login == "" || password == ""){
-        alert("Заполните оба поля..")
-        return
-    }
-    const loginForm = document.getElementById('loginForm');
-    const formData = new FormData(loginForm);
-  
-    const response = await fetch('/auth/login', {
-        method: 'POST',
-        body: formData
-    });
-    if (response.ok){
-        data = await response.json()
-        let token = data.token_type +" "+ data.access_token
-        localStorage.setItem("access",token)
-        alert("Авторизация успешна")
-        document.getElementById('loginModal').classList.remove("show")
-    }
-    if(response.status == 403){
-        alert("Неправильный логин или пароль")        
-    }
-    await LKbtn_Click()
-}
+
 async function Refresh(){
     const response = await fetch("/auth/refresh",{
         method: 'GET',
         });
     if (response.ok){
         data = await response.json()
-        let token = data.token_type + data.access_token
-        localStorage.setItem("access",token)
-                
+        let token = data.token_type +" "+ data.access_token
+        localStorage.setItem("access",token)               
     }else if(response.status == 401){
-        localStorage.removeItem("access")
-        await LKbtn_Click()
+        localStorage.removeItem("access")       
     }
+    await LKbtn_Click()
     return
 }
 document.querySelectorAll('.nav-menu a').forEach(link => {

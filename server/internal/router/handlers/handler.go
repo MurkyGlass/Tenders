@@ -79,40 +79,29 @@ func (h *Handlers) getLoginFromRequest(r *http.Request) (string, error) {
 }
 
 // Runing in TX
-func (h *Handlers) executeInTransaction(w http.ResponseWriter, r *http.Request, fn func(tx repositories.Transaction) error) error {
+func (h *Handlers) executeInTransaction( r *http.Request, fn func(tx repositories.Transaction) error) error {
 	tx, err := h.repo.BeginTx(r.Context())
 	if err != nil {
-		h.handleError(w, "Failed to begin transaction", err)
+		h.Logger.Errorf("Failed to begin transaction: %v", err)
 		return err
 	}
 	defer tx.Rollback()
 
 	if err := fn(tx); err != nil {
-		h.handleError(w, "Operation failed in TX", err)
+		h.Logger.Errorf("Operation failed in TX: %v", err)
 		return err
 	}
 
 	if err := tx.Commit(); err != nil {
-		h.handleError(w, "Failed to commit transaction", err)
+		h.Logger.Errorf("Failed to commit transaction: %v", err)
 		return err
 	}
 	return nil
 }
 
-func (h *Handlers) handleError(w http.ResponseWriter, message string, err error) {
+func (h *Handlers) handleError(w http.ResponseWriter, message string, err error, code int) {
 	h.Logger.Errorf("%s: %v", message, err)
-	http.Error(w, message, httpStatusCode(err))
-}
-
-func httpStatusCode(err error) int {
-	switch err {
-	case repositories.ErrNotFound:
-		return http.StatusNotFound
-	case repositories.ErrInvalidInput:
-		return http.StatusBadRequest
-	default:
-		return http.StatusInternalServerError
-	}
+	http.Error(w, message, code)
 }
 
 func jsonResponse(w http.ResponseWriter, data interface{}, statusCode ...int) {

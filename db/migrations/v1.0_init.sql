@@ -5,13 +5,13 @@ CREATE TABLE IF NOT EXISTS Companies(
     name VARCHAR(100) NOT NULL UNIQUE,
     email VARCHAR(50) NOT NULL UNIQUE,
     address VARCHAR(100) NOT NULL,
-    inn VARCHAR(30) NOT NULL,
-    egrul VARCHAR(30) NOT NULL,
+    inn VARCHAR(12) NOT NULL UNIQUE,
+    egrul VARCHAR(13) NOT NULL UNIQUE,
     description VARCHAR(500) NULL
 );
 CREATE TABLE IF NOT EXISTS Role_in_Company(
     id_role SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL UNIQUE,
+    name VARCHAR(50) NOT NULL,
     id_company INT NULL REFERENCES Companies(id_company) ON DELETE CASCADE,
     is_creater BOOLEAN DEFAULT false
 );
