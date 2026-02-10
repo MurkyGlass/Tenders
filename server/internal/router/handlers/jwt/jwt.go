@@ -138,18 +138,20 @@ func (s *Service) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "refresh_token",
 		Value:    refreshToken,
-		HttpOnly: true, 
+		HttpOnly: true,
 		SameSite: http.SameSiteStrictMode,
 		Path:     "/auth/refresh",
 		MaxAge:   7 * 24 * 60 * 60, // 7 дней
 	})
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
-		"access_token": accessToken,
-		"token_type":   "Bearer",
-		"expires_in":   "900",
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access_token",
+		Value:    accessToken,
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+		Path:     "/",
+		MaxAge:   15 * 60,
 	})
+	w.WriteHeader(204)
 }
 
 func (s *Service) RefreshHandler(w http.ResponseWriter, r *http.Request) {
@@ -201,18 +203,20 @@ func (s *Service) RefreshHandler(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "refresh_token",
 		Value:    newRefreshToken,
-		HttpOnly: true, 
+		HttpOnly: true,
 		SameSite: http.SameSiteStrictMode,
 		Path:     "/auth/refresh",
 		MaxAge:   7 * 24 * 60 * 60, // 7 дней
 	})
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
-		"access_token": newAccessToken,
-		"token_type":   "Bearer",
-		"expires_in":   "900",
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access_token",
+		Value:    newAccessToken,
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+		Path:     "/",
+		MaxAge:   15 * 60,
 	})
+	w.WriteHeader(204)
 }
 
 func (s *Service) RevokeHandler(w http.ResponseWriter, r *http.Request) {
@@ -241,16 +245,20 @@ func (s *Service) RevokeHandler(w http.ResponseWriter, r *http.Request) {
 // Middleware для аутентификации
 func (s *Service) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		authHeader := r.Header.Get("Authorization")
-		if authHeader == "null" {
-			respondError(w, http.StatusUnauthorized, "Authorization header required")
+		var access string
+
+		for _, c := range r.Cookies() {
+			if c.Name == "access_token" {
+				access = c.Value
+			}
+		}
+		if access == "" {
+			respondError(w, http.StatusUnauthorized, "Invalid token")
 			return
 		}
-
-		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 		claims := &Claims{}
 
-		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		token, err := jwt.ParseWithClaims(access, claims, func(token *jwt.Token) (interface{}, error) {
 			return []byte(s.config.SecretKey), nil
 		})
 
@@ -259,7 +267,6 @@ func (s *Service) Middleware(next http.Handler) http.Handler {
 			return
 		}
 
-		// Добавляем user_id в контекст
 		ctx := context.WithValue(r.Context(), "user_id", claims.UserID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

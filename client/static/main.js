@@ -11,9 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
             body: formData
         });
         if (response.ok){
-            data = await response.json()
-            let token = data.token_type +" "+ data.access_token
-            localStorage.setItem("access",token)
             alert("Авторизация успешна")
             document.getElementById('loginModal').classList.remove("show")
         }
@@ -45,9 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         RegistrShow()
     })
-    
 });
-
 function ConfirmPassToggle() {
     let password = document.getElementById("confirmPassword")
     if(password.type == "password"){
@@ -83,34 +78,23 @@ function LogFormClose() {
     document.getElementById('loginModal').classList.remove("show")
 }
 async function LKbtn_Click() {
-            const resp = await fetch("/protected/lk",{
-                            method: 'GET',
-                            headers:{
-                                'Authorization':localStorage.getItem("access")
-                            }
-                        });
+            const resp = await fetch("/protected/lk");
             if(!resp.ok){
                 if(resp.status == 401){
                     document.getElementById('loginModal').classList.add("show")
                 }else if(resp.status == 403){
                     await Refresh()
                 }
-            }
-       }
+                return
+            } 
+            
+        
+            window.location.href = "/protected/lk";
+}
 
 async function Refresh(){
-    const response = await fetch("/auth/refresh",{
-        method: 'GET',
-        });
-    if (response.ok){
-        data = await response.json()
-        let token = data.token_type +" "+ data.access_token
-        localStorage.setItem("access",token)               
-    }else if(response.status == 401){
-        localStorage.removeItem("access")       
-    }
+    await fetch("/auth/refresh");
     await LKbtn_Click()
-    return
 }
 document.querySelectorAll('.nav-menu a').forEach(link => {
     link.addEventListener('click', function(e) {
