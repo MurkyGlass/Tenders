@@ -140,7 +140,7 @@ func (s *Service) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		Value:    refreshToken,
 		HttpOnly: true,
 		SameSite: http.SameSiteStrictMode,
-		Path:     "/auth/refresh",
+		Path:     "/",
 		MaxAge:   7 * 24 * 60 * 60, // 7 дней
 	})
 	http.SetCookie(w, &http.Cookie{
@@ -205,7 +205,7 @@ func (s *Service) RefreshHandler(w http.ResponseWriter, r *http.Request) {
 		Value:    newRefreshToken,
 		HttpOnly: true,
 		SameSite: http.SameSiteStrictMode,
-		Path:     "/auth/refresh",
+		Path:     "/",
 		MaxAge:   7 * 24 * 60 * 60, // 7 дней
 	})
 	http.SetCookie(w, &http.Cookie{
@@ -227,7 +227,7 @@ func (s *Service) RevokeHandler(w http.ResponseWriter, r *http.Request) {
 			refreshToken = c.Value
 		}
 	}
-
+	s.logger.Infof("токен найден:%s",refreshToken)
 	result, err := s.db.Exec("DELETE FROM refresh_tokens WHERE token = $1", refreshToken)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "Failed to revoke token")
@@ -238,7 +238,22 @@ func (s *Service) RevokeHandler(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusNotFound, "Token not found")
 		return
 	}
-
+	http.SetCookie(w, &http.Cookie{
+		Name:     "refresh_token",
+		Value:    "",
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+		Path:     "/",
+		MaxAge:   -1, 
+	})
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access_token",
+		Value:    "",
+		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+		Path:     "/",
+		MaxAge:   -1,
+	})
 	respondJSON(w, http.StatusOK, map[string]string{"status": "success"})
 }
 
@@ -246,13 +261,16 @@ func (s *Service) RevokeHandler(w http.ResponseWriter, r *http.Request) {
 func (s *Service) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var access string
-
+		var refresh string
 		for _, c := range r.Cookies() {
 			if c.Name == "access_token" {
 				access = c.Value
 			}
+			if c.Name == "refresh_token" {
+				refresh = c.Value
+			}
 		}
-		if access == "" {
+		if access == "" && refresh == "" {
 			respondError(w, http.StatusUnauthorized, "Invalid token")
 			return
 		}

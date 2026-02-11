@@ -41,8 +41,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         RegistrShow()
-    })
+    })  
 });
+
 function ConfirmPassToggle() {
     let password = document.getElementById("confirmPassword")
     if(password.type == "password"){
