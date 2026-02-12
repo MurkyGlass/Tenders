@@ -285,7 +285,7 @@ func (s *Service) Middleware(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), "user_id", claims.UserID)
+		ctx := context.WithValue(r.Context(), "id_user", claims.UserID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

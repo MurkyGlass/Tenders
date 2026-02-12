@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Портал тендеров</title>
     <link rel="stylesheet" href="/static/.css">
+    <link rel="stylesheet" href="/static/pa.css">
     <script src="/static/pa.js" async></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -39,14 +40,51 @@
     </nav>
     <main>
         <div class="content-container">
-            <h2 class="content-title">Добро пожаловать на портал государственных тендеров</h2>
-            <div class="content-body">
-                <div>
-                    <i class="fas fa-cogs" style="font-size: 3rem; color: #1e3c72; margin-bottom: 1rem;"></i>
-                    <p>ТЕЛО САЙТА</p>
-                    <p style="font-size: 1rem; margin-top: 1rem; color: #888;">
-                        Здесь будет основное содержимое портала тендеров
-                    </p>
+            <h2 class="content-title">Личный кабинет</h2>
+            <div class="content-main">
+                <div class="content-group">
+                    <div class="content-block">
+                        <div class="content-item">
+                            <h1>Компания</h1>
+                        </div>
+                    </div>
+                    <div class="content-block">
+                        <div class="content-item">
+                            <h1>Пользователь</h1>
+                        </div>
+                    </div>
+                </div>
+            <div class="content-group">
+                <div class="content-block">
+                    <div class="content-item">
+                        <h3>Компания:</h3>
+                        <h3>Эл.почта:</h3>
+                        <h3>ИНН:</h3>
+                        <h3>ЕГРЮЛ:</h3>
+                        <h3>Адресс:</h3>
+                        <h3>Описание:</h3>
+                    </div>
+                    <div class="content-item">
+                        <h3>{{.Company.Name}}</h3>
+                        <h3>{{.Company.Email}}</h3>
+                        <h3>{{.Company.INN}}</h3>
+                        <h3>{{.Company.EGRUL}}</h3>
+                        <h3>{{.Company.Address}}</h3>
+                        <h3>{{.Company.Description}}</h3>
+                    </div>                 
+                </div>
+                <div class="content-block">
+                    <div class="content-item">
+                        <h3>Логин: </h3>
+                        <h3>ФИО: </h3>
+                        <h3>Эл.почта: </h3>
+                    </div>
+                    <div class="content-item">
+                        <h3>{{.User.Login}}</h3>
+                        <h3>{{.User.Name}}</h3>
+                        <h3>{{.User.Email}}</h3>
+                    </div>
+                </div>
                 </div>
             </div>
         </div>

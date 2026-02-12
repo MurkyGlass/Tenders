@@ -1,0 +1,31 @@
+.content-item {
+    text-align: left;
+    margin: 1%;
+}
+.content-block {
+    display: flex;       
+    flex-direction: row;    
+    align-items: top;
+    margin-left: 3%;
+    margin-right: 3%;
+    margin-bottom: 3%;
+    height: 100%;
+    width: 100%;
+}
+.content-group {
+    display: flex;       
+    flex-direction: row;    
+    align-items: top;
+    margin: 1%;
+    height: 100%;
+    width: 100%;
+}
+.content-main {
+    display: flex;       
+    flex-direction: column;    
+    align-items: center;
+    font: 0.75rem;
+    padding: 4%;
+    height: 100%;
+    width: 100%;
+}
