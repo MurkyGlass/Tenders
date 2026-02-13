@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/static/pa.css">
     <script src="/static/pa.js" async></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
 </head>
 <body>
     <header>
@@ -25,6 +26,180 @@
             </button>
         </div>
     </header>
+    <div class="register-modal" id="editModal">
+        <div class="register-overlay" id="registerOverlay"></div>
+        <div class="register-container">
+            <div class="register-header">
+                <h2>Редактирование личных данных</h2>
+                <button class="register-close" id="editClose">&times;</button>
+            </div>
+        
+            <form class="register-form" id="editForm">
+                <!-- Секция компании -->
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-building"></i> Данные {{.Company.Name}}
+                    </h3>
+                
+                    <div class="form-group">
+                        <label for="companyName" class="form-label">
+                            <i class="fas fa-signature"></i> Название компании *
+                        </label>
+                        <input 
+                            type="text" 
+                            id="companyName" 
+                            name="companyName"
+                            class="form-input"
+                            placeholder="Введите название компании"
+                            required
+                            maxlength="100"
+                            value="{{.Company.Name}}">
+                        <div class="form-hint">Максимум 100 символов</div>
+                    </div>
+                
+                    <div class="form-group">
+                        <label for="companyEmail" class="form-label">
+                            <i class="fas fa-envelope"></i> Email компании *
+                        </label>
+                        <input 
+                            type="email" 
+                            id="companyEmail" 
+                            name="companyEmail"
+                            class="form-input"
+                            placeholder="example@company.com"
+                            required
+                            maxlength="50"
+                            value="{{.Company.Email}}">
+                    </div>
+                
+                    <div class="form-group">
+                        <label for="companyAddress" class="form-label">
+                            <i class="fas fa-map-marker-alt"></i> Юридический адрес *
+                        </label>
+                        <input 
+                            type="text" 
+                            id="companyAddress" 
+                            name="companyAddress"
+                            class="form-input"
+                            placeholder="Введите полный адрес компании"
+                            required
+                            maxlength="100"
+                            value="{{.Company.Address}}">
+                    </div>
+                
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="companyINN" class="form-label">
+                                <i class="fas fa-file-contract"></i> ИНН *
+                            </label>
+                            <input 
+                                type="text" 
+                                id="companyINN" 
+                                name="companyINN"
+                                class="form-input"
+                                placeholder="10 или 12 цифр"
+                                required
+                                pattern="\d{10}|\d{12}"
+                                maxlength="12"
+                                value="{{.Company.INN}}">
+                        </div>
+                    
+                        <div class="form-group half">
+                            <label for="companyEGRUL" class="form-label">
+                                <i class="fas fa-file-alt"></i> ЕГРЮЛ *
+                            </label>
+                            <input 
+                                type="text" 
+                                id="companyEGRUL" 
+                                name="companyEGRUL"
+                                class="form-input"
+                                placeholder="Номер записи"
+                                pattern="\d{13}"
+                                required
+                                maxlength="13"
+                                value="{{.Company.EGRUL}}">
+                        </div>
+                    </div>
+                
+                    <div class="form-group">
+                        <label for="companyDescription" class="form-label">
+                            <i class="fas fa-file-signature"></i> Описание компании
+                        </label>
+                        <textarea 
+                            id="companyDescription" 
+                            name="companyDescription"
+                            class="form-textarea"
+                            placeholder="Краткое описание деятельности компании (до 500 символов)"
+                            rows="3"
+                            maxlength="500"
+                            value="{{.Company.Description}}"></textarea>
+                    </div>
+                </div>
+            
+                <!-- Секция пользователя -->
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-user"></i> Данные {{.User.Name}}
+                    </h3>
+                
+                    <div class="form-group">
+                        <label for="userLogin" class="form-label">
+                            <i class="fas fa-user-circle"></i> Логин *
+                        </label>
+                        <input 
+                            type="text" 
+                            id="userLogin" 
+                            name="userLogin"
+                            class="form-input"
+                            placeholder="Придумайте уникальный логин"
+                            required
+                            pattern="[A-Za-z0-9_]{3,30}"
+                            maxlength="30"
+                            value="{{.User.Login}}">
+                        <div class="form-hint">Только латинские буквы, цифры и нижнее подчёркивание</div>
+                    </div>
+                
+                    <div class="form-group">
+                        <label for="userName" class="form-label">
+                            <i class="fas fa-user"></i> ФИО пользователя *
+                        </label>
+                        <input 
+                            type="text" 
+                            id="userName" 
+                            name="userName"
+                            class="form-input"
+                            placeholder="Введите ваше имя"
+                            required
+                            pattern="[A-Za-zА-Яа-я_]{3,30}"
+                            maxlength="30"
+                            value="{{.User.Name}}">
+                    </div>
+                
+                    <div class="form-group">
+                        <label for="userEmail" class="form-label">
+                            <i class="fas fa-envelope"></i> Личный email *
+                        </label>
+                        <input 
+                            type="email" 
+                            id="userEmail" 
+                            name="userEmail"
+                            class="form-input"
+                            placeholder="your.email@example.com"
+                            required
+                            maxlength="50"
+                            value="{{.User.Email}}">
+                    </div>
+                
+                <button type="submit" class="register-submit" id="editSubmit" style="margin: 1%;">
+                    Сохранить
+                </button>
+                <button type="button" class="register-submit" id="editbackbtn" style="margin: 1%;">
+                    Отмена
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
     <nav>
         <div class="nav-container">
             <ul class="nav-menu">
@@ -42,19 +217,13 @@
         <div class="content-container">
             <h2 class="content-title">Личный кабинет</h2>
             <div class="content-main">
-                <div class="content-group">
-                    <div class="content-block">
-                        <div class="content-item">
-                            <h1>Компания</h1>
-                        </div>
-                    </div>
-                    <div class="content-block">
-                        <div class="content-item">
-                            <h1>Пользователь</h1>
-                        </div>
-                    </div>
-                </div>
             <div class="content-group">
+                <div class="content-column">
+                    <div class="content-block">
+                    <div class="content-item">
+                        <h1>Компания</h1>
+                    </div>
+                    </div>
                 <div class="content-block">
                     <div class="content-item">
                         <h3>Компания:</h3>
@@ -73,6 +242,13 @@
                         <h3>{{.Company.Description}}</h3>
                     </div>                 
                 </div>
+                </div>
+                <div class="content-column">
+                    <div class="content-block">
+                    <div class="content-item">
+                        <h1>Пользователь</h1>
+                    </div>     
+                    </div>         
                 <div class="content-block">
                     <div class="content-item">
                         <h3>Логин: </h3>
@@ -85,6 +261,12 @@
                         <h3>{{.User.Email}}</h3>
                     </div>
                 </div>
+                </div>
+                </div>
+                <div class="content-group">
+                    <button class="btn" id="editbtn">Редактировать</button>
+                    <button class="btn" id="createrolebtn">Создать должность</button>
+                    <button class="btn" id="adduserbtn">Добавить сотрудника</button>
                 </div>
             </div>
         </div>

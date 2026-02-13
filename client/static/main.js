@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+
     document.getElementById('accountBtn').addEventListener('click', LKbtn_Click);
     document.getElementById('loginForm').addEventListener('submit', async function(event) {
 
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('loginModal').classList.remove("show")
         }
         if(response.status == 403){
-            alert("Неправильный логин или пароль")        
+            //alert("Неправильный логин или пароль")        
         }
         await LKbtn_Click()
     });
@@ -38,11 +38,13 @@ document.addEventListener('DOMContentLoaded', function() {
             alert("Регистрация успешна")
             RegistrClose()
             return
+        } else{
+            alert("регистрация не прошла")
         }
 
         RegistrShow()
     })  
-});
+
 
 function ConfirmPassToggle() {
     let password = document.getElementById("confirmPassword")

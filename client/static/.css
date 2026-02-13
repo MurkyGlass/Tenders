@@ -79,7 +79,42 @@
             align-items: center;
             gap: 10px;
         }
+        .btn {
+    background: #2a5298;  /* Сплошной цвет вместо rgba */
+    border: 2px solid #1e3c72;
+    color: white;  /* Белый текст для контраста */
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 2%;
+}
 
+.btn:hover {
+    background: #1e3c72;  /* Темнее при наведении */
+    border-color: #0f2547;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(30, 60, 114, 0.3);
+    color: white;
+}
+
+.btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.3);
+}
         .account-btn:hover {
             background: rgba(255, 255, 255, 0.25);
             border-color: rgba(255, 255, 255, 0.5);
