@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="/static/pa.css">
     <script src="/static/pa.js" async></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
 </head>
 <body>
     <header>
@@ -40,7 +39,16 @@
                     <h3 class="section-title">
                         <i class="fas fa-building"></i> Данные {{.Company.Name}}
                     </h3>
-                
+                    <input 
+                            type="hidden" 
+                            id="companyId" 
+                            name="companyId"
+                            value="{{.Company.ID}}">
+                            <input 
+                            type="hidden" 
+                            id="userId" 
+                            name="userId"
+                            value="{{.User.ID}}">
                     <div class="form-group">
                         <label for="companyName" class="form-label">
                             <i class="fas fa-signature"></i> Название компании *
@@ -132,7 +140,7 @@
                             placeholder="Краткое описание деятельности компании (до 500 символов)"
                             rows="3"
                             maxlength="500"
-                            value="{{.Company.Description}}"></textarea>
+                            >{{.Company.Description}}</textarea>
                     </div>
                 </div>
             
@@ -239,7 +247,7 @@
                         <h3>{{.Company.INN}}</h3>
                         <h3>{{.Company.EGRUL}}</h3>
                         <h3>{{.Company.Address}}</h3>
-                        <h3>{{.Company.Description}}</h3>
+                        <h3 class="descr">{{.Company.Description}}</h3>
                     </div>                 
                 </div>
                 </div>

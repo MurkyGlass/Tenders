@@ -26,11 +26,11 @@ func NewRouter(h *handler.Handlers, db *sqlx.DB) *mux.Router {
 	r.HandleFunc("/auth/refresh", jwtService.RefreshHandler).Methods("GET")
 	r.HandleFunc("/auth/revoke", jwtService.RevokeHandler).Methods("GET")
 	//protected
-	apiRouter := r.PathPrefix("/protected").Subrouter()
-	apiRouter.Use(jwtService.Middleware)
+	prRouter := r.PathPrefix("/protected").Subrouter()
+	prRouter.Use(jwtService.Middleware)
 	
-	apiRouter.HandleFunc("/lk",h.GetProfilwindow()).Methods("GET")
-
+	prRouter.HandleFunc("/lk",h.GetProfilwindow()).Methods("GET")
+	prRouter.HandleFunc("/lk/edit",h.EditingLK()).Methods("POST")
 	// Health check
 	r.HandleFunc("/health", h.HealthCheck()).Methods("GET")
 	//testing

@@ -3,8 +3,7 @@
     document.getElementById('loginForm').addEventListener('submit', async function(event) {
 
         event.preventDefault()
-        const loginForm = document.getElementById('loginForm');
-        const formData = new FormData(loginForm);
+        const formData = new FormData(this);
   
         const response = await fetch('/auth/login', {
             method: 'POST',
@@ -15,7 +14,7 @@
             document.getElementById('loginModal').classList.remove("show")
         }
         if(response.status == 403){
-            //alert("Неправильный логин или пароль")        
+            alert("Неправильный логин или пароль")        
         }
         await LKbtn_Click()
     });
@@ -27,8 +26,8 @@
     document.getElementById('confirmPasswordToggle').addEventListener('click',ConfirmPassToggle)
     document.getElementById('registerForm').addEventListener('submit',async function(event){
         event.preventDefault()
-        const Form = document.getElementById('registerForm');
-        const formData = new FormData(Form);
+
+        const formData = new FormData(this);
   
         const response = await fetch('/main/registration', {
             method: 'POST',
@@ -38,9 +37,9 @@
             alert("Регистрация успешна")
             RegistrClose()
             return
-        } else{
-            alert("регистрация не прошла")
         }
+
+        alert("регистрация не прошла")
 
         RegistrShow()
     })  

@@ -9,6 +9,7 @@ import (
 type CompanyRepository interface {
 	GetAll(ctx context.Context) ([]models.Company, error)
 	GetByID(ctx context.Context, id int) (*models.Company, error)
+	GetByName(ctx context.Context, name string) (*models.Company, error)
 	Create(ctx context.Context, company *models.Company) error
 	Update(ctx context.Context, company *models.Company) error
 	Delete(ctx context.Context, id int) error
@@ -37,6 +38,17 @@ func (r *companyRepository) GetByID(ctx context.Context, id int) (*models.Compan
 	query := `SELECT * FROM companies WHERE id_company = $1`
 
 	err := r.db.GetContext(ctx, &company, query, id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get company: %w", err)
+	}
+	return &company, nil
+}
+func (r *companyRepository) GetByName(ctx context.Context, name string) (*models.Company, error) {
+	var company models.Company
+
+	query := `SELECT * FROM companies WHERE name = $1`
+
+	err := r.db.GetContext(ctx, &company, query, name)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get company: %w", err)
 	}
