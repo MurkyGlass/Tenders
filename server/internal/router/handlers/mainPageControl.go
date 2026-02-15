@@ -67,7 +67,7 @@ func (h *Handlers) Registration() func(w http.ResponseWriter, r *http.Request) {
 				h.handleError(w, "Failed validation company", err, 400)
 				return
 			}
-			tx, err := h.repo.BeginTx(r.Context())
+			tx, err := h.Repo.BeginTx(r.Context())
 			if err != nil {
 				h.handleError(w, "Failed begin transaction", err, 500)
 				return
@@ -93,6 +93,17 @@ func (h *Handlers) Registration() func(w http.ResponseWriter, r *http.Request) {
 			err = tx.Users().Create(r.Context(), &user)
 			if err != nil {
 				h.handleError(w, "Failed insert", err, 500)
+				return
+			}
+
+			err = tx.Log().Create(r.Context(),&models.Log{IdUser: user.ID,IdEntity: 1,IdType: 1}).Company().Create(r.Context(),company.ID)
+			if err != nil {
+				h.handleError(w, "Failed log company create", err, 500)
+				return
+			}
+			_,err = tx.Log().Create(r.Context(),&models.Log{IdUser: user.ID,IdEntity: 5,IdType: 1}).Exists(r.Context())
+			if err != nil {
+				h.handleError(w, "Failed log user create", err, 500)
 				return
 			}
 			err = tx.Commit()

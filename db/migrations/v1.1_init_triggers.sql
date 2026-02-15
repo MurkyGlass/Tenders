@@ -9,13 +9,18 @@ VALUES
 ('Companies'),
 ('Tenders'),
 ('Offers'),
-('Docs')
+('Docs'),
+('Users')
 ON CONFLICT (name) DO NOTHING;
 INSERT INTO Type_Operation(name)
 VALUES
 ('Create'),
 ('Update'),
-('Delete')
+('Delete'),
+('Login'),
+('Revoke'),
+('Refresh'),
+('Authenfication')
 ON CONFLICT (name) DO NOTHING;
 -- TODO Insert Rights,Districts,Categories,Statuses
 INSERT INTO Role_in_Company(id_role,name, is_creater)

@@ -17,15 +17,18 @@ func (h *Handlers) GetProfilwindow() func(w http.ResponseWriter, r *http.Request
 		if !ok {
 			h.handleError(w, "Bad user id", fmt.Errorf("Bad User id"), 500)
 		}
-		user, err := h.repo.Users().GetByID(r.Context(), id)
+		user, err := h.Repo.Users().GetByID(r.Context(), id)
 		if err != nil {
 			h.handleError(w, "db request failed", err, 500)
 		}
-		company, err := h.repo.Company().GetByID(r.Context(), user.IdCompany)
+		company, err := h.Repo.Company().GetByID(r.Context(), user.IdCompany)
 		if err != nil {
 			h.handleError(w, "db request failed", err, 500)
 		}
-
+		role, err := h.Repo.RoleInCompany().GetByID(r.Context(), user.IdRoleInCompany)
+		if err != nil {
+			h.handleError(w, "db request failed", err, 500)
+		}
 		tmpl, err := template.ParseFiles("./client/pages/personal_account.html")
 		if err != nil {
 			h.handleError(w, "Failed profil load:", err, 500)
@@ -34,8 +37,9 @@ func (h *Handlers) GetProfilwindow() func(w http.ResponseWriter, r *http.Request
 		type data struct {
 			User    models.User
 			Company models.Company
+			Role    models.RoleInCompany
 		}
-		d := &data{User: *user, Company: *company}
+		d := &data{User: *user, Company: *company, Role: *role}
 		err = tmpl.Execute(w, d)
 		if err != nil {
 			h.handleError(w, "Failed profil render:", err, 500)
@@ -43,6 +47,7 @@ func (h *Handlers) GetProfilwindow() func(w http.ResponseWriter, r *http.Request
 		}
 	}
 }
+// Изминения личных данных пользователя и компании производимое директором или имеющим доступ, для иных случаев следует обдумать отдельный метод
 func (h *Handlers) EditingLK() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		contentType := r.Header.Get("Content-Type")
@@ -71,7 +76,7 @@ func (h *Handlers) EditingLK() func(w http.ResponseWriter, r *http.Request) {
 				h.handleError(w, "bad company id parse", err, 400)
 				return
 			}
-			company, err := h.repo.Company().GetByID(r.Context(), cid)
+			company, err := h.Repo.Company().GetByID(r.Context(), cid)
 			if err != nil {
 				h.handleError(w, "undefined company", err, 400)
 				return
@@ -82,7 +87,7 @@ func (h *Handlers) EditingLK() func(w http.ResponseWriter, r *http.Request) {
 				h.handleError(w, "bad user id parse", err, 400)
 				return
 			}
-			user, err := h.repo.Users().GetByID(r.Context(), uid)
+			user, err := h.Repo.Users().GetByID(r.Context(), uid)
 			if err != nil {
 				h.handleError(w, "undefined user", err, 400)
 				return
@@ -98,7 +103,7 @@ func (h *Handlers) EditingLK() func(w http.ResponseWriter, r *http.Request) {
 				h.handleError(w, "Failed validation company", err, 400)
 				return
 			}
-			tx, err := h.repo.BeginTx(r.Context())
+			tx, err := h.Repo.BeginTx(r.Context())
 			if err != nil {
 				h.handleError(w, "Failed begin transaction", err, 500)
 				return
@@ -120,6 +125,21 @@ func (h *Handlers) EditingLK() func(w http.ResponseWriter, r *http.Request) {
 			err = tx.Users().Update(r.Context(), user)
 			if err != nil {
 				h.handleError(w, "Failed update", err, 500)
+				return
+			}
+			id, ok := r.Context().Value("id_user").(int)
+			if !ok {
+				h.handleError(w, "Bad user id", fmt.Errorf("Bad User id"), 500)
+			}
+			err = tx.Log().Create(r.Context(), &models.Log{IdUser: id, IdEntity: 1, IdType: 2}).Company().Create(r.Context(), company.ID)
+			if err != nil {
+				h.handleError(w, "Failed log company update", err, 500)
+				return
+			}
+			// Действие произвденное над пользователем необязательно совершил данный пользователь!!! ВАЖНО !!! ОБДУМАТЬ!
+			_, err = tx.Log().Create(r.Context(), &models.Log{IdUser: id, IdEntity: 1, IdType: 2}).Exists(r.Context())
+			if err != nil {
+				h.handleError(w, "Failed log user update", err, 500)
 				return
 			}
 			err = tx.Commit()

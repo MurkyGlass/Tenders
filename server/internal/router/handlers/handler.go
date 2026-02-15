@@ -14,13 +14,13 @@ import (
 
 type Handlers struct {
 	Logger *logrus.Logger
-	repo   repositories.Repository
+	Repo   repositories.Repository
 }
 
 func NewHandlers(logger *logrus.Logger, rep repositories.Repository) *Handlers {
 	return &Handlers{
 		Logger: logger,
-		repo:   rep,
+		Repo:   rep,
 	}
 }
 
@@ -80,7 +80,7 @@ func (h *Handlers) getLoginFromRequest(r *http.Request) (string, error) {
 
 // Runing in TX
 func (h *Handlers) executeInTransaction( r *http.Request, fn func(tx repositories.Transaction) error) error {
-	tx, err := h.repo.BeginTx(r.Context())
+	tx, err := h.Repo.BeginTx(r.Context())
 	if err != nil {
 		h.Logger.Errorf("Failed to begin transaction: %v", err)
 		return err

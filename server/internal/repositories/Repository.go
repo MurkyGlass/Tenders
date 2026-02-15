@@ -27,6 +27,7 @@ type Repository interface {
 	Right() RightRepository
 	Role() RoleRepository
 	Status() StatusRepository
+	Refresh() RefreshRepository
 	BeginTx(ctx context.Context) (Transaction, error)
 
 	LinkerDoc(idDoc int) LinkerDoc
@@ -51,6 +52,7 @@ type Transaction interface {
 	Right() RightRepository
 	Role() RoleRepository
 	Status() StatusRepository
+	Refresh() RefreshRepository
 
 	LinkerDoc(idDoc int) LinkerDoc
 	LinkerLog(idLog int) LinkerLog
@@ -101,6 +103,9 @@ func (r *repository) Role() RoleRepository {
 }
 func (r *repository) Status() StatusRepository {
 	return NewStatusRepository(r.db)
+}
+func (r *repository) Refresh() RefreshRepository {
+	return NewRefreshRepository(r.db)
 }
 
 func (r *repository) LinkerDoc(idDoc int) LinkerDoc {
@@ -182,4 +187,7 @@ func (t *transaction) LinkerTCategory(idTender int) LinkerCategory {
 }
 func (t *transaction) LinkerRoleRight(idRole int) LinkerRight {
 	return NewLinkerCategory(idRole, t.tx)
+}
+func (t * transaction) Refresh() RefreshRepository {
+	return NewRefreshRepository(t.tx)
 }

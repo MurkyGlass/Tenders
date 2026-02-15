@@ -13,13 +13,13 @@ import (
 func NewRouter(h *handler.Handlers, db *sqlx.DB) *mux.Router {
 	r := mux.NewRouter()
 	// Инициализация
-	jwtService := jwt.NewService(db,h.Logger)
+	jwtService := jwt.NewService(h.Logger, h.Repo)
 	//client static
 	fs := http.FileServer(http.Dir("./client/static"))
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", fs))
 	//main page
-	mainRouter:=r.PathPrefix("/main").Subrouter()
-	mainRouter.HandleFunc("",h.GetMainwindow()).Methods("GET")
+	mainRouter := r.PathPrefix("/main").Subrouter()
+	mainRouter.HandleFunc("", h.GetMainwindow()).Methods("GET")
 	mainRouter.HandleFunc("/registration", h.Registration()).Methods("POST")
 	//authentification
 	r.HandleFunc("/auth/login", jwtService.LoginHandler).Methods("POST")
@@ -28,13 +28,13 @@ func NewRouter(h *handler.Handlers, db *sqlx.DB) *mux.Router {
 	//protected
 	prRouter := r.PathPrefix("/protected").Subrouter()
 	prRouter.Use(jwtService.Middleware)
-	
-	prRouter.HandleFunc("/lk",h.GetProfilwindow()).Methods("GET")
-	prRouter.HandleFunc("/lk/edit",h.EditingLK()).Methods("POST")
+
+	prRouter.HandleFunc("/lk", h.GetProfilwindow()).Methods("GET")
+	prRouter.HandleFunc("/lk/edit", h.EditingLK()).Methods("POST")
 	// Health check
 	r.HandleFunc("/health", h.HealthCheck()).Methods("GET")
 	//testing
-	r.HandleFunc("/users",h.GetUsers()).Methods("GET")
-
+	r.HandleFunc("/users", h.GetUsers()).Methods("GET")
+	r.HandleFunc("/logs", h.GetLogs()).Methods("GET")
 	return r
 }

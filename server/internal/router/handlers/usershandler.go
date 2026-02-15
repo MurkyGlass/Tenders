@@ -11,7 +11,7 @@ import (
 
 func (h *Handlers) GetUsers() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		users, err := h.repo.Users().GetAll(r.Context())
+		users, err := h.Repo.Users().GetAll(r.Context())
 		if err != nil {
 			h.handleError(w, "Failed to get users", err,500)
 			return
@@ -19,7 +19,16 @@ func (h *Handlers) GetUsers() http.HandlerFunc {
 		jsonResponse(w, users)
 	}
 }
-
+func (h *Handlers) GetLogs() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		logs, err := h.Repo.Log().GetAll(r.Context())
+		if err != nil {
+			h.handleError(w, "Failed to get users", err,500)
+			return
+		}
+		jsonResponse(w, logs)
+	}
+}
 func (h *Handlers) GetUserByID() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := h.getIDFromRequest(r)
@@ -28,7 +37,7 @@ func (h *Handlers) GetUserByID() http.HandlerFunc {
 			return
 		}
 
-		user, err := h.repo.Users().GetByID(r.Context(), id)
+		user, err := h.Repo.Users().GetByID(r.Context(), id)
 		if err != nil {
 			h.handleError(w, "Failed to get user", err,500)
 			return
@@ -44,7 +53,7 @@ func (h *Handlers) GetUserByLogin() http.HandlerFunc {
 			return
 		}
 
-		user, err := h.repo.Users().GetByLogin(r.Context(), login)
+		user, err := h.Repo.Users().GetByLogin(r.Context(), login)
 		if err != nil {
 			h.handleError(w, "Failed to get user", err,500)
 			return

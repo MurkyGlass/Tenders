@@ -7,13 +7,14 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"main/internal/repositories"
+	"main/internal/repositories/models"
 	"net/http"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -40,9 +41,9 @@ type RefreshToken struct {
 
 // Сервис для работы с JWT
 type Service struct {
-	db     *sqlx.DB
 	config Config
 	logger *logrus.Logger
+	repo   repositories.Repository
 }
 
 // Claims для JWT токена
@@ -52,15 +53,15 @@ type Claims struct {
 }
 
 // Инициализация сервиса
-func NewService(db *sqlx.DB, log *logrus.Logger) *Service {
+func NewService(log *logrus.Logger, r repositories.Repository) *Service {
 	return &Service{
-		db: db,
 		config: Config{
 			SecretKey:     os.Getenv("JWT_SECRET"),
 			AccessExpiry:  15 * time.Minute,
 			RefreshExpiry: 7 * 24 * time.Hour,
 		},
 		logger: log,
+		repo:   r,
 	}
 }
 
@@ -95,8 +96,7 @@ func (s *Service) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user User
-	err := s.db.Get(&user, "SELECT id_user, password FROM Users WHERE login = $1", request.Login)
+	user, err := s.repo.Users().GetByLogin(r.Context(), request.Login)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			respondError(w, http.StatusForbidden, "Invalid credentials")
@@ -124,17 +124,27 @@ func (s *Service) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusInternalServerError, "Failed to generate refresh token")
 		return
 	}
-
+	tx, err := s.repo.BeginTx(r.Context())
+	if err != nil {
+		s.logger.Errorf("Failed begin tx(log login) by user:%d:err:%v", user.ID, err)
+	}
+	defer tx.Rollback()
 	// Сохраняем refresh токен
-	_, err = s.db.Exec(`
-		INSERT INTO refresh_tokens (token, id_user, expires_at) 
-		VALUES ($1, $2, $3)`,
-		refreshToken, user.ID, time.Now().Add(s.config.RefreshExpiry))
+	err = tx.Refresh().Create(r.Context(), &models.RefreshToken{Token: refreshToken, UserID: user.ID, ExpiresAt: time.Now().Add(s.config.RefreshExpiry)})
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "Failed to save refresh token")
 		return
 	}
 
+	_, err = tx.Log().Create(r.Context(), &models.Log{IdUser: user.ID, IdEntity: 5, IdType: 4}).Exists(r.Context())
+	if err != nil {
+		s.logger.Errorf("Failed log login by user:%d:err:%v", user.ID, err)
+	}
+	err = tx.Commit()
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed commit")
+		return
+	}
 	http.SetCookie(w, &http.Cookie{
 		Name:     "refresh_token",
 		Value:    refreshToken,
@@ -167,12 +177,8 @@ func (s *Service) RefreshHandler(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusUnauthorized, "Coocie unknown")
 		return
 	}
-	var token RefreshToken
-	err := s.db.Get(&token, `
-		SELECT id, id_user, expires_at 
-		FROM refresh_tokens 
-		WHERE token = $1 AND expires_at > NOW()`,
-		refreshToken)
+
+	token, err := s.repo.Refresh().GetByToken(r.Context(), refreshToken)
 	if err != nil {
 		respondError(w, http.StatusUnauthorized, "Invalid or expired refresh token")
 		return
@@ -189,17 +195,25 @@ func (s *Service) RefreshHandler(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusInternalServerError, "Failed to generate refresh token")
 		return
 	}
-
-	_, err = s.db.Exec(`
-		UPDATE refresh_tokens 
-		SET token = $1, expires_at = $2 
-		WHERE id = $3`,
-		newRefreshToken, time.Now().Add(s.config.RefreshExpiry), token.ID)
+	tx, err := s.repo.BeginTx(r.Context())
+	if err != nil {
+		s.logger.Errorf("Failed begin tx(log refresh) by user:%d:err:%v", token.UserID, err)
+	}
+	defer tx.Rollback()
+	err = tx.Refresh().Update(r.Context(), &models.RefreshToken{ID: token.ID, Token: newRefreshToken, ExpiresAt: time.Now().Add(s.config.RefreshExpiry)})
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "Failed to update refresh token")
 		return
 	}
-
+	_, err = tx.Log().Create(r.Context(), &models.Log{IdUser: token.UserID, IdEntity: 5, IdType: 6}).Exists(r.Context())
+	if err != nil {
+		s.logger.Errorf("Failed log refresh by user:%d:err:%v", token.UserID, err)
+	}
+	err = tx.Commit()
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed commit")
+		return
+	}
 	http.SetCookie(w, &http.Cookie{
 		Name:     "refresh_token",
 		Value:    newRefreshToken,
@@ -227,15 +241,29 @@ func (s *Service) RevokeHandler(w http.ResponseWriter, r *http.Request) {
 			refreshToken = c.Value
 		}
 	}
-	s.logger.Infof("токен найден:%s",refreshToken)
-	result, err := s.db.Exec("DELETE FROM refresh_tokens WHERE token = $1", refreshToken)
+	token, err := s.repo.Refresh().GetByToken(r.Context(), refreshToken)
+	if err != nil {
+		respondError(w, http.StatusNotFound, "Token not found")
+		return
+	}
+	tx, err := s.repo.BeginTx(r.Context())
+	if err != nil {
+		s.logger.Errorf("Failed begin tx(log revoke) by user:%d:err:%v", token.UserID, err)
+	}
+	defer tx.Rollback()
+
+	err = tx.Refresh().DeleteByToken(r.Context(), refreshToken)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "Failed to revoke token")
 		return
 	}
-
-	if rows, _ := result.RowsAffected(); rows == 0 {
-		respondError(w, http.StatusNotFound, "Token not found")
+	_, err = tx.Log().Create(r.Context(), &models.Log{IdUser: token.UserID, IdEntity: 5, IdType: 5}).Exists(r.Context())
+	if err != nil {
+		s.logger.Errorf("Failed log revoke by user:%d:err:%v", token.UserID, err)
+	}
+	err = tx.Commit()
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed commit")
 		return
 	}
 	http.SetCookie(w, &http.Cookie{
@@ -244,7 +272,7 @@ func (s *Service) RevokeHandler(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 		SameSite: http.SameSiteStrictMode,
 		Path:     "/",
-		MaxAge:   -1, 
+		MaxAge:   -1,
 	})
 	http.SetCookie(w, &http.Cookie{
 		Name:     "access_token",
@@ -284,7 +312,21 @@ func (s *Service) Middleware(next http.Handler) http.Handler {
 			respondError(w, http.StatusForbidden, "Invalid token")
 			return
 		}
+		tx, err := s.repo.BeginTx(r.Context())
+		if err != nil {
+			s.logger.Errorf("Failed begin tx(log auth) by user:%d:err:%v", claims.UserID, err)
+		}
+		defer tx.Rollback()
 
+		_, err = tx.Log().Create(r.Context(), &models.Log{IdUser: claims.UserID, IdEntity: 5, IdType: 7}).Exists(r.Context())
+		if err != nil {
+			s.logger.Errorf("Failed log auth by user:%d:err:%v", claims.UserID, err)
+		}
+		err = tx.Commit()
+		if err != nil {
+			respondError(w, http.StatusInternalServerError, "Failed commit")
+			return
+		}
 		ctx := context.WithValue(r.Context(), "id_user", claims.UserID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
