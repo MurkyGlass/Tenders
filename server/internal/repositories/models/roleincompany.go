@@ -10,7 +10,7 @@ import (
 type RoleInCompany struct {
 	ID        int    `db:"id_role" json:"id_role"`
 	Name      string `db:"name" json:"name" validate:"required,min=2,max=50"`
-	IdCompany int    `db:"id_company" json:"id_company"`
+	IdCompany *int   `db:"id_company" json:"id_company"`
 	IsCreater bool   `db:"is_creater"`
 }
 

@@ -13,7 +13,7 @@ type Log struct {
 	IdUser   int       `db:"id_user" json:"id_user" validate:"required"`
 	IdEntity int       `db:"id_entity" json:"id_entity" validate:"required"`
 	IdType   int       `db:"id_type" json:"id_type" validate:"required"`
-	DateTime time.Time `db:"datetime_create" json:"datetime_create" validate:"required,min=8"`
+	DateTime time.Time `db:"datetime_create" json:"datetime_create"`
 }
 
 func (l *Log) Validate() error {

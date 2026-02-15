@@ -137,7 +137,7 @@ func (h *Handlers) EditingLK() func(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			// Действие произвденное над пользователем необязательно совершил данный пользователь!!! ВАЖНО !!! ОБДУМАТЬ!
-			_, err = tx.Log().Create(r.Context(), &models.Log{IdUser: id, IdEntity: 1, IdType: 2}).Exists(r.Context())
+			_, err = tx.Log().Create(r.Context(), &models.Log{IdUser: id, IdEntity: 5, IdType: 2}).Exists(r.Context())
 			if err != nil {
 				h.handleError(w, "Failed log user update", err, 500)
 				return

@@ -49,8 +49,8 @@ func (r *logRepository) Create(ctx context.Context, log *models.Log) LinkerLog {
 		return &linkerLog{err: err}
 	}
 	query := `
-		INSERT INTO logs (id_user, id_entity, id_type, datetime_create) 
-		VALUES (:id_user, :id_entity, :id_type, :datetime_create)
+		INSERT INTO logs (id_user, id_entity, id_type) 
+		VALUES (:id_user, :id_entity, :id_type)
 		RETURNING id_log
 	`
 	stmt, err := r.db.PrepareNamedContext(ctx, query)
@@ -71,6 +71,7 @@ func (r *logRepository) Update(ctx context.Context, log *models.Log) error {
 	if err != nil {
 		return err
 	}
+	// если время не заносить, то в бд примет значение нулл!!ВАЖНО
 	query := `
 		UPDATE logs
 		SET id_user = :id_user, id_entity = :id_entity,
