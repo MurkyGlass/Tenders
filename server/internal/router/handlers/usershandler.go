@@ -19,16 +19,6 @@ func (h *Handlers) GetUsers() http.HandlerFunc {
 		jsonResponse(w, users)
 	}
 }
-func (h *Handlers) GetLogs() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		logs, err := h.Repo.Log().GetAll(r.Context())
-		if err != nil {
-			h.handleError(w, "Failed to get users", err,500)
-			return
-		}
-		jsonResponse(w, logs)
-	}
-}
 func (h *Handlers) GetUserByID() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := h.getIDFromRequest(r)
