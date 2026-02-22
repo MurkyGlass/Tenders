@@ -213,6 +213,7 @@
 
         .content-body {
             display: flex;
+            flex-direction: column;
             align-items: flex-start;
             justify-content: center;
             color: #666;

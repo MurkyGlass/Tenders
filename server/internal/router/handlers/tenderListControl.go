@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"main/internal/router/handlers/views"
 	"net/http"
+	"sort"
 
 	_ "github.com/lib/pq"
 )
@@ -44,6 +45,71 @@ func (h *Handlers) GetTendersListwindow() func(w http.ResponseWriter, r *http.Re
 		for _, st := range statuses {
 			StMap[st.ID] = st.Name
 		}
+		sortParam := r.URL.Query().Get("sort")
+
+		switch sortParam {
+		case "date_new":
+			// сортировка по дате начала (новые сначала)
+			sort.Slice(tenders, func(i int, j int) bool {
+				return tenders[i].DateTimeStart.Before(tenders[j].DateTimeStart)
+			})
+		case "date_old":
+			// сортировка по дате начала (старые сначала)
+			sort.Slice(tenders, func(i int, j int) bool {
+				return tenders[i].DateTimeStart.After(tenders[j].DateTimeStart)
+			})
+		case "deadline":
+			// сортировка по дате окончания (заканчиваются скоро)
+			sort.Slice(tenders, func(i int, j int) bool {
+				return tenders[i].DateTimeEnd.Before(tenders[j].DateTimeEnd)
+			})
+		case "deadline_far":
+			// сортировка по дате окончания (заканчиваются позже)
+			sort.Slice(tenders, func(i int, j int) bool {
+				return tenders[i].DateTimeEnd.After(tenders[j].DateTimeEnd)
+			})
+		case "name_asc":
+			// сортировка по названию (А-Я)
+			sort.Slice(tenders, func(i int, j int) bool {
+				return tenders[i].Name < tenders[j].Name
+			})
+		case "name_desc":
+			// сортировка по названию (Я-А)
+			sort.Slice(tenders, func(i int, j int) bool {
+				return tenders[i].Name > tenders[j].Name
+			})
+		case "duration_asc":
+			// сортировка по длительности (сначала короткие)
+			sort.Slice(tenders, func(i int, j int) bool {
+				return tenders[i].DateTimeEnd.Sub(tenders[i].DateTimeStart) < tenders[j].DateTimeEnd.Sub(tenders[j].DateTimeStart)
+			})
+		case "duration_desc":
+			// сортировка по длительности (сначала длинные)
+			sort.Slice(tenders, func(i int, j int) bool {
+				return tenders[i].DateTimeEnd.Sub(tenders[i].DateTimeStart) > tenders[j].DateTimeEnd.Sub(tenders[j].DateTimeStart)
+			})
+		case "status":
+			// сортировка по статусу
+			sort.Slice(tenders, func(i int, j int) bool {
+				return tenders[i].IdStatus < tenders[j].IdStatus
+			})
+		case "company":
+			// сортировка по компании
+			sort.Slice(tenders, func(i int, j int) bool {
+				return tenders[i].IdCompany < tenders[j].IdCompany
+			})
+		case "district":
+			// сортировка по району
+			sort.Slice(tenders, func(i int, j int) bool {
+				return tenders[i].IdDistrict < tenders[j].IdDistrict
+			})
+		default:
+			// сортировка по умолчанию
+			sort.Slice(tenders, func(i int, j int) bool {
+				return tenders[i].DateTimeStart.Before(tenders[j].DateTimeStart)
+			})
+			sortParam = "date_new"
+		}
 		// сортировка фильтрации ограничения итд
 		var TenderViews []views.TenderView
 		for _, tender := range tenders {
@@ -51,6 +117,7 @@ func (h *Handlers) GetTendersListwindow() func(w http.ResponseWriter, r *http.Re
 			if tender.IdStatus == 1 || tender.IdStatus == 3 {
 				continue
 			}
+
 			TenderViews = append(TenderViews, views.TenderView{ID: tender.ID, Name: tender.Name,
 				Description: tender.Description, DateTimeStart: tender.DateTimeStart,
 				DateTimeEnd: tender.DateTimeEnd, Company: CompMap[tender.IdCompany], Status: StMap[tender.IdStatus],
@@ -66,8 +133,9 @@ func (h *Handlers) GetTendersListwindow() func(w http.ResponseWriter, r *http.Re
 			LoginForm        template.HTML
 			RegistrationForm template.HTML
 			Tenders          []views.TenderView
+			Sort             string
 		}
-		err = tmpl.Execute(w, &data{Tenders: TenderViews, LoginForm: LoginForm, RegistrationForm: RegistrationForm})
+		err = tmpl.Execute(w, &data{Tenders: TenderViews, LoginForm: LoginForm, RegistrationForm: RegistrationForm, Sort: sortParam})
 		if err != nil {
 			h.handleError(w, "Failed tenderlist render:", err, 500)
 			return
