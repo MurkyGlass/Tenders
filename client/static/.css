@@ -199,6 +199,7 @@
             min-height: 400px;
             height: 100%;
             border: 1px solid #eaeaea;
+            width: 100%;
         }
 
         .content-title {
@@ -212,9 +213,10 @@
 
         .content-body {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
             color: #666;
+             width: 100%;
         }
 
         /* ПОДВАЛ (FOOTER) */

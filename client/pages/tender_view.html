@@ -42,23 +42,22 @@
     </nav>
     <main>
         <div class="content-container">
-            <h2 class="content-title">Текущие закупки</h2>
+            <h2 class="content-title">Тендер №{{.Tender.ID}}</h2>
             <div class="content-body">
-                    <div class="tenders-list" id="tendersList">
         <!-- Карточка тендера (шаблон) -->
-        {{range .Tenders}}<div class="tender-card">
+       <div class="tender-card">
             <div class="tender-header">
-                <h3 class="tender-title">{{.Name}}</h3>
-                <span class="tender-status status-active">{{.Status}}</span>
+                <h3 class="tender-title">{{.Tender.Name}}</h3>
+                <span class="tender-status status-active">{{.Tender.Status}}</span>
             </div>
             
             <div class="tender-company">
                 <i class="fas fa-building"></i>
-                {{.Company}}
+                {{.Tender.Company}}
             </div>
             
             <p class="tender-description">
-                {{.Description}}
+                {{.Tender.Description}}
             </p>
             
             <div class="tender-details">
@@ -66,35 +65,32 @@
                     <i class="far fa-calendar-alt"></i>
                     <div>
                         <span class="detail-label">Начало:</span>
-                        <span class="detail-value">{{.DateTimeStart}}</span>
+                        <span class="detail-value">{{.Tender.DateTimeStart}}</span>
                     </div>
                 </div>
                 <div class="detail-item">
                     <i class="far fa-calendar-check"></i>
                     <div>
                         <span class="detail-label">Окончание:</span>
-                        <span class="detail-value">{{.DateTimeEnd}}</span>
+                        <span class="detail-value">{{.Tender.DateTimeEnd}}</span>
                     </div>
                 </div>
                 <div class="detail-item">
                     <i class="fas fa-map-marker-alt"></i>
                     <div>
-                        <span class="detail-label">Фед.округ:</span>
-                        <span class="detail-value">{{.District}}</span>
+                        <span class="detail-label">Регион:</span>
+                        <span class="detail-value">{{.Tender.District}}</span>
                     </div>
                 </div>
             </div>
             
             <div class="tender-footer">
-                <span class="tender-id">{{.ID}}</span>
-                <button class="tender-btn" onclick="viewTenderDetails({{.ID}})">
-                    Подробнее <i class="fas fa-arrow-right"></i>
-                </button>
+                <span class="tender-id">{{.Tender.ID}}</span>
             </div>
-        </div>{{end}}
-                    </div>
-                </div>
+        </div>
 
+                </div>
+         
         </div>
     </main>
     <footer>

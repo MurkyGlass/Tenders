@@ -17,8 +17,11 @@ func (h *Handlers) GetMainwindow() func(w http.ResponseWriter, r *http.Request) 
 			h.handleError(w, "Failed main load:", err, 500)
 			return
 		}
-
-		err = tmpl.Execute(w, nil)
+		type Data struct {
+			LoginForm        template.HTML
+			RegistrationForm template.HTML
+		}
+		err = tmpl.Execute(w, &Data{LoginForm: LoginForm, RegistrationForm: RegistrationForm})
 		if err != nil {
 			h.handleError(w, "Failed main render:", err, 500)
 			return
@@ -55,7 +58,6 @@ func (h *Handlers) Registration() func(w http.ResponseWriter, r *http.Request) {
 				h.handleError(w, "Passwords do not match", fmt.Errorf("passwords do not match"), 400)
 				return
 			}
-
 
 			company.Name = r.PostForm.Get("companyName")
 			company.Email = r.PostForm.Get("companyEmail")
@@ -96,12 +98,12 @@ func (h *Handlers) Registration() func(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			err = tx.Log().Create(r.Context(),&models.Log{IdUser: user.ID,IdEntity: 1,IdType: 1}).Company().Create(r.Context(),company.ID)
+			err = tx.Log().Create(r.Context(), &models.Log{IdUser: user.ID, IdEntity: 1, IdType: 1}).Company().Create(r.Context(), company.ID)
 			if err != nil {
 				h.handleError(w, "Failed log company create", err, 500)
 				return
 			}
-			_,err = tx.Log().Create(r.Context(),&models.Log{IdUser: user.ID,IdEntity: 5,IdType: 1}).Exists(r.Context())
+			_, err = tx.Log().Create(r.Context(), &models.Log{IdUser: user.ID, IdEntity: 5, IdType: 1}).Exists(r.Context())
 			if err != nil {
 				h.handleError(w, "Failed log user create", err, 500)
 				return
@@ -118,4 +120,3 @@ func (h *Handlers) Registration() func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
-

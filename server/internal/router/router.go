@@ -22,6 +22,7 @@ func NewRouter(h *handler.Handlers, db *sqlx.DB) *mux.Router {
 	mainRouter := r.PathPrefix("/main").Subrouter()
 	mainRouter.HandleFunc("", h.GetMainwindow()).Methods("GET")
 	mainRouter.HandleFunc("/tenders", h.GetTendersListwindow()).Methods("GET")
+	mainRouter.HandleFunc("/tenders/{id}", h.GetTenderwindow()).Methods("GET")
 	mainRouter.HandleFunc("/registration", h.Registration()).Methods("POST")
 	//authentification
 	r.HandleFunc("/auth/login", jwtService.LoginHandler).Methods("POST")

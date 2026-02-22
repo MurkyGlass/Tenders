@@ -108,3 +108,6 @@ document.querySelectorAll('.nav-menu a').forEach(link => {
         }
     });
 });
+function viewTenderDetails(id){
+    window.location.href = "/main/tenders/"+id
+}

@@ -179,7 +179,7 @@ func (s *Service) RefreshHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	token, err := s.repo.Refresh().GetByToken(r.Context(), refreshToken)
-	if err != nil {
+	if token == nil{
 		respondError(w, http.StatusUnauthorized, "Invalid or expired refresh token")
 		http.SetCookie(w, &http.Cookie{
 			Name:     "refresh_token",
@@ -189,6 +189,10 @@ func (s *Service) RefreshHandler(w http.ResponseWriter, r *http.Request) {
 			Path:     "/",
 			MaxAge:   -1,
 		})
+		return
+	}
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed get token")
 		return
 	}
 
