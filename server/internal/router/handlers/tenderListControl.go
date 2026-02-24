@@ -1,10 +1,13 @@
 package handler
 
 import (
+	"fmt"
 	"html/template"
 	"main/internal/router/handlers/views"
 	"net/http"
 	"sort"
+	"strconv"
+	"time"
 
 	_ "github.com/lib/pq"
 )
@@ -119,8 +122,8 @@ func (h *Handlers) GetTendersListwindow() func(w http.ResponseWriter, r *http.Re
 			}
 
 			TenderViews = append(TenderViews, views.TenderView{ID: tender.ID, Name: tender.Name,
-				Description: tender.Description, DateTimeStart: tender.DateTimeStart,
-				DateTimeEnd: tender.DateTimeEnd, Company: CompMap[tender.IdCompany], Status: StMap[tender.IdStatus],
+				Description: tender.Description, DateTimeStart: GetDateString(tender.DateTimeStart),
+				DateTimeEnd: GetDateString(tender.DateTimeEnd), Company: CompMap[tender.IdCompany], Status: StMap[tender.IdStatus],
 				District: DistMap[tender.IdDistrict]})
 		}
 
@@ -177,7 +180,7 @@ func (h *Handlers) GetTenderwindow() func(w http.ResponseWriter, r *http.Request
 		}
 		var tenview *views.TenderView
 		tenview = &views.TenderView{ID: tender.ID, Name: tender.Name, Description: tender.Description,
-			DateTimeStart: tender.DateTimeStart, DateTimeEnd: tender.DateTimeEnd, Company: company.Name,
+			DateTimeStart: GetDateString(tender.DateTimeStart), DateTimeEnd: GetDateString(tender.DateTimeEnd), Company: company.Name,
 			Status: status.Name, District: district.Name}
 		type data struct {
 			LoginForm        template.HTML
@@ -190,4 +193,35 @@ func (h *Handlers) GetTenderwindow() func(w http.ResponseWriter, r *http.Request
 			return
 		}
 	}
+}
+func GetDateString(t time.Time) string {
+	month := t.Month()
+	day := t.Day()
+	hour := t.Hour()
+	minute := t.Minute()
+	var monstr string
+	if int(month) < 10 {
+		monstr = "0" + strconv.Itoa(int(month))
+	}else{
+		monstr = strconv.Itoa(int(month))
+	}
+	var daystr string
+	if day < 10 {
+		daystr = "0" + strconv.Itoa(day)
+	}else{
+		daystr = strconv.Itoa(day)
+	}
+	var hstr string
+	if hour < 10 {
+		hstr = "0" + strconv.Itoa(hour)
+	}else{
+		hstr = strconv.Itoa(hour)
+	}
+	var mstr string
+	if minute < 10 {
+		mstr = "0" + strconv.Itoa(minute)
+	}else{
+		mstr = strconv.Itoa(minute)
+	}
+	return fmt.Sprintf("%s.%s.%d %s:%s",daystr,monstr,t.Year(),hstr,mstr)
 }
