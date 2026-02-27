@@ -50,6 +50,11 @@ CREATE TABLE IF NOT EXISTS Categories(
     id_category SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL UNIQUE
 );
+CREATE TABLE IF NOT EXISTS Category_Links(
+    id_parent INT REFERENCES Categories(id_category) ON DELETE CASCADE,
+    id_children INT REFERENCES Categories(id_category),
+    PRIMARY KEY(id_log,id_doc)
+);
 CREATE TABLE IF NOT EXISTS Tenders(
     id_tender SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL,

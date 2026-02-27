@@ -3,8 +3,10 @@ package handler
 import (
 	"fmt"
 	"html/template"
+	"main/internal/repositories/models"
 	"main/internal/router/handlers/views"
 	"net/http"
+	"slices"
 	"sort"
 	"strconv"
 	"time"
@@ -12,10 +14,75 @@ import (
 	_ "github.com/lib/pq"
 )
 
+func GetChilds(categories []models.Category, links []models.LinkView, view []views.CategoryView, categ models.Category) []views.CategoryView {
+	count := 0
+	for _, link := range links {
+		if link.FirstID == categ.ID {
+			for _, category := range categories {
+				if link.SecondID == category.ID {
+					if !slices.ContainsFunc(links, func(l models.LinkView) bool { return l.FirstID == category.ID }) && !ContainsCateg(view, category) {
+						view = append(view, views.CategoryView{
+							Category: category,
+							Childs:   nil})
+					} else {
+						if !ContainsCateg(view, category) {
+							view = append(view, views.CategoryView{
+								Category: category,
+								Childs:   nil})
+							view[count].Childs = GetChilds(categories, links, view[count].Childs, category)
+							count++
+						}
+					}
+				}
+			}
+		}
+	}
+	return view
+}
+func ContainsCateg(views []views.CategoryView, category models.Category) bool {
+	for _, v := range views {
+		if v.Category.ID == category.ID {
+			return true
+		} else if len(v.Childs) > 0 {
+			if ContainsCateg(v.Childs, category) {
+				return true
+			}
+		}
+	}
+	return false
+}
+func (h *Handlers) GetCategoryList(r *http.Request) ([]views.CategoryView, error) {
+	categories, err := h.Repo.Category().GetAll(r.Context())
+	if err != nil {
+		return nil, err
+	}
+	links, err := h.Repo.CategoryLink().GetAll(r.Context())
+	if err != nil {
+		return nil, err
+	}
+	var view []views.CategoryView
+	count := 0
+	for _, category := range categories {
+		if !slices.ContainsFunc(links, func(l models.LinkView) bool { return l.FirstID == category.ID }) && !ContainsCateg(view, category) {
+			view = append(view, views.CategoryView{
+				Category: category,
+				Childs:   nil})
+		} else {
+			if !ContainsCateg(view, category) {
+				view = append(view, views.CategoryView{
+					Category: category,
+					Childs:   nil})
+				view[count].Childs = GetChilds(categories, links, view[count].Childs, category)
+				count++
+			}
+		}
+	}
+	return view, nil
+}
+
 func (h *Handlers) GetTendersListwindow() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tenders, err := h.Repo.Tenders().GetAll(r.Context())
-
 		if err != nil {
 			h.handleError(w, "Failed get tenders:", err, 500)
 			return
@@ -202,26 +269,26 @@ func GetDateString(t time.Time) string {
 	var monstr string
 	if int(month) < 10 {
 		monstr = "0" + strconv.Itoa(int(month))
-	}else{
+	} else {
 		monstr = strconv.Itoa(int(month))
 	}
 	var daystr string
 	if day < 10 {
 		daystr = "0" + strconv.Itoa(day)
-	}else{
+	} else {
 		daystr = strconv.Itoa(day)
 	}
 	var hstr string
 	if hour < 10 {
 		hstr = "0" + strconv.Itoa(hour)
-	}else{
+	} else {
 		hstr = strconv.Itoa(hour)
 	}
 	var mstr string
 	if minute < 10 {
 		mstr = "0" + strconv.Itoa(minute)
-	}else{
+	} else {
 		mstr = strconv.Itoa(minute)
 	}
-	return fmt.Sprintf("%s.%s.%d %s:%s",daystr,monstr,t.Year(),hstr,mstr)
+	return fmt.Sprintf("%s.%s.%d %s:%s", daystr, monstr, t.Year(), hstr, mstr)
 }
