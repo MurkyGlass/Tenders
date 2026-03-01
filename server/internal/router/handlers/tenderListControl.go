@@ -6,7 +6,6 @@ import (
 	"main/internal/repositories/models"
 	"main/internal/router/handlers/views"
 	"net/http"
-	"slices"
 	"sort"
 	"strconv"
 	"time"
@@ -14,70 +13,59 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func GetChilds(categories []models.Category, links []models.LinkView, view []views.CategoryView, categ models.Category) []views.CategoryView {
-	count := 0
+func BuildCategoryTree(categories []models.Category, links []models.LinkView) []views.CategoryView {
+	var cm = make(map[int]models.Category)
+	var lpk = make(map[int][]int) //parrent key
+	var lck = make(map[int]int)   //child key
+	for _, category := range categories {
+		cm[category.ID] = category
+	}
 	for _, link := range links {
-		if link.FirstID == categ.ID {
-			for _, category := range categories {
-				if link.SecondID == category.ID {
-					if !slices.ContainsFunc(links, func(l models.LinkView) bool { return l.FirstID == category.ID }) && !ContainsCateg(view, category) {
-						view = append(view, views.CategoryView{
-							Category: category,
-							Childs:   nil})
-					} else {
-						if !ContainsCateg(view, category) {
-							view = append(view, views.CategoryView{
-								Category: category,
-								Childs:   nil})
-							view[count].Childs = GetChilds(categories, links, view[count].Childs, category)
-							count++
-						}
-					}
+		lpk[link.FirstID] = append(lpk[link.FirstID], link.SecondID)
+		lck[link.SecondID] = link.FirstID
+	}
+
+	var view []views.CategoryView
+	var childs = make(map[int]models.Category)
+	for _, c := range categories {
+		_, f0 := lck[c.ID]
+		if f0 { //если явл ребенком
+			childs[c.ID] = c
+			continue
+		}
+		_, f1 := lpk[c.ID]
+		if f1 && !f0 { //если явл отцом и не ребенок
+			view = append(view, views.CategoryView{Category: c, Childs: nil})
+			continue
+		}
+		view = append(view, views.CategoryView{Category: c, Childs: nil})
+	}
+
+	var road []*views.CategoryView
+	for i := range view {
+		road = append(road, &view[i])
+	}
+
+	for len(childs) > 0 {
+
+		for _, r := range road {
+			for _, l := range links {
+				if l.FirstID == r.Category.ID {
+					r.Childs = append(r.Childs, views.CategoryView{Category: childs[l.SecondID], Childs: nil})
+					delete(childs, l.SecondID)
 				}
 			}
 		}
+
+		newRoad := []*views.CategoryView{}
+		for _, r := range road {
+			for i := range r.Childs {
+				newRoad = append(newRoad, &r.Childs[i])
+			}
+		}
+		road = newRoad
 	}
 	return view
-}
-func ContainsCateg(views []views.CategoryView, category models.Category) bool {
-	for _, v := range views {
-		if v.Category.ID == category.ID {
-			return true
-		} else if len(v.Childs) > 0 {
-			if ContainsCateg(v.Childs, category) {
-				return true
-			}
-		}
-	}
-	return false
-}
-func (h *Handlers) GetCategoryList(r *http.Request) ([]views.CategoryView, error) {
-	categories, err := h.Repo.Category().GetAll(r.Context())
-	if err != nil {
-		return nil, err
-	}
-	links, err := h.Repo.CategoryLink().GetAll(r.Context())
-	if err != nil {
-		return nil, err
-	}
-	var view []views.CategoryView
-	count := 0
-	for _, category := range categories {
-		if !slices.ContainsFunc(links, func(l models.LinkView) bool { return l.FirstID == category.ID }) && !ContainsCateg(view, category) {
-			view = append(view, views.CategoryView{
-				Category: category,
-				Childs:   nil})
-		} else {
-			if !ContainsCateg(view, category) {
-				view = append(view, views.CategoryView{
-					Category: category,
-					Childs:   nil})
-				view[count].Childs = GetChilds(categories, links, view[count].Childs, category)
-				count++
-			}
-		}
-	}
-	return view, nil
 }
 
 func (h *Handlers) GetTendersListwindow() func(w http.ResponseWriter, r *http.Request) {
