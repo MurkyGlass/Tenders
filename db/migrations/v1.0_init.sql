@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS Categories(
 CREATE TABLE IF NOT EXISTS Category_Links(
     id_parent INT REFERENCES Categories(id_category) ON DELETE CASCADE,
     id_children INT REFERENCES Categories(id_category),
-    PRIMARY KEY(id_log,id_doc)
+    PRIMARY KEY(id_parent,id_children)
 );
 CREATE TABLE IF NOT EXISTS Tenders(
     id_tender SERIAL PRIMARY KEY,

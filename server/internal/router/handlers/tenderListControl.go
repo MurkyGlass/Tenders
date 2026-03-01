@@ -187,13 +187,27 @@ func (h *Handlers) GetTendersListwindow() func(w http.ResponseWriter, r *http.Re
 			h.handleError(w, "Failed profil load:", err, 500)
 			return
 		}
+
+		categories, err := h.Repo.Category().GetAll(r.Context())
+		if err != nil {
+			h.handleError(w, "Failed get categories:", err, 500)
+			return
+		}
+		catlinks, err := h.Repo.CategoryLink().GetAll(r.Context())
+		if err != nil {
+			h.handleError(w, "Failed get category links:", err, 500)
+			return
+		}
+		cv := BuildCategoryTree(categories,catlinks)
+
 		type data struct {
 			LoginForm        template.HTML
 			RegistrationForm template.HTML
 			Tenders          []views.TenderView
+			CatView          []views.CategoryView
 			Sort             string
 		}
-		err = tmpl.Execute(w, &data{Tenders: TenderViews, LoginForm: LoginForm, RegistrationForm: RegistrationForm, Sort: sortParam})
+		err = tmpl.Execute(w, &data{Tenders: TenderViews, LoginForm: LoginForm, RegistrationForm: RegistrationForm, Sort: sortParam,CatView: cv})
 		if err != nil {
 			h.handleError(w, "Failed tenderlist render:", err, 500)
 			return

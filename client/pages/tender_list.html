@@ -41,6 +41,28 @@
             </ul>
         </div>
     </nav>
+    {{define "categoryTree"}}
+    {{range .}}
+        <li class="category-item">
+            <div class="category-content">
+                {{if .Childs}}
+                    <span class="toggle-btn" onclick="toggleCategory(this)">▼</span>
+                {{else}}
+                    <span class="toggle-placeholder"></span>
+                {{end}}
+                <label class="category-label">
+                    <input type="checkbox" name="category_ids" value="{{.Category.ID}}">
+                    {{.Category.Name}}
+                </label>
+            </div>
+            {{if .Childs}}
+                <ul class="category-children">
+                    {{template "categoryTree" .Childs}}
+                </ul>
+            {{end}}
+        </li>
+    {{end}}
+{{end}}
     <main>
         <div class="content-container">
             <h2 class="content-title">Текущие закупки</h2>
@@ -71,19 +93,20 @@
         </select>
     </div>
 
-    <div class="filter-group">
-        <select class="filter-select">
-            <option>Все Статусы</option>
-            <option>Активные</option>
-            <option>Завершенные</option>
-        </select>
-        <select class="filter-select">
-            <option>Все Округа</option>
-            <option>Центральный</option>
-            <option>Северный</option>
-        </select>
-    </div>
+    
 </div>
+<div class="filter-group">
+                    <div class="categories-header">
+                        <h3 style="margin: 3%;">Категории</h3>
+                        <div class="categories-actions">
+                            <button type="button" class="btn" onclick="expandAll()">Развернуть все</button>
+                            <button type="button" class="btn" onclick="collapseAll()">Свернуть все</button>
+                        </div>
+                    </div>
+                    <ul class="category-tree">
+                        {{template "categoryTree" .CatView}} 
+                    </ul>
+                </div>
                     <div class="tenders-list" id="tendersList">
         <!-- Карточка тендера (шаблон) -->
         {{range .Tenders}}<div class="tender-card">

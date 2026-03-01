@@ -377,3 +377,110 @@
         flex: 1;
     }
 }
+/*category tree style*/
+.category-tree {
+    list-style: none;
+    padding-left: 0;
+    margin: 10px 0;
+}
+
+.category-tree ul {
+    list-style: none;
+    padding-left: 20px;
+    margin: 0;
+}
+
+.category-item {
+    margin: 2px 0;
+}
+
+.category-content {
+    display: flex;
+    align-items: center;
+    padding: 4px 0;
+}
+
+.toggle-btn, .toggle-placeholder {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    font-size: 12px;
+    color: #666;
+    margin-right: 4px;
+}
+
+.toggle-btn:hover {
+    color: #333;
+    font-weight: bold;
+}
+
+.toggle-placeholder {
+    visibility: hidden;
+}
+
+.category-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.category-label input[type="checkbox"] {
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+.category-children {
+    transition: all 0.2s ease;
+}
+
+.category-children.collapsed {
+    display: none;
+}
+
+.categories-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.categories-header h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.categories-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-expand-all, .btn-collapse-all {
+    padding: 4px 12px;
+    font-size: 12px;
+    border: 1px solid #ddd;
+    background: #f5f5f5;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-expand-all:hover, .btn-collapse-all:hover {
+    background: #e5e5e5;
+}
+
+/* Состояния чекбоксов */
+.category-label input[type="checkbox"]:checked {
+    accent-color: #007bff;
+}
+
+/* Выравнивание для checkbox групп */
+.filter-group {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+    background: #fff;
+}
