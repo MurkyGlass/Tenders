@@ -1,3 +1,8 @@
+window.addEventListener('pageshow', function(event) {
+    if(!event.persisted){
+        collapseAll()
+    }
+});
 function applySort(sortValue) {
     const tendersList = document.getElementById('tendersList');
     tendersList.style.opacity = '0.5';
