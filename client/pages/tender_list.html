@@ -96,16 +96,21 @@
     
 </div>
 <div class="filter-group">
+    <form id="CategoryFilterForm">
+    <div  class="categories-header-container">
                     <div class="categories-header">
                         <h3 style="margin: 3%;">Категории</h3>
                         <div class="categories-actions">
                             <button type="button" class="cbtn" onclick="expandAll()">Развернуть все</button>
                             <button type="button" class="cbtn" onclick="collapseAll()">Свернуть все</button>
+                            <button type="submit" class="cbtn" >Применить</button>
                         </div>
                     </div>
+    </div>
                     <ul class="category-tree">
                         {{template "categoryTree" .CatView}} 
                     </ul>
+    </form>
                 </div>
                     <div class="tenders-list" id="tendersList">
         <!-- Карточка тендера (шаблон) -->

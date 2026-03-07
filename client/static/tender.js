@@ -3,6 +3,32 @@ window.addEventListener('pageshow', function(event) {
         collapseAll()
     }
 });
+document.getElementById('CategoryFilterForm').addEventListener('submit', async function(event) {
+
+        event.preventDefault()
+        const formData = new FormData(this);
+  
+        const response = await fetch('/main/tenders', {
+            method: 'POST',
+            body: formData
+        });
+        if(response.ok){
+            const fullHtml = await response.text();
+            
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = fullHtml;
+            
+            const newElement = tempDiv.querySelector('#tendersList');
+            
+            if (newElement) {
+                const currentElement = document.querySelector('#tendersList');
+                
+                if (currentElement) {
+                    currentElement.replaceWith(newElement);
+                }
+            }
+        }
+    });
 function applySort(sortValue) {
     const tendersList = document.getElementById('tendersList');
     tendersList.style.opacity = '0.5';

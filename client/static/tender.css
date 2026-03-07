@@ -437,7 +437,12 @@
 .category-children.collapsed {
     display: none;
 }
-
+.categories-header-container{
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    display: flex;
+}
 .categories-header {
     display: flex;
     justify-content: space-between;

@@ -3,11 +3,14 @@ package repositories
 import (
 	"context"
 	"fmt"
+	"main/internal/repositories/models"
 )
 
 // Только в TX! Обновление програмно не предусмотренно, следует удалить старую связь и создать новую.
 // Get - методы вызывать только через репозиторий!
 type LinkerCategory interface {
+	GetAllByTender(ctx context.Context) ([]models.TenderCategory, error)
+	GetAll(ctx context.Context) ([]models.TenderCategory, error)
 	Create(ctx context.Context, idCat int) error
 	Delete(ctx context.Context, idCat int) error
 	Exists(ctx context.Context) (bool, error)
@@ -15,13 +18,34 @@ type LinkerCategory interface {
 }
 type linkerCategory struct {
 	idTender int
-	db    QueryExecutor
+	db       QueryExecutor
 }
 
 func NewLinkerCategory(idTender int, db QueryExecutor) LinkerCategory {
 	return &linkerCategory{idTender: idTender, db: db}
 }
-
+func (l *linkerCategory) GetAll(ctx context.Context) ([]models.TenderCategory, error) {
+	q := `
+		SELECT * FROM Tender_Category
+	`
+	var arr []models.TenderCategory
+	err := l.db.SelectContext(ctx, &arr, q)
+	if err != nil {
+		return nil, fmt.Errorf("Failed get tender-category: %w", err)
+	}
+	return arr, nil
+}
+func (l *linkerCategory) GetAllByTender(ctx context.Context) ([]models.TenderCategory, error) {
+	q := `
+		SELECT * FROM Tender_Category WHERE id_tender = $1
+	`
+	var arr []models.TenderCategory
+	err := l.db.SelectContext(ctx, &arr, q, l.idTender)
+	if err != nil {
+		return nil, fmt.Errorf("Failed get tender-category: %w", err)
+	}
+	return arr, nil
+}
 func (l *linkerCategory) Create(ctx context.Context, idCateg int) error {
 	q := `
 		INSERT INTO Tender_Category (id_tender,id_category)

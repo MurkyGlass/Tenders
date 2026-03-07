@@ -6,8 +6,10 @@ import (
 	"main/internal/repositories/models"
 	"main/internal/router/handlers/views"
 	"net/http"
+	"slices"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -67,8 +69,42 @@ func BuildCategoryTree(categories []models.Category, links []models.LinkView) []
 	}
 	return view
 }
+func (h *Handlers) FilterParams() func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		contentType := r.Header.Get("Content-Type")
 
-func (h *Handlers) GetTendersListwindow() func(w http.ResponseWriter, r *http.Request) {
+		if strings.Contains(contentType, "multipart/form-data") {
+
+			if err := r.ParseMultipartForm(10 << 20); err != nil {
+				h.handleError(w, "Failed form-parsing", err, 500)
+				return
+			}
+			IdsStr := r.PostForm.Get("category_ids")
+			if IdsStr == "" {
+				a := h.GetTendersListwindow(nil)
+				a(w, r)
+				return
+			}
+			IDsStrArr := strings.Split(IdsStr, ",")
+			var Ids []int
+			for _, str := range IDsStrArr {
+				id, err := strconv.Atoi(str)
+				h.Logger.Info(id)
+				if err != nil {
+					h.handleError(w, "Invalid Parsing category id by Filter", err, 400)
+					return
+				}
+				Ids = append(Ids, id)
+			}
+			a := h.GetTendersListwindow(Ids)
+			a(w, r)
+			return
+		}
+		h.handleError(w, "Invalid Content-Type", fmt.Errorf("expected multipart/form-data, got %s", contentType), 400)
+		return
+	}
+}
+func (h *Handlers) GetTendersListwindow(FilterParams []int) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tenders, err := h.Repo.Tenders().GetAll(r.Context())
 		if err != nil {
@@ -168,12 +204,36 @@ func (h *Handlers) GetTendersListwindow() func(w http.ResponseWriter, r *http.Re
 			})
 			sortParam = "date_new"
 		}
+		tenderLinks, err := h.Repo.LinkerTCategory(0).GetAll(r.Context())
+		if err != nil {
+			h.handleError(w, "Failed get tenders-categories:", err, 500)
+			return
+		}
+		var TCmap = make(map[int][]int) //key - tenderID
+		for _, tl := range tenderLinks {
+			TCmap[tl.IdTender] = append(TCmap[tl.IdTender], tl.IdCategory)
+		}
 		// сортировка фильтрации ограничения итд
 		var TenderViews []views.TenderView
 		for _, tender := range tenders {
 			// черновик, завершен(отобр. в отдельном списке)
 			if tender.IdStatus == 1 || tender.IdStatus == 3 {
 				continue
+			}
+			if FilterParams != nil {
+				if TCmap[tender.ID] != nil {
+					f := false
+					for _, c := range TCmap[tender.ID] {
+						if slices.Contains(FilterParams, c) {
+							f = true
+						}
+					}
+					if !f {
+						continue
+					}
+				} else {
+					continue
+				}
 			}
 
 			TenderViews = append(TenderViews, views.TenderView{ID: tender.ID, Name: tender.Name,
@@ -198,7 +258,7 @@ func (h *Handlers) GetTendersListwindow() func(w http.ResponseWriter, r *http.Re
 			h.handleError(w, "Failed get category links:", err, 500)
 			return
 		}
-		cv := BuildCategoryTree(categories,catlinks)
+		cv := BuildCategoryTree(categories, catlinks)
 
 		type data struct {
 			LoginForm        template.HTML
@@ -207,7 +267,7 @@ func (h *Handlers) GetTendersListwindow() func(w http.ResponseWriter, r *http.Re
 			CatView          []views.CategoryView
 			Sort             string
 		}
-		err = tmpl.Execute(w, &data{Tenders: TenderViews, LoginForm: LoginForm, RegistrationForm: RegistrationForm, Sort: sortParam,CatView: cv})
+		err = tmpl.Execute(w, &data{Tenders: TenderViews, LoginForm: LoginForm, RegistrationForm: RegistrationForm, Sort: sortParam, CatView: cv})
 		if err != nil {
 			h.handleError(w, "Failed tenderlist render:", err, 500)
 			return
