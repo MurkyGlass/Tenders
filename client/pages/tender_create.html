@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание тендера - Портал государственных тендеров</title>
+    <link rel="stylesheet" href="/static/.css">
+    <link rel="stylesheet" href="/static/tender_create.css">
+    <script src="/static/main.js" async></script>
+    <script src="/static/tender_create.js" async></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <div class="logo-icon">Т</div>
+                <div class="logo-text">
+                    <h1>Портал государственных тендеров</h1>
+                    <p>Официальная площадка для проведения торгов</p>
+                </div>
+            </div>
+            <button class="account-btn" id="accountBtn">
+                <i class="fas fa-user-circle btn-icon"></i>
+                Личный кабинет
+            </button>
+        </div>
+    </header>
+
+    <nav>
+        <div class="nav-container">
+            <ul class="nav-menu">
+                <li><a href="/main"><i class="fas fa-home"></i> Главная</a></li>
+                <li><a href="/main/tenders" class="active"><i class="fas fa-gavel"></i> Активные тендеры</a></li>
+                <li><a href="#"><i class="fas fa-archive"></i> Архив торгов</a></li>
+                <li><a href="#"><i class="fas fa-newspaper"></i> Новости</a></li>
+                <li><a href="#"><i class="fas fa-book"></i> Документация</a></li>
+                <li><a href="#"><i class="fas fa-question-circle"></i> Помощь</a></li>
+                <li><a href="#"><i class="fas fa-phone-alt"></i> Контакты</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <div class="content-container">
+            <!-- Хлебные крошки -->
+            <div class="breadcrumbs">
+                <a href="/main">Главная</a>
+                <i class="fas fa-chevron-right"></i>
+                <a href="/main/tenders">Активные тендеры</a>
+                <i class="fas fa-chevron-right"></i>
+                <span>Создание тендера</span>
+            </div>
+
+            <!-- Заголовок страницы -->
+            <div class="page-header">
+                <h2 class="content-title">
+                    <i class="fas fa-plus-circle"></i>
+                    Создание нового тендера
+                </h2>
+                <p class="page-subtitle">Заполните все обязательные поля для публикации тендера</p>
+            </div>
+
+            <!-- Форма создания тендера -->
+            <form class="tender-create-form" id="tenderForm" method="POST" action="/main/tenders/create">
+                <div class="form-wrapper">
+                    <!-- Основная информация -->
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <i class="fas fa-info-circle"></i>
+                            <h3>Основная информация</h3>
+                        </div>
+                        
+                        <div class="form-card-body">
+                            <div class="form-group">
+                                <label class="form-label" for="name">
+                                    Название тендера <span class="required">*</span>
+                                </label>
+                                <input type="text" 
+                                       id="name"
+                                       class="form-input" 
+                                       name="name" 
+                                       placeholder="Введите название тендера"                                      
+                                       minlength="3" 
+                                       maxlength="100" 
+                                       required>
+                                <div class="form-hint">
+                                    <i class="fas fa-info-circle"></i>
+                                    От 3 до 100 символов
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="description">
+                                    Описание тендера
+                                </label>
+                                <textarea class="form-textarea" 
+                                          id="description"
+                                          name="description" 
+                                          placeholder="Подробное описание тендера, требования к участникам, условия проведения"
+                                          maxlength="500"></textarea>
+                                <div class="form-hint">
+                                    <i class="fas fa-info-circle"></i>
+                                    Максимум 500 символов. Поле необязательное
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Сроки проведения -->
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <i class="fas fa-calendar-alt"></i>
+                            <h3>Сроки проведения</h3>
+                        </div>
+                        
+                        <div class="form-card-body">
+                            <div class="form-row">
+                                <div class="form-group half">
+                                    <label class="form-label" for="datetime_start">
+                                        <i class="fas fa-play"></i>
+                                        Дата и время начала <span class="required">*</span>
+                                    </label>
+                                    <input type="datetime-local" 
+                                           id="datetime_start"
+                                           class="form-input" 
+                                           name="datetime_start" 
+                                           required>
+                                </div>
+                                
+                                <div class="form-group half">
+                                    <label class="form-label" for="datetime_end">
+                                        <i class="fas fa-stop"></i>
+                                        Дата и время окончания <span class="required">*</span>
+                                    </label>
+                                    <input type="datetime-local" 
+                                           id="datetime_end"
+                                           class="form-input" 
+                                           name="datetime_end" 
+                                           required>
+                                </div>
+                            </div>
+                            <div class="form-hint warning" id="dateWarning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Дата окончания должна быть позже даты начала
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Организационные детали -->
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <i class="fas fa-building"></i>
+                            <h3>Организационные детали</h3>
+                        </div>
+                        
+                        <div class="form-card-body">
+                            <div class="form-row">
+                                <div class="form-group half">
+                                    <label class="form-label" for="id_company">
+                                        Организатор <span class="required">*</span>
+                                    </label>
+                                    <select class="form-input" id="id_company" name="id_company" required>
+                                        <option value="" disabled selected>Выберите организатора</option>
+                                        <option value="1">ООО "Ромашка"</option>
+                                        <option value="2" >АО "ТехноСервис"</option>
+                                        <option value="3" >ГК "СтройИнвест"</option>
+                                        <option value="4">ПАО "Ресурс"</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group half">
+                                    <label class="form-label" for="id_district">
+                                        Регион проведения <span class="required">*</span>
+                                    </label>
+                                    <select class="form-input" id="id_district" name="id_district" required>
+                                        <option value="" >Выберите регион</option>
+                                        <option value="1" >Москва и Московская область</option>
+                                        <option value="2" >Санкт-Петербург и Ленинградская область</option>
+                                        <option value="3" >Центральный федеральный округ</option>
+                                        <option value="4" >Приволжский федеральный округ</option>
+                                        <option value="5" >Уральский федеральный округ</option>
+                                        <option value="6" >Сибирский федеральный округ</option>
+                                        <option value="7" >Дальневосточный федеральный округ</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="id_status">
+                                    Статус тендера <span class="required">*</span>
+                                </label>
+                                <select class="form-input" id="id_status" name="id_status" required>
+                                    <option value="" disabled selected>Выберите статус</option>
+                                    <option value="1" >Черновик</option>
+                                    <option value="2" >Опубликован</option>
+                                    <option value="3" >Прием заявок</option>
+                                </select>
+                                <div class="form-hint">
+                                    <i class="fas fa-info-circle"></i>
+                                    Статус можно изменить позже
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Дополнительные настройки -->
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <i class="fas fa-sliders-h"></i>
+                            <h3>Дополнительные настройки</h3>
+                        </div>
+                        
+                        <div class="form-card-body">
+                            <div class="form-checkbox-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="is_public" checked>
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-text">Опубликовать тендер сразу после создания</span>
+                                </label>
+                                <div class="form-hint">Если не отмечено, тендер будет сохранен как черновик</div>
+                            </div>
+
+                            <div class="form-checkbox-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="notify_participants">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-text">Уведомить участников о новом тендере</span>
+                                </label>
+                            </div>
+
+                            <div class="form-checkbox-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="allow_questions">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-text">Разрешить участникам задавать вопросы</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Кнопки действий -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+                            <i class="fas fa-times"></i>
+                            Отмена
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-check"></i>
+                            Создать тендер
+                        </button>
+                        <button type="button" class="btn btn-outline" id="saveDraftBtn">
+                            <i class="fas fa-save"></i>
+                            Сохранить как черновик
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>О портале</h3>
+                <ul class="footer-links">
+                    <li><a href="#"><i class="fas fa-info-circle"></i> О нас</a></li>
+                    <li><a href="#"><i class="fas fa-balance-scale"></i> Правовая информация</a></li>
+                    <li><a href="#"><i class="fas fa-shield-alt"></i> Безопасность</a></li>
+                    <li><a href="#"><i class="fas fa-chart-line"></i> Статистика</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Участникам</h3>
+                <ul class="footer-links">
+                    <li><a href="#"><i class="fas fa-user-plus"></i> Регистрация</a></li>
+                    <li><a href="#"><i class="fas fa-file-signature"></i> Как подать заявку</a></li>
+                    <li><a href="#"><i class="fas fa-comments-dollar"></i> Финансовое обеспечение</a></li>
+                    <li><a href="#"><i class="fas fa-question"></i> Частые вопросы</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Контакты</h3>
+                <div class="footer-contact">
+                    <p><i class="fas fa-phone"></i> 8-800-xxx-xx-xx</p>
+                    <p><i class="fas fa-envelope"></i> support@tender-portal.ru</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Москва, ул. Тендерная, д. 1</p>
+                    <p><i class="fas fa-clock"></i> Пн-Пт: 9:00-18:00</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <p>© 2024 Портал государственных тендеров. Все права защищены.</p>
+        </div>
+    </footer>
+</body>
+</html>

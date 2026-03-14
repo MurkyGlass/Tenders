@@ -35,6 +35,7 @@ func NewRouter(h *handler.Handlers, db *sqlx.DB) *mux.Router {
 
 	prRouter.HandleFunc("/lk", h.GetProfilwindow()).Methods("GET")
 	prRouter.HandleFunc("/lk/edit", h.EditingLK()).Methods("POST")
+	prRouter.HandleFunc("/tender/create",h.GetCreateTenderWindow()).Methods("GET")
 
 	//---------------------------------------------------------------------------------------------\\
 	// Health check

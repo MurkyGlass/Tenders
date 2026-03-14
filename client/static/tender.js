@@ -3,6 +3,21 @@ window.addEventListener('pageshow', function(event) {
         collapseAll()
     }
 });
+async function createTenderLink(){
+    const resp = await fetch("/protected/tender/create");
+            if(!resp.ok){
+                if(resp.status == 401){
+                    document.getElementById('loginModal').classList.add("show")
+                }else if(resp.status == 403){
+                    await Refresh()
+                    createTenderLink()
+                }
+                return
+            } 
+                 
+            window.location.href = "/protected/tender/create";
+}
+
 document.getElementById('CategoryFilterForm').addEventListener('submit', async function(event) {
 
         event.preventDefault()

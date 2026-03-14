@@ -86,6 +86,7 @@ async function LKbtn_Click() {
                     document.getElementById('loginModal').classList.add("show")
                 }else if(resp.status == 403){
                     await Refresh()
+                    await LKbtn_Click()
                 }
                 return
             } 
@@ -96,7 +97,6 @@ async function LKbtn_Click() {
 
 async function Refresh(){
     await fetch("/auth/refresh");
-    await LKbtn_Click()
 }
 document.querySelectorAll('.nav-menu a').forEach(link => {
     link.addEventListener('click', function(e) {

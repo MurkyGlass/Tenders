@@ -14,7 +14,24 @@ import (
 
 	_ "github.com/lib/pq"
 )
-
+func (h *Handlers) GetCreateTenderWindow() func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		tmpl, err := template.ParseFiles("./client/pages/tender_create.html")
+		if err != nil {
+			h.handleError(w, "Failed main load:", err, 500)
+			return
+		}
+		type Data struct {
+			LoginForm        template.HTML
+			RegistrationForm template.HTML
+		}
+		err = tmpl.Execute(w, &Data{LoginForm: LoginForm, RegistrationForm: RegistrationForm})
+		if err != nil {
+			h.handleError(w, "Failed main render:", err, 500)
+			return
+		}
+	}
+}
 func BuildCategoryTree(categories []models.Category, links []models.LinkView) []views.CategoryView {
 	var cm = make(map[int]models.Category)
 	var lpk = make(map[int][]int) //parrent key
