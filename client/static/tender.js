@@ -20,10 +20,14 @@ async function createTenderLink(){
 
 document.getElementById('CategoryFilterForm').addEventListener('submit', async function(event) {
 
+        sorter = document.getElementById('sortSelect')
+        const url = new URL(window.location);
+        url.searchParams.set('sort', sorter.value);
+
         event.preventDefault()
         const formData = new FormData(this);
   
-        const response = await fetch('/main/tenders', {
+        const response = await fetch(url, {
             method: 'POST',
             body: formData
         });
@@ -44,14 +48,33 @@ document.getElementById('CategoryFilterForm').addEventListener('submit', async f
             }
         }
     });
-function applySort(sortValue) {
-    const tendersList = document.getElementById('tendersList');
-    tendersList.style.opacity = '0.5';
-    
+async function applySort(sortValue) {
     const url = new URL(window.location);
     url.searchParams.set('sort', sortValue);
+    form = document.getElementById('CategoryFilterForm')
     
-   window.location.href = url;
+    const formData = new FormData(form);
+  
+        const response = await fetch(url, {
+            method: 'POST',
+            body: formData
+        });
+        if(response.ok){
+            const fullHtml = await response.text();
+            
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = fullHtml;
+            
+            const newElement = tempDiv.querySelector('#tendersList');
+            
+            if (newElement) {
+                const currentElement = document.querySelector('#tendersList');
+                
+                if (currentElement) {
+                    currentElement.replaceWith(newElement);
+                }
+            }
+        }
 }
 // Переключение одной категории
 function toggleCategory(btn) {

@@ -162,22 +162,22 @@ func (h *Handlers) GetTendersListwindow(FilterParams []int) func(w http.Response
 		case "date_new":
 			// сортировка по дате начала (новые сначала)
 			sort.Slice(tenders, func(i int, j int) bool {
-				return tenders[i].DateTimeStart.Before(tenders[j].DateTimeStart)
+				return tenders[i].DateTimeStart.After(tenders[j].DateTimeStart)
 			})
 		case "date_old":
 			// сортировка по дате начала (старые сначала)
 			sort.Slice(tenders, func(i int, j int) bool {
-				return tenders[i].DateTimeStart.After(tenders[j].DateTimeStart)
+				return tenders[i].DateTimeStart.Before(tenders[j].DateTimeStart)
 			})
 		case "deadline":
 			// сортировка по дате окончания (заканчиваются скоро)
 			sort.Slice(tenders, func(i int, j int) bool {
-				return tenders[i].DateTimeEnd.Before(tenders[j].DateTimeEnd)
+				return tenders[i].DateTimeEnd.After(tenders[j].DateTimeEnd)
 			})
 		case "deadline_far":
 			// сортировка по дате окончания (заканчиваются позже)
 			sort.Slice(tenders, func(i int, j int) bool {
-				return tenders[i].DateTimeEnd.After(tenders[j].DateTimeEnd)
+				return tenders[i].DateTimeEnd.Before(tenders[j].DateTimeEnd)
 			})
 		case "name_asc":
 			// сортировка по названию (А-Я)
@@ -217,7 +217,7 @@ func (h *Handlers) GetTendersListwindow(FilterParams []int) func(w http.Response
 		default:
 			// сортировка по умолчанию
 			sort.Slice(tenders, func(i int, j int) bool {
-				return tenders[i].DateTimeStart.Before(tenders[j].DateTimeStart)
+				return tenders[i].DateTimeStart.After(tenders[j].DateTimeStart)
 			})
 			sortParam = "date_new"
 		}
