@@ -324,3 +324,284 @@
         font-size: 0.95rem;
     }
 }
+/* ===== КАСТОМНЫЙ ЗАГРУЗЧИК ФАЙЛОВ ===== */
+
+/* Скрываем оригинальный input */
+.form-input-hidden {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    z-index: -1;
+}
+
+/* Группа кнопок */
+.file-button-group {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+/* Кнопка добавления файлов */
+.file-upload-btn {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    border: none;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    border: 2px solid transparent;
+}
+
+.file-upload-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(30, 60, 114, 0.3);
+    background: linear-gradient(135deg, #1e3c72 0%, #1e3c72 100%);
+}
+
+.file-upload-btn:active {
+    transform: translateY(0);
+}
+
+.file-upload-btn i {
+    font-size: 1rem;
+}
+
+/* Кнопка очистки */
+.file-clear-btn {
+    background: white;
+    border: 2px solid #6c757d;
+    color: #6c757d;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.file-clear-btn:hover {
+    background: #6c757d;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+}
+
+.file-clear-btn:active {
+    transform: translateY(0);
+}
+
+.file-clear-btn i {
+    font-size: 0.95rem;
+}
+
+/* Контейнер списка файлов */
+.file-list {
+    margin-top: 15px;
+    border: 1px solid #eaeaea;
+    border-radius: 8px;
+    overflow: hidden;
+    background: white;
+}
+
+/* Элемент списка файлов */
+.file-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s ease;
+}
+
+.file-list-item:last-child {
+    border-bottom: none;
+}
+
+.file-list-item:hover {
+    background: #f8f9fa;
+}
+
+.file-list-item span:first-child {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.95rem;
+    color: #333;
+}
+
+.file-list-item i {
+    color: #2a5298;
+    font-size: 1.1rem;
+}
+
+/* Размер файла */
+.file-size {
+    color: #7f8c8d;
+    font-size: 0.85rem;
+    background: #f0f0f0;
+    padding: 3px 8px;
+    border-radius: 12px;
+    white-space: nowrap;
+}
+
+/* Кнопка удаления файла */
+.remove-file {
+    color: #dc3545;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    opacity: 0.7;
+    font-size: 1rem;
+}
+
+.remove-file:hover {
+    opacity: 1;
+    background: #fff5f5;
+    transform: scale(1.1);
+}
+
+.remove-file i {
+    font-size: 1rem;
+    color: #dc3545;
+}
+
+/* Подсказка когда файлы не выбраны */
+.file-hint {
+    padding: 20px;
+    text-align: center;
+    color: #7f8c8d;
+    font-size: 0.95rem;
+    background: #f8f9fa;
+    border: 2px dashed #e0e0e0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.file-hint i {
+    color: #2a5298;
+    font-size: 1.2rem;
+}
+
+/* Информация о количестве файлов */
+.file-count {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #2a5298;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.file-count i {
+    font-size: 0.9rem;
+}
+
+/* Анимации */
+@keyframes fileAdded {
+    0% {
+        transform: scale(1);
+        background: #e8f5e9;
+    }
+    50% {
+        transform: scale(1.02);
+        background: #c8e6c9;
+    }
+    100% {
+        transform: scale(1);
+        background: transparent;
+    }
+}
+
+.file-list-item-added {
+    animation: fileAdded 0.5s ease;
+}
+
+/* Скролл для длинного списка */
+.file-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Кастомный скролл */
+.file-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.file-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.file-list::-webkit-scrollbar-thumb {
+    background: #2a5298;
+    border-radius: 4px;
+}
+
+.file-list::-webkit-scrollbar-thumb:hover {
+    background: #1e3c72;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .file-button-group {
+        flex-direction: column;
+    }
+    
+    .file-upload-btn,
+    .file-clear-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .file-list-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .file-list-item span:first-child {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+    
+    .remove-file {
+        align-self: flex-end;
+    }
+}
+
+@media (max-width: 576px) {
+    .file-list-item {
+        padding: 10px 12px;
+    }
+    
+    .file-list-item span:first-child {
+        font-size: 0.9rem;
+        gap: 8px;
+    }
+    
+    .file-size {
+        font-size: 0.8rem;
+        padding: 2px 6px;
+    }
+    
+    .file-hint {
+        padding: 15px;
+        font-size: 0.9rem;
+    }
+}

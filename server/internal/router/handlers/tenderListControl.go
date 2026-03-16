@@ -10,28 +10,11 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"time"
 
 	_ "github.com/lib/pq"
 )
-func (h *Handlers) GetCreateTenderWindow() func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		tmpl, err := template.ParseFiles("./client/pages/tender_create.html")
-		if err != nil {
-			h.handleError(w, "Failed main load:", err, 500)
-			return
-		}
-		type Data struct {
-			LoginForm        template.HTML
-			RegistrationForm template.HTML
-		}
-		err = tmpl.Execute(w, &Data{LoginForm: LoginForm, RegistrationForm: RegistrationForm})
-		if err != nil {
-			h.handleError(w, "Failed main render:", err, 500)
-			return
-		}
-	}
-}
+
+
 func BuildCategoryTree(categories []models.Category, links []models.LinkView) []views.CategoryView {
 	var cm = make(map[int]models.Category)
 	var lpk = make(map[int][]int) //parrent key
@@ -290,84 +273,4 @@ func (h *Handlers) GetTendersListwindow(FilterParams []int) func(w http.Response
 			return
 		}
 	}
-}
-func (h *Handlers) GetTenderwindow() func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		id, err := h.getIDFromRequest(r)
-		if err != nil {
-			h.handleError(w, "Invalid ID", err, 500)
-			return
-		}
-
-		tender, err := h.Repo.Tenders().GetByID(r.Context(), id)
-		if err != nil {
-			h.handleError(w, "Failed get tender:", err, 500)
-			return
-		}
-		tmpl, err := template.ParseFiles("./client/pages/tender_view.html")
-		if err != nil {
-			h.handleError(w, "Failed profil load:", err, 500)
-			return
-		}
-		company, err := h.Repo.Company().GetByID(r.Context(), tender.IdCompany)
-		if err != nil {
-			h.handleError(w, "Failed get company:", err, 500)
-			return
-		}
-		status, err := h.Repo.Status().GetByID(r.Context(), tender.IdStatus)
-		if err != nil {
-			h.handleError(w, "Failed get status:", err, 500)
-			return
-		}
-		district, err := h.Repo.District().GetByID(r.Context(), tender.IdDistrict)
-		if err != nil {
-			h.handleError(w, "Failed get district:", err, 500)
-			return
-		}
-		var tenview *views.TenderView
-		tenview = &views.TenderView{ID: tender.ID, Name: tender.Name, Description: tender.Description,
-			DateTimeStart: GetDateString(tender.DateTimeStart), DateTimeEnd: GetDateString(tender.DateTimeEnd), Company: company.Name,
-			Status: status.Name, District: district.Name}
-		type data struct {
-			LoginForm        template.HTML
-			RegistrationForm template.HTML
-			Tender           *views.TenderView
-		}
-		err = tmpl.Execute(w, &data{Tender: tenview, LoginForm: LoginForm, RegistrationForm: RegistrationForm})
-		if err != nil {
-			h.handleError(w, "Failed tender render:", err, 500)
-			return
-		}
-	}
-}
-func GetDateString(t time.Time) string {
-	month := t.Month()
-	day := t.Day()
-	hour := t.Hour()
-	minute := t.Minute()
-	var monstr string
-	if int(month) < 10 {
-		monstr = "0" + strconv.Itoa(int(month))
-	} else {
-		monstr = strconv.Itoa(int(month))
-	}
-	var daystr string
-	if day < 10 {
-		daystr = "0" + strconv.Itoa(day)
-	} else {
-		daystr = strconv.Itoa(day)
-	}
-	var hstr string
-	if hour < 10 {
-		hstr = "0" + strconv.Itoa(hour)
-	} else {
-		hstr = strconv.Itoa(hour)
-	}
-	var mstr string
-	if minute < 10 {
-		mstr = "0" + strconv.Itoa(minute)
-	} else {
-		mstr = strconv.Itoa(minute)
-	}
-	return fmt.Sprintf("%s.%s.%d %s:%s", daystr, monstr, t.Year(), hstr, mstr)
 }

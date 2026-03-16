@@ -6,6 +6,7 @@ import (
 	"main/internal/repositories"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
@@ -386,4 +387,35 @@ func jsonResponse(w http.ResponseWriter, data interface{}, statusCode ...int) {
 		w.WriteHeader(statusCode[0])
 	}
 	json.NewEncoder(w).Encode(data)
+}
+func GetDateString(t time.Time) string {
+	month := t.Month()
+	day := t.Day()
+	hour := t.Hour()
+	minute := t.Minute()
+	var monstr string
+	if int(month) < 10 {
+		monstr = "0" + strconv.Itoa(int(month))
+	} else {
+		monstr = strconv.Itoa(int(month))
+	}
+	var daystr string
+	if day < 10 {
+		daystr = "0" + strconv.Itoa(day)
+	} else {
+		daystr = strconv.Itoa(day)
+	}
+	var hstr string
+	if hour < 10 {
+		hstr = "0" + strconv.Itoa(hour)
+	} else {
+		hstr = strconv.Itoa(hour)
+	}
+	var mstr string
+	if minute < 10 {
+		mstr = "0" + strconv.Itoa(minute)
+	} else {
+		mstr = strconv.Itoa(minute)
+	}
+	return fmt.Sprintf("%s.%s.%d %s:%s", daystr, monstr, t.Year(), hstr, mstr)
 }
