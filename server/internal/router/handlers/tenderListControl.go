@@ -89,7 +89,6 @@ func (h *Handlers) FilterParams() func(w http.ResponseWriter, r *http.Request) {
 			var Ids []int
 			for _, str := range IDsStrArr {
 				id, err := strconv.Atoi(str)
-				h.Logger.Info(id)
 				if err != nil {
 					h.handleError(w, "Invalid Parsing category id by Filter", err, 400)
 					return

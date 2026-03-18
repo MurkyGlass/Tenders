@@ -22,9 +22,10 @@ func NewRouter(h *handler.Handlers, db *sqlx.DB) *mux.Router {
 	mainRouter := r.PathPrefix("/main").Subrouter()
 	mainRouter.HandleFunc("", h.GetMainwindow()).Methods("GET")
 	mainRouter.HandleFunc("/tenders", h.GetTendersListwindow(nil)).Methods("GET")
-	mainRouter.HandleFunc("/tenders", h.FilterParams()).Methods("POST")//
+	mainRouter.HandleFunc("/tenders", h.FilterParams()).Methods("POST") 
 	mainRouter.HandleFunc("/tenders/{id}", h.GetTenderwindow()).Methods("GET")
 	mainRouter.HandleFunc("/registration", h.Registration()).Methods("POST")
+
 	//authentification
 	r.HandleFunc("/auth/login", jwtService.LoginHandler).Methods("POST")
 	r.HandleFunc("/auth/refresh", jwtService.RefreshHandler).Methods("GET")
@@ -33,10 +34,14 @@ func NewRouter(h *handler.Handlers, db *sqlx.DB) *mux.Router {
 	prRouter := r.PathPrefix("/protected").Subrouter()
 	prRouter.Use(jwtService.Middleware)
 
-	prRouter.HandleFunc("/lk", h.GetProfilwindow()).Methods("GET")
-	prRouter.HandleFunc("/lk/edit", h.EditingLK()).Methods("POST")
-	prRouter.HandleFunc("/tender/create",h.GetCreateTenderWindow()).Methods("GET")
+	lkRouter := prRouter.PathPrefix("/lk").Subrouter()
+	lkRouter.HandleFunc("", h.GetProfilwindow()).Methods("GET")
+	lkRouter.HandleFunc("/edit", h.EditingLK()).Methods("POST")
 
+	tenderRouter := prRouter.PathPrefix("/tender").Subrouter()
+	tenderRouter.HandleFunc("/create", h.GetCreateTenderWindow()).Methods("GET")
+	tenderRouter.HandleFunc("/create", h.CreateTender(2)).Methods("POST")
+	tenderRouter.HandleFunc("/create/draft", h.CreateTender(1)).Methods("POST")
 	//---------------------------------------------------------------------------------------------\\
 	// Health check
 	r.HandleFunc("/health", h.HealthCheck()).Methods("GET")

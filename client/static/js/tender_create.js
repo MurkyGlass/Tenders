@@ -3,6 +3,37 @@ window.addEventListener('pageshow', function(event) {
         this.window.location.href = "/protected/tender/create"
     }
 });
+document.getElementById('tenderForm').addEventListener('submit',async function(event){
+        event.preventDefault()
+        const formData = new FormData(this);
+  
+        const response = await fetch('/protected/tender/create', {//
+            method: 'POST',
+            body: formData
+        });
+        if (response.ok){
+            alert("Закупка успешна создана")
+            window.location.href = "/main/tenders"
+        }else{
+            alert("Ошибка:"+ await response.text())
+        }
+})
+document.getElementById('saveDraftBtn').addEventListener('click',async function () {
+    
+        const formData = new FormData(document.getElementById('tenderForm'));
+  
+        const response = await fetch('/protected/tender/create/draft', {//
+            method: 'POST',
+            body: formData
+        });
+        if (response.ok){
+            alert("Черновик успешна создан")
+            window.location.href = "/main/tenders"
+        }else{
+            alert("Ошибка:"+ await response.text())
+        }
+    
+})
 // todo validation for file format and size
 document.getElementById('file_select').addEventListener('click', function(e) {
     // Сохраняем текущие файлы ДО открытия диалога

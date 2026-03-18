@@ -6,7 +6,9 @@
     <title>Создание тендера - Портал государственных тендеров</title>
     <link rel="stylesheet" href="/static/css/.css">
     <link rel="stylesheet" href="/static/css/tender_create.css">
+    <link rel="stylesheet" href="/static/css/tender.css">
     <script src="/static/js/main.js" async></script>
+    <script src="/static/js/tender.js" async></script>
     <script src="/static/js/tender_create.js" async></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -26,7 +28,28 @@
             </button>
         </div>
     </header>
-
+{{define "categoryTree"}}
+    {{range .}}
+        <li class="category-item">
+            <div class="category-content">
+                {{if .Childs}}
+                    <span class="toggle-btn" onclick="toggleCategory(this)">▼</span>
+                {{else}}
+                    <span class="toggle-placeholder"></span>
+                {{end}}
+                <label class="category-label">
+                    <input type="checkbox" name="category_ids" value="{{.Category.ID}}">
+                    {{.Category.Name}}
+                </label>
+            </div>
+            {{if .Childs}}
+                <ul class="category-children">
+                    {{template "categoryTree" .Childs}}
+                </ul>
+            {{end}}
+        </li>
+    {{end}}
+{{end}}
     <main>
         <div class="content-container">
             <!-- Хлебные крошки -->
@@ -90,16 +113,6 @@
                                     Максимум 500 символов. Поле необязательное
                                 </div>
                             </div>
-                            <div class="form-group">
-                                    <label class="form-label" for="id_district">
-                                        Регион проведения <span class="required">*</span>
-                                    </label>
-                                    <select class="form-input" id="id_district" name="id_district" required>
-                                        {{range .District}}
-                                        <option value="{{.ID}}" >{{.Name}}</option>
-                                        {{end}}
-                                    </select>
-                                </div>
                                 <div class="form-group">
                                     <label class="form-label" for="file_select">
                                         Документация <span class="required">*</span>
@@ -128,7 +141,43 @@
                                 </div>
                         </div>
                     </div>
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <i class="fas fa-calendar-alt"></i>
+                            <h3>Дополнительная информация</h3>
+                        </div>
+                        
+                        <div class="form-card-body">
 
+                                <div class="form-group">
+                                    <label class="form-label" for="id_district">
+                                        Регион проведения <span class="required">*</span>
+                                    </label>
+                                    <select class="form-input" id="id_district" name="id_district" required>
+                                        {{range .District}}
+                                        <option value="{{.ID}}" >{{.Name}}</option>
+                                        {{end}}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="category_ids">
+                                        Категории
+                                    </label>
+                                    <div class="categories-actions">
+                                        <button type="button" class="cbtn" onclick="expandAll()">Развернуть все</button>
+                                        <button type="button" class="cbtn" onclick="collapseAll()">Свернуть все</button>
+                                    </div>
+                                    
+                                    <ul class="category-tree">
+                                        {{template "categoryTree" .CatView}} 
+                                    </ul>
+                                </div>
+                            <div class="form-hint warning" id="dateWarning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Следует заполнить для удобства навигации пользователей
+                            </div>
+                        </div>
+                    </div>
                     <!-- Сроки проведения -->
                     <div class="form-card">
                         <div class="form-card-header">
