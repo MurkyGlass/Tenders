@@ -49,6 +49,8 @@ func NewRouter(h *handler.Handlers, db *sqlx.DB) *mux.Router {
 	r.HandleFunc("/users", h.GetUsers()).Methods("GET")
 	r.HandleFunc("/logs", h.GetLogs()).Methods("GET")
 	r.HandleFunc("/tenders", h.GetTenders()).Methods("GET")
+	r.HandleFunc("/tender/{id}/categories", h.GetTenderCategoryLinksbyId()).Methods("GET")
+	r.HandleFunc("/tenders/categories", h.GetTenderCategoryLinks()).Methods("GET")
 	r.HandleFunc("/companies", h.GetCompanies()).Methods("GET")
 	return r
 }

@@ -85,7 +85,7 @@ func (h *Handlers) FilterParams() func(w http.ResponseWriter, r *http.Request) {
 				a(w, r)
 				return
 			}
-			IDsStrArr := strings.Split(IdsStr, ",")
+			IDsStrArr := r.PostForm["category_ids"]
 			var Ids []int
 			for _, str := range IDsStrArr {
 				id, err := strconv.Atoi(str)

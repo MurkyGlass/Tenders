@@ -9,6 +9,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -119,6 +120,10 @@ func (h *Handlers) CreateTender(IdStatus int) func(w http.ResponseWriter, r *htt
 				h.handleError(w, "Date start must date end", fmt.Errorf("failed, date start must date end"), 400)
 				return
 			}
+			if !tender.DateTimeStart.After(time.Now()) {
+				h.handleError(w, "Date start must date now", fmt.Errorf("failed, date start must date now"), 400)
+				return
+			}
 
 			id, ok := r.Context().Value("id_user").(int)
 			if !ok {
@@ -147,10 +152,9 @@ func (h *Handlers) CreateTender(IdStatus int) func(w http.ResponseWriter, r *htt
 			}
 
 			IdsStr := r.PostForm.Get("category_ids")
-			//Category ids parsing
 			var IdsCateg []int
 			if IdsStr != "" {
-				IDsStrArr := strings.Split(IdsStr, ",")
+				IDsStrArr := r.PostForm["category_ids"]
 
 				for _, str := range IDsStrArr {
 					id, err := strconv.Atoi(str)
@@ -186,7 +190,47 @@ func (h *Handlers) CreateTender(IdStatus int) func(w http.ResponseWriter, r *htt
 				h.handleError(w, "Failed tender log creation", fmt.Errorf("Failed tender log creation in transaction: %v", err), 500)
 				return
 			}
-			//todo ierarhiy category adding
+
+			links, err := tx.CategoryLink().GetAll(r.Context())
+			if err != nil {
+				h.handleError(w, "Failed get categ links", fmt.Errorf("Failed get categ links in transaction: %v", err), 500)
+				return
+			}
+			if len(IdsCateg) > 0 {
+				var parents []int
+				var f bool
+				f = false
+				for !f {
+					f = true
+					for _, i := range IdsCateg {
+						for _, l := range links {
+							if l.SecondID == i {
+								if !slices.ContainsFunc(IdsCateg, func(e int) bool {
+									return e == l.FirstID
+								}) && !slices.ContainsFunc(parents, func(a int) bool {
+									return a == l.FirstID
+								}) {
+									parents = append(parents, l.FirstID)
+								}
+
+								links = slices.DeleteFunc(links, func(link models.LinkView) bool {
+									return link.FirstID == l.FirstID && link.SecondID == l.SecondID
+								})
+								break
+							}
+						}
+					}
+					if len(parents) > 0 {
+						for _, p := range parents {
+							IdsCateg = append(IdsCateg, p)
+						}
+						parents = nil
+						parents = make([]int, 0)
+						f = false
+					}
+				}
+			}
+
 			if len(IdsCateg) > 0 {
 				for _, i := range IdsCateg {
 					err = tx.LinkerTCategory(tender.ID).Create(r.Context(), i)
