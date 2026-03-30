@@ -8,11 +8,16 @@
 /* Фильтры */
 .tenders-filters {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
     margin-bottom: 30px;
-    gap: 20px;
-    flex-wrap: wrap;
+    
+}
+.tenders-filters-string {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    margin-bottom: 5px;
 }
 
 .search-box {

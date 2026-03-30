@@ -3,6 +3,40 @@ window.addEventListener('pageshow', function(event) {
         collapseAll()
     }
 });
+async function Search(){
+    searcher = document.getElementById('searchbox')
+    sorter = document.getElementById('sortSelect')
+    const url = new URL(window.location);
+    url.searchParams.set('sort', sorter.value);
+    url.searchParams.set('search',searcher.value)
+    form = document.getElementById('CategoryFilterForm')
+    
+    const formData = new FormData(form);
+    await UpdateTenders(url,formData)
+        
+}
+async function UpdateTenders(url,formData) {
+    const response = await fetch(url, {
+            method: 'POST',
+            body: formData
+        });
+        if(response.ok){
+            const fullHtml = await response.text();
+            
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = fullHtml;
+            
+            const newElement = tempDiv.querySelector('#tendersList');
+            
+            if (newElement) {
+                const currentElement = document.querySelector('#tendersList');
+                
+                if (currentElement) {
+                    currentElement.replaceWith(newElement);
+                }
+            }
+        }
+}
 async function createTenderLink(){
     const resp = await fetch("/protected/tender/create");
             if(!resp.ok){
@@ -20,61 +54,28 @@ async function createTenderLink(){
 
 document.getElementById('CategoryFilterForm').addEventListener('submit', async function(event) {
 
+        searcher = document.getElementById('searchbox')
         sorter = document.getElementById('sortSelect')
         const url = new URL(window.location);
         url.searchParams.set('sort', sorter.value);
+        url.searchParams.set('search',searcher.value)
 
         event.preventDefault()
         const formData = new FormData(this);
   
-        const response = await fetch(url, {
-            method: 'POST',
-            body: formData
-        });
-        if(response.ok){
-            const fullHtml = await response.text();
-            
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = fullHtml;
-            
-            const newElement = tempDiv.querySelector('#tendersList');
-            
-            if (newElement) {
-                const currentElement = document.querySelector('#tendersList');
-                
-                if (currentElement) {
-                    currentElement.replaceWith(newElement);
-                }
-            }
-        }
+        await UpdateTenders(url,formData)
     });
 async function applySort(sortValue) {
+    searcher = document.getElementById('searchbox')
     const url = new URL(window.location);
     url.searchParams.set('sort', sortValue);
+    url.searchParams.set('search',searcher.value)
+    
     form = document.getElementById('CategoryFilterForm')
     
     const formData = new FormData(form);
   
-        const response = await fetch(url, {
-            method: 'POST',
-            body: formData
-        });
-        if(response.ok){
-            const fullHtml = await response.text();
-            
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = fullHtml;
-            
-            const newElement = tempDiv.querySelector('#tendersList');
-            
-            if (newElement) {
-                const currentElement = document.querySelector('#tendersList');
-                
-                if (currentElement) {
-                    currentElement.replaceWith(newElement);
-                }
-            }
-        }
+    await UpdateTenders(url,formData)
 }
 // Переключение одной категории
 function toggleCategory(btn) {

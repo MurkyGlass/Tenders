@@ -14,7 +14,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-
 func BuildCategoryTree(categories []models.Category, links []models.LinkView) []views.CategoryView {
 	var cm = make(map[int]models.Category)
 	var lpk = make(map[int][]int) //parrent key
@@ -213,11 +212,19 @@ func (h *Handlers) GetTendersListwindow(FilterParams []int) func(w http.Response
 			TCmap[tl.IdTender] = append(TCmap[tl.IdTender], tl.IdCategory)
 		}
 		// сортировка фильтрации ограничения итд
+		search := r.URL.Query().Get("search")
+
 		var TenderViews []views.TenderView
 		for _, tender := range tenders {
 			// черновик, завершен(отобр. в отдельном списке)
 			if tender.IdStatus == 1 || tender.IdStatus == 3 {
 				continue
+			}
+			if search != "" {
+				lsearch := strings.ToLower(search)
+				if !strings.Contains(strings.ToLower(tender.Name), lsearch) && !strings.Contains(strings.ToLower(tender.Description), lsearch) && !strings.Contains(strings.ToLower(CompMap[tender.IdCompany]), lsearch) {
+					continue
+				}
 			}
 			if FilterParams != nil {
 				if TCmap[tender.ID] != nil {

@@ -68,32 +68,35 @@
             <h2 class="content-title">Текущие закупки</h2>
             <div class="content-body">
                 <div class="tenders-filters">
-    <div class="search-box">
-        <i class="fas fa-search search-icon"></i>
-        <input type="text" class="search-input" placeholder="Поиск тендеров...">
-    </div>
-    
-    <div class="sort-container">
-        <label for="sortSelect" class="sort-label">
-            <i class="fas fa-sort-amount-down"></i>
-            Сортировка:
-        </label>
-        <select id="sortSelect" class="sort-select" onchange="applySort(this.value)">
-            <option value="date_new">📅 Сначала новые</option>
-            <option value="date_old">📅 Сначала старые</option>
-            <option value="deadline">⏰ Заканчиваются скоро</option>
-            <option value="deadline_far">⏰ Заканчиваются позже</option>
-            <option value="name_asc">📝 По названию (А-Я)</option>
-            <option value="name_desc">📝 По названию (Я-А)</option>
-            <option value="duration_asc">⏱️ Сначала короткие</option>
-            <option value="duration_desc">⏱️ Сначала длинные</option>
-            <option value="status">🏷️ По статусу</option>
-            <option value="company">🏢 По компании</option>
-            <option value="district">📍 По району</option>
-        </select>
-    </div>
-    <button class="cbtn" onclick="createTenderLink()">Создать закупку</button>  
-</div>
+                    <div class="tenders-filters-string">
+                        <div class="search-box">           
+                            <input id="searchbox" type="text" class="search-input" placeholder="Поиск тендеров...">
+                            <i class="fas fa-search search-icon" onclick="Search()"></i>
+                        </div>
+                        <button class="cbtn" onclick="createTenderLink()">Создать закупку</button>
+                    </div>  
+                    <div class="tenders-filters-string">
+                        <div class="sort-container">
+                            <label for="sortSelect" class="sort-label">
+                                <i class="fas fa-sort-amount-down"></i>
+                                Сортировка:
+                            </label>
+                            <select id="sortSelect" class="sort-select" onchange="applySort(this.value)">
+                                <option value="date_new">📅 Сначала новые</option>
+                                <option value="date_old">📅 Сначала старые</option>
+                                <option value="deadline">⏰ Заканчиваются скоро</option>
+                                <option value="deadline_far">⏰ Заканчиваются позже</option>
+                                <option value="name_asc">📝 По названию (А-Я)</option>
+                                <option value="name_desc">📝 По названию (Я-А)</option>
+                                <option value="duration_asc">⏱️ Сначала короткие</option>
+                                <option value="duration_desc">⏱️ Сначала длинные</option>
+                                <option value="status">🏷️ По статусу</option>
+                                <option value="company">🏢 По компании</option>
+                                <option value="district">📍 По району</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
 <div class="filter-group">
     <form id="CategoryFilterForm">
     <div  class="categories-header-container">
