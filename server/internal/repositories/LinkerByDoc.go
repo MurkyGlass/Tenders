@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"fmt"
+	"main/internal/repositories/models"
 )
 
 // Только в TX! Обновление програмно не предусмотренно, следует удалить старую связь и создать новую.
@@ -43,11 +44,49 @@ func (l *linkerDoc) Exists(ctx context.Context) (bool, error) {
 	return ex, nil
 }
 
+func (l *ldtender) GetAll(ctx context.Context, idtender int) ([]models.Tender_Doc, error) {
+
+	q := `
+		SELECT * FROM Doc_Tender WHERE id_tender = $1
+	`
+	var ex []models.Tender_Doc
+	err := l.l.db.SelectContext(ctx, &ex, q, idtender)
+	if err != nil {
+		return nil, fmt.Errorf("Failed find link doc: %w", err)
+	}
+	return ex, nil
+}
+func (l *ldcompany) GetAll(ctx context.Context, idcompany int) ([]models.Company_Doc, error) {
+
+	q := `
+		SELECT * FROM Doc_Company WHERE id_company = $1
+	`
+	var ex []models.Company_Doc
+	err := l.l.db.SelectContext(ctx, &ex, q, idcompany)
+	if err != nil {
+		return nil, fmt.Errorf("Failed find link doc: %w", err)
+	}
+	return ex, nil
+}
+func (l *ldoffer) GetAll(ctx context.Context, idoffer int) ([]models.Offer_Doc, error) {
+
+	q := `
+		SELECT * FROM Doc_Offer WHERE id_offer = $1
+	`
+	var ex []models.Offer_Doc
+	err := l.l.db.SelectContext(ctx, &ex, q, idoffer)
+	if err != nil {
+		return nil, fmt.Errorf("Failed find link doc: %w", err)
+	}
+	return ex, nil
+}
+
 type LdCompany interface {
 	Create(ctx context.Context, idComp int) error
 	Delete(ctx context.Context, idComp int) error
 	Exists(ctx context.Context) (bool, error)
 	ExistsByID(ctx context.Context, Id int) (bool, error)
+	GetAll(ctx context.Context, idcompany int) ([]models.Company_Doc, error)
 }
 type ldcompany struct {
 	l *linkerDoc
@@ -124,6 +163,7 @@ type LdTender interface {
 	Delete(ctx context.Context, idT int) error
 	Exists(ctx context.Context) (bool, error)
 	ExistsByID(ctx context.Context, Id int) (bool, error)
+	GetAll(ctx context.Context, idtender int) ([]models.Tender_Doc, error)
 }
 type ldtender struct {
 	l *linkerDoc
@@ -201,6 +241,7 @@ type LdOffer interface {
 	Delete(ctx context.Context, idOf int) error
 	Exists(ctx context.Context) (bool, error)
 	ExistsByID(ctx context.Context, Id int) (bool, error)
+	GetAll(ctx context.Context, idoffer int) ([]models.Offer_Doc, error)
 }
 type ldoffer struct {
 	l *linkerDoc

@@ -91,7 +91,14 @@
     flex-wrap: wrap;
     gap: 10px;
 }
-
+.tender-categories {
+    display: flex;
+    justify-content: stretch;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
 .tender-title {
     font-size: 1.4rem;
     color: #1e3c72;
@@ -119,7 +126,11 @@
     color: #2e7d32;
     border: 1px solid #a5d6a7;
 }
-
+.status-category {
+    background: rgb(140, 172, 196);
+    color: rgb(38, 73, 103);
+    border: 1px solid rgb(35, 39, 74);
+}
 .status-cancelled {
     background: #ffebee;
     color: #c62828;

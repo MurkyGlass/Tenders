@@ -22,7 +22,7 @@ func NewRouter(h *handler.Handlers, db *sqlx.DB) *mux.Router {
 	mainRouter := r.PathPrefix("/main").Subrouter()
 	mainRouter.HandleFunc("", h.GetMainwindow()).Methods("GET")
 	mainRouter.HandleFunc("/tenders", h.GetTendersListwindow(nil)).Methods("GET")
-	mainRouter.HandleFunc("/tenders", h.FilterParams()).Methods("POST") 
+	mainRouter.HandleFunc("/tenders", h.FilterParams()).Methods("POST")
 	mainRouter.HandleFunc("/tenders/{id}", h.GetTenderwindow()).Methods("GET")
 	mainRouter.HandleFunc("/registration", h.Registration()).Methods("POST")
 
@@ -34,6 +34,11 @@ func NewRouter(h *handler.Handlers, db *sqlx.DB) *mux.Router {
 	prRouter := r.PathPrefix("/protected").Subrouter()
 	prRouter.Use(jwtService.Middleware)
 
+	//downlander docs
+	prRouter.HandleFunc("/tenders/documents/{id}", h.GetTenderDocumentById()).Methods("GET")
+	prRouter.HandleFunc("/tenders/{id}/documents", h.GetTenderDocuments()).Methods("GET")
+	//--------------------------------------------------------------------------------------
+	
 	lkRouter := prRouter.PathPrefix("/lk").Subrouter()
 	lkRouter.HandleFunc("", h.GetProfilwindow()).Methods("GET")
 	lkRouter.HandleFunc("/edit", h.EditingLK()).Methods("POST")

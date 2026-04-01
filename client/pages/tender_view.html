@@ -59,7 +59,37 @@
             <p class="tender-description">
                 {{.Tender.Description}}
             </p>
-            
+            <div class="tender-categories">
+                <h3 class="tender-title">Категории:</h3>
+                {{if .Tender.Categories}}
+                    {{range .Tender.Categories}}
+                        <span class="tender-status status-category">{{.}}</span>
+                    {{end}}
+                {{else}}
+                    <span class="tender-status status-category">Нет категорий</span>
+                {{end}}
+            </div>
+            <h3 class="tender-title">Документы:</h3>
+            <div class="file-list" id="file-list">
+                {{if .Tender.Files}}
+                    {{range .Tender.Files}}
+                        <div class="file-list-item">
+                            <span>
+                                <i class="fas fa-file"></i> 
+                                {{.Name}}
+                            </span>
+                            <a href="/protected/tenders/documents/{{.ID}}">
+                                <span> Скачать </span>
+                            </a>            
+                        </div>
+                    {{end}}
+                    <a href="/protected/tenders/{{.Tender.ID}}/documents">
+                        <span> Скачать архивом</span>
+                    </a>
+                {{else}}
+                    <span>Нет прикрепленных документов</span>
+                {{end}}
+            </div>
             <div class="tender-details">
                 <div class="detail-item">
                     <i class="far fa-calendar-alt"></i>
