@@ -111,3 +111,6 @@ document.querySelectorAll('.nav-menu a').forEach(link => {
 function viewTenderDetails(id){
     window.location.href = "/main/tenders/"+id
 }
+function CreateOfferWindow(id){
+    window.location.href='/protected/tenders/'+id+'/offer/create'
+}

@@ -137,6 +137,11 @@ func (h *Handlers) CreateTender(IdStatus int) func(w http.ResponseWriter, r *htt
 			tender.IdCompany = user.IdCompany
 			tender.IdStatus = IdStatus //Активный, 1 - Черновик todo в случае с кнопкой сохранить как черновик статус должен быть 1
 
+			//Validation
+			err = tender.Validate()
+			if err != nil {
+				h.handleError(w, "tender validation failed", err, 500)
+			}
 			//parsing files
 			files := r.MultipartForm.File["files"]
 

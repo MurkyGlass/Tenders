@@ -48,8 +48,8 @@ func (r *offerRepository) Create(ctx context.Context, offer *models.Offer) error
 		return err
 	}
 	query := `
-		INSERT INTO offers (name, description, datetime_create, price, id_company, id_status, id_tender) 
-		VALUES (:name, :description, :datetime_create, :price, :id_company, :id_status, :id_tender)
+		INSERT INTO offers ( description, datetime_create, price, id_company, id_status, id_tender) 
+		VALUES ( :description, :datetime_create, :price, :id_company, :id_status, :id_tender)
 		RETURNING id_offer
 	`
 	stmt, err := r.db.PrepareNamedContext(ctx, query)
@@ -71,7 +71,7 @@ func (r *offerRepository) Update(ctx context.Context, offer *models.Offer) error
 	}
 	query := `
 		UPDATE offers 
-		SET name = :name, description = :description, 
+		SET description = :description, 
 			datetime_create = :datetime_create, price = :price, 
 			id_company = :id_company, id_status = :id_status,
 			id_tender = :id_tender

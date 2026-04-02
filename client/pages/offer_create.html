@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Создание тендера</title>
+    <title>Создание коммерческого предложения</title>
     <link rel="stylesheet" href="/static/css/.css">
     <link rel="stylesheet" href="/static/css/tender_create.css">
     <link rel="stylesheet" href="/static/css/tender.css">
+    <link rel="stylesheet" href="/static/css/offer.css">
     <script src="/static/js/main.js" async></script>
     <script src="/static/js/tender.js" async></script>
-    <script src="/static/js/tender_create.js" async></script>
+    <script src="/static/js/offer_create.js" async></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -28,28 +29,6 @@
             </button>
         </div>
     </header>
-{{define "categoryTree"}}
-    {{range .}}
-        <li class="category-item">
-            <div class="category-content">
-                {{if .Childs}}
-                    <span class="toggle-btn" onclick="toggleCategory(this)">▼</span>
-                {{else}}
-                    <span class="toggle-placeholder"></span>
-                {{end}}
-                <label class="category-label">
-                    <input type="checkbox" name="category_ids" value="{{.Category.ID}}">
-                    {{.Category.Name}}
-                </label>
-            </div>
-            {{if .Childs}}
-                <ul class="category-children">
-                    {{template "categoryTree" .Childs}}
-                </ul>
-            {{end}}
-        </li>
-    {{end}}
-{{end}}
     <main>
         <div class="content-container">
             <!-- Хлебные крошки -->
@@ -58,20 +37,21 @@
                 <i class="fas fa-chevron-right"></i>
                 <a href="/main/tenders">Активные тендеры</a>
                 <i class="fas fa-chevron-right"></i>
-                <span>Создание тендера</span>
+                <a id="tenderlink" href="{{.Link}}">Тендер №{{.TenderID}}</a>
+                <i class="fas fa-chevron-right"></i>
+                <span>Создание коммерческого предложения</span>
             </div>
 
             <!-- Заголовок страницы -->
             <div class="page-header">
                 <h2 class="content-title">
                     <i class="fas fa-plus-circle"></i>
-                    Создание нового тендера
+                    Создание коммерческого предложения для тендера №{{.TenderID}}
                 </h2>
-                <p class="page-subtitle">Заполните все обязательные поля для публикации тендера</p>
+                <p class="page-subtitle">Заполните все обязательные поля для публикации</p>
             </div>
 
-            <!-- Форма создания тендера -->
-            <form class="tender-create-form" id="tenderForm">
+            <form class="tender-create-form" id="offerForm">
                 <div class="form-wrapper">
                     <!-- Основная информация -->
                     <div class="form-card">
@@ -82,31 +62,24 @@
                         
                         <div class="form-card-body">
                             <div class="form-group">
-                                <label class="form-label" for="name">
-                                    Название тендера <span class="required">*</span>
+                                <label class="form-label" for="description">
+                                    Цена
                                 </label>
-                                <input type="text" 
-                                       id="name"
-                                       class="form-input" 
-                                       name="name" 
-                                       placeholder="Введите название тендера"                                      
-                                       minlength="3" 
-                                       maxlength="100" 
-                                       required>
-                                <div class="form-hint">
-                                    <i class="fas fa-info-circle"></i>
-                                    От 3 до 100 символов
-                                </div>
+                                <input id="price"
+                                name="price"
+                                type="number"
+                                class="form-input"
+                                required/>
+                                <span class="offer-price-label">руб.</span>
                             </div>
-
                             <div class="form-group">
                                 <label class="form-label" for="description">
-                                    Описание тендера
+                                    Описание коммерческого предложения
                                 </label>
                                 <textarea class="form-textarea" 
                                           id="description"
                                           name="description" 
-                                          placeholder="Подробное описание тендера, требования к участникам, условия проведения"
+                                          placeholder="Подробное описание предложения, условия, дополнительная информация"
                                           maxlength="500"></textarea>
                                 <div class="form-hint">
                                     <i class="fas fa-info-circle"></i>
@@ -141,85 +114,6 @@
                                 </div>
                         </div>
                     </div>
-                    <div class="form-card">
-                        <div class="form-card-header">
-                            <i class="fas fa-calendar-alt"></i>
-                            <h3>Дополнительная информация</h3>
-                        </div>
-                        
-                        <div class="form-card-body">
-
-                                <div class="form-group">
-                                    <label class="form-label" for="id_district">
-                                        Регион проведения <span class="required">*</span>
-                                    </label>
-                                    <select class="form-input" id="id_district" name="id_district" required>
-                                        {{range .District}}
-                                        <option value="{{.ID}}" >{{.Name}}</option>
-                                        {{end}}
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="category_ids">
-                                        Категории
-                                    </label>
-                                    <div class="categories-actions">
-                                        <button type="button" class="cbtn" onclick="expandAll()">Развернуть все</button>
-                                        <button type="button" class="cbtn" onclick="collapseAll()">Свернуть все</button>
-                                    </div>
-                                    
-                                    <ul class="category-tree">
-                                        {{template "categoryTree" .CatView}} 
-                                    </ul>
-                                </div>
-                            <div class="form-hint warning" id="dateWarning">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                Следует заполнить для удобства навигации пользователей
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Сроки проведения -->
-                    <div class="form-card">
-                        <div class="form-card-header">
-                            <i class="fas fa-calendar-alt"></i>
-                            <h3>Сроки проведения</h3>
-                        </div>
-                        
-                        <div class="form-card-body">
-                            <div class="form-row">
-                                <div class="form-group half">
-                                    <label class="form-label" for="datetime_start">
-                                        <i class="fas fa-play"></i>
-                                        Дата и время начала <span class="required">*</span>
-                                    </label>
-                                    <input type="datetime-local" 
-                                           id="datetime_start"
-                                           class="form-input" 
-                                           name="datetime_start" 
-                                           required>
-                                </div>
-                                
-                                <div class="form-group half">
-                                    <label class="form-label" for="datetime_end">
-                                        <i class="fas fa-stop"></i>
-                                        Дата и время окончания <span class="required">*</span>
-                                    </label>
-                                    <input type="datetime-local" 
-                                           id="datetime_end"
-                                           class="form-input" 
-                                           name="datetime_end" 
-                                           required>
-                                </div>
-                            </div>
-                            <div class="form-hint warning" id="dateWarning">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                Дата окончания должна быть позже даты начала
-                            </div>
-                        </div>
-                    </div>
-
-                    
-
                     <!-- Кнопки действий -->
                     <div class="form-actions">
                         <button type="button" class="btn btn-secondary" onclick="window.history.back()">
@@ -228,7 +122,7 @@
                         </button>
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-check"></i>
-                            Создать тендер
+                            Создать коммерческое предложение
                         </button>
                         <button type="button" class="btn btn-outline" id="saveDraftBtn">
                             <i class="fas fa-save"></i>

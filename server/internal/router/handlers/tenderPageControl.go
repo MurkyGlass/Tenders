@@ -179,12 +179,37 @@ func (h *Handlers) GetTenderwindow() func(w http.ResponseWriter, r *http.Request
 		tenview = &views.TenderView{ID: tender.ID, Name: tender.Name, Description: tender.Description,
 			DateTimeStart: GetDateString(tender.DateTimeStart), DateTimeEnd: GetDateString(tender.DateTimeEnd), Company: company.Name,
 			Status: status.Name, District: district.Name, Categories: catlist, Files: files}
+		var offersview []views.OfferView
+		offers, err := h.Repo.Offer().GetAll(r.Context())
+		if err != nil {
+			h.handleError(w, "Failed get offers", err, 500)
+			return
+		}
+		for _, offer := range offers {
+			if offer.IdTender == tender.ID {
+				var offerview views.OfferView
+				offerview.ID = offer.ID
+				offerview.Description = offer.Description
+				offerview.Price = offer.Price
+				offerview.DateTimeCreate = GetDateString(offer.DateTimeCreate)
+				comp, err := h.Repo.Company().GetByID(r.Context(), offer.IdCompany)
+				if err != nil {
+					h.handleError(w, "Failed get company by offer", err, 500)
+					return
+				}
+				offerview.Company = comp.Name
+				st, err := h.Repo.Status().GetByID(r.Context(), offer.IdStatus)
+				offerview.Status = st.Name
+				offersview = append(offersview, offerview)
+			}
+		}
 		type data struct {
 			LoginForm        template.HTML
 			RegistrationForm template.HTML
 			Tender           *views.TenderView
+			Offers           []views.OfferView
 		}
-		err = tmpl.Execute(w, &data{Tender: tenview, LoginForm: LoginForm, RegistrationForm: RegistrationForm})
+		err = tmpl.Execute(w, &data{Tender: tenview, LoginForm: LoginForm, RegistrationForm: RegistrationForm,Offers: offersview})
 		if err != nil {
 			h.handleError(w, "Failed tender render:", err, 500)
 			return
