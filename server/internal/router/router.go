@@ -34,7 +34,7 @@ func NewRouter(h *handler.Handlers, db *sqlx.DB) *mux.Router {
 	prRouter := r.PathPrefix("/protected").Subrouter()
 	prRouter.Use(jwtService.Middleware)
 
-	//downlander docs
+	//tenders docs
 	prRouter.HandleFunc("/tenders/documents/{id}", h.GetTenderDocumentById()).Methods("GET")
 	prRouter.HandleFunc("/tenders/{id}/documents", h.GetTenderDocuments()).Methods("GET")
 	//--------------------------------------------------------------------------------------
@@ -42,6 +42,12 @@ func NewRouter(h *handler.Handlers, db *sqlx.DB) *mux.Router {
 	prRouter.HandleFunc("/tenders/{id}/offer/create",h.GetCreateOfferWindow()).Methods("GET")
 	prRouter.HandleFunc("/tenders/{id}/offer/create",h.CreateOffer(2)).Methods("POST")
 	prRouter.HandleFunc("/tenders/{id}/offer/create/draft",h.CreateOffer(1)).Methods("POST")
+	//--------------------------------------------------------------------------------------
+	//offers
+	prRouter.HandleFunc("/offers/{id}",h.GetOfferWindow()).Methods("GET")
+	//offers docs
+	prRouter.HandleFunc("/offers/documents/{id}", h.GetOfferDocumentById()).Methods("GET")
+	prRouter.HandleFunc("/offers/{id}/documents", h.GetOfferDocuments()).Methods("GET")
 	//--------------------------------------------------------------------------------------
 	lkRouter := prRouter.PathPrefix("/lk").Subrouter()
 	lkRouter.HandleFunc("", h.GetProfilwindow()).Methods("GET")
