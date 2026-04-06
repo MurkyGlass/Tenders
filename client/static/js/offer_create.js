@@ -17,6 +17,11 @@ document.getElementById('offerForm').addEventListener('submit',async function(ev
             alert("Предложение успешно создано")
             window.location.href = uri
         }else{
+            if(response.status == 409)
+            {
+                alert("Ошибка:"+ await response.text())
+                window.history.back()
+            }
             alert("Ошибка:"+ await response.text())
         }
 })
@@ -33,6 +38,11 @@ document.getElementById('saveDraftBtn').addEventListener('click',async function 
             alert("Черновик успешна создан")
             window.location.href = uri
         }else{
+            if(response.status == 409)
+            {
+                alert("Ошибка:"+ await response.text())
+                window.history.back()
+            }
             alert("Ошибка:"+ await response.text())
         }
     

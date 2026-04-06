@@ -46,22 +46,36 @@ func (h *Handlers) CreateOffer(IdStatus int) func(w http.ResponseWriter, r *http
 			id, ok := r.Context().Value("id_user").(int)
 			if !ok {
 				h.handleError(w, "Bad user id", fmt.Errorf("Bad User id"), 500)
+				return
 			}
 			user, err := h.Repo.Users().GetByID(r.Context(), id)
 			if err != nil {
 				h.handleError(w, "db request failed", err, 500)
+				return
 			}
+
 			idtender,err := h.getIDFromRequest(r)
 			if err != nil{
 				h.handleError(w, "Failed parse tender id", err, 500)
+				return
 			}
-			offer.IdTender = idtender
+			tender, err := h.Repo.Tenders().GetByID(r.Context(), idtender)
+			if err != nil {
+				h.handleError(w, "db request failed", err, 500)
+				return
+			}
+			if tender.IdCompany == user.IdCompany{
+				h.handleError(w,"Нельзя создать коммерческое предложение на свой же тендер",fmt.Errorf("You cannot create a commercial offer for your own tender"),409)
+				return
+			}
+			offer.IdTender = tender.ID
 			offer.IdCompany = user.IdCompany
 			offer.IdStatus = IdStatus //Активный, 1 - Черновик todo в случае с кнопкой сохранить как черновик статус должен быть 1
 			//validation
 			err = offer.Validate()
 			if err != nil{
 				h.handleError(w, "Failed validate offer", err, 500)
+				return
 			}
 			//parsing files
 			files := r.MultipartForm.File["files"]

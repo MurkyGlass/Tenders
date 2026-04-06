@@ -3,7 +3,6 @@ package handler
 import (
 	"fmt"
 	"html/template"
-	"main/internal/repositories/models"
 	"main/internal/router/handlers/views"
 	"net/http"
 	"slices"
@@ -14,61 +13,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func BuildCategoryTree(categories []models.Category, links []models.LinkView) []views.CategoryView {
-	var cm = make(map[int]models.Category)
-	var lpk = make(map[int][]int) //parrent key
-	var lck = make(map[int]int)   //child key
-	for _, category := range categories {
-		cm[category.ID] = category
-	}
-	for _, link := range links {
-		lpk[link.FirstID] = append(lpk[link.FirstID], link.SecondID)
-		lck[link.SecondID] = link.FirstID
-	}
-
-	var view []views.CategoryView
-	var childs = make(map[int]models.Category)
-	for _, c := range categories {
-		_, f0 := lck[c.ID]
-		if f0 { //если явл ребенком
-			childs[c.ID] = c
-			continue
-		}
-		_, f1 := lpk[c.ID]
-		if f1 && !f0 { //если явл отцом и не ребенок
-			view = append(view, views.CategoryView{Category: c, Childs: nil})
-			continue
-		}
-		view = append(view, views.CategoryView{Category: c, Childs: nil})
-	}
-
-	var road []*views.CategoryView
-	for i := range view {
-		road = append(road, &view[i])
-	}
-
-	for len(childs) > 0 {
-
-		for _, r := range road {
-			for _, l := range links {
-				if l.FirstID == r.Category.ID {
-					r.Childs = append(r.Childs, views.CategoryView{Category: childs[l.SecondID], Childs: nil})
-					delete(childs, l.SecondID)
-				}
-			}
-		}
-
-		newRoad := []*views.CategoryView{}
-		for _, r := range road {
-			for i := range r.Childs {
-				newRoad = append(newRoad, &r.Childs[i])
-			}
-		}
-		road = newRoad
-	}
-	return view
-}
-func (h *Handlers) FilterParams() func(w http.ResponseWriter, r *http.Request) {
+func (h *Handlers) FilterParamsByMyTenders() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		contentType := r.Header.Get("Content-Type")
 
@@ -80,7 +25,7 @@ func (h *Handlers) FilterParams() func(w http.ResponseWriter, r *http.Request) {
 			}
 			IdsStr := r.PostForm.Get("category_ids")
 			if IdsStr == "" {
-				a := h.GetTendersListwindow(nil)
+				a := h.GetMyTendersListwindow(nil)
 				a(w, r)
 				return
 			}
@@ -94,7 +39,7 @@ func (h *Handlers) FilterParams() func(w http.ResponseWriter, r *http.Request) {
 				}
 				Ids = append(Ids, id)
 			}
-			a := h.GetTendersListwindow(Ids)
+			a := h.GetMyTendersListwindow(Ids)
 			a(w, r)
 			return
 		}
@@ -102,7 +47,7 @@ func (h *Handlers) FilterParams() func(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
-func (h *Handlers) GetTendersListwindow(FilterParams []int) func(w http.ResponseWriter, r *http.Request) {
+func (h *Handlers) GetMyTendersListwindow(FilterParams []int) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tenders, err := h.Repo.Tenders().GetAll(r.Context())
 		if err != nil {
@@ -213,11 +158,24 @@ func (h *Handlers) GetTendersListwindow(FilterParams []int) func(w http.Response
 		}
 		// сортировка фильтрации ограничения итд
 		search := r.URL.Query().Get("search")
-
+		//pesronal data
+		id, ok := r.Context().Value("id_user").(int)
+		if !ok {
+			h.handleError(w, "Bad user id", fmt.Errorf("Bad User id"), 500)
+		}
+		user, err := h.Repo.Users().GetByID(r.Context(), id)
+		if err != nil {
+			h.handleError(w, "db request failed", err, 500)
+		}
+		company, err := h.Repo.Company().GetByID(r.Context(), user.IdCompany)
+		if err != nil {
+			h.handleError(w, "db request failed", err, 500)
+		}
+		//
 		var TenderViews []views.TenderView
 		for _, tender := range tenders {
 			// черновик, завершен(отобр. в отдельном списке)
-			if tender.IdStatus == 1 || tender.IdStatus == 3 {
+			if tender.IdCompany != company.ID {
 				continue
 			}
 			if search != "" {
@@ -248,9 +206,9 @@ func (h *Handlers) GetTendersListwindow(FilterParams []int) func(w http.Response
 				District: DistMap[tender.IdDistrict]})
 		}
 
-		tmpl, err := template.ParseFiles("./client/pages/tender_list.html")
+		tmpl, err := template.ParseFiles("./client/pages/my_tender_list.html")
 		if err != nil {
-			h.handleError(w, "Failed tenders load:", err, 500)
+			h.handleError(w, "Failed my tenders load:", err, 500)
 			return
 		}
 

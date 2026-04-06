@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тендеры</title>
+    <link rel="stylesheet" href="/static/css/.css">
+    <link rel="stylesheet" href="/static/css/tender.css">
+    <script src="/static/js/main.js" async></script>
+    <script src="/static/js/tender.js" async></script>
+    <script src="/static/js/mytender.js" async></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <div class="logo-icon">Т</div>
+                <div class="logo-text">
+                    <h1>Портал государственных тендеров</h1>
+                    <p>Официальная площадка для проведения торгов</p>
+                </div>
+            </div>
+            <button class="account-btn" id="accountBtn">
+                <i class="fas fa-user-circle btn-icon"></i>
+                Личный кабинет
+            </button>
+        </div>
+    </header>
+    {{.LoginForm}}
+    {{.RegistrationForm}}
+    <nav>
+        <div class="nav-container">
+            <ul class="nav-menu">
+                <li><a href="/main"><i class="fas fa-home"></i> Главная</a></li>
+                <li><a href="/main/tenders"><i class="fas fa-gavel"></i> Активные тендеры</a></li>
+                <li><a href="#"><i class="fas fa-archive"></i> Архив торгов</a></li>
+                <li><a href="#"><i class="fas fa-newspaper"></i> Новости</a></li>
+                <li><a href="#"><i class="fas fa-book"></i> Документация</a></li>
+                <li><a href="#"><i class="fas fa-question-circle"></i> Помощь</a></li>
+                <li><a href="#"><i class="fas fa-phone-alt"></i> Контакты</a></li>
+            </ul>
+        </div>
+    </nav>
+    <nav>
+        <div class="nav-container">
+            <ul class="nav-menu">
+                <li><a href="/protected/lk/tenders" class="active"><i class="fas fa-list-ul"></i> Мои тендеры</a></li>
+                <li><a href="#"><i class="fas fa-file-pen"></i> Мои Коммерческие предложения</a></li>
+                <li><a href="#"><i class="fas fa-hourglass-half"></i> Ожидают выбора</a></li>
+            </ul>
+        </div>
+    </nav>
+    {{define "categoryTree"}}
+    {{range .}}
+        <li class="category-item">
+            <div class="category-content">
+                {{if .Childs}}
+                    <span class="toggle-btn" onclick="toggleCategory(this)">▼</span>
+                {{else}}
+                    <span class="toggle-placeholder"></span>
+                {{end}}
+                <label class="category-label">
+                    <input type="checkbox" name="category_ids" value="{{.Category.ID}}">
+                    {{.Category.Name}}
+                </label>
+            </div>
+            {{if .Childs}}
+                <ul class="category-children">
+                    {{template "categoryTree" .Childs}}
+                </ul>
+            {{end}}
+        </li>
+    {{end}}
+{{end}}
+    <main>
+        <div class="content-container">
+            <h2 class="content-title">Текущие закупки</h2>
+            <div class="content-body">
+                <div class="tenders-filters">
+                    <div class="tenders-filters-string">
+                        <div class="search-box">           
+                            <input id="searchbox" type="text" class="search-input" placeholder="Поиск тендеров...">
+                            <i class="fas fa-search search-icon" onclick="Search()"></i>
+                        </div>
+                        <button class="cbtn" onclick="createTenderLink()">Создать закупку</button>
+                    </div>  
+                    <div class="tenders-filters-string">
+                        <div class="sort-container">
+                            <label for="sortSelect" class="sort-label">
+                                <i class="fas fa-sort-amount-down"></i>
+                                Сортировка:
+                            </label>
+                            <select id="sortSelect" class="sort-select" onchange="applySort(this.value)">
+                                <option value="date_new">📅 Сначала новые</option>
+                                <option value="date_old">📅 Сначала старые</option>
+                                <option value="deadline">⏰ Заканчиваются скоро</option>
+                                <option value="deadline_far">⏰ Заканчиваются позже</option>
+                                <option value="name_asc">📝 По названию (А-Я)</option>
+                                <option value="name_desc">📝 По названию (Я-А)</option>
+                                <option value="duration_asc">⏱️ Сначала короткие</option>
+                                <option value="duration_desc">⏱️ Сначала длинные</option>
+                                <option value="status">🏷️ По статусу</option>
+                                <option value="company">🏢 По компании</option>
+                                <option value="district">📍 По району</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+<div class="filter-group">
+    <form id="CategoryFilterForm">
+    <div  class="categories-header-container">
+                    <div class="categories-header">
+                        <h3 style="margin: 3%;">Категории</h3>
+                        <div class="categories-actions">
+                            <button type="button" class="cbtn" onclick="expandAll()">Развернуть все</button>
+                            <button type="button" class="cbtn" onclick="collapseAll()">Свернуть все</button>
+                            <button type="submit" class="cbtn" >Применить</button>
+                        </div>
+                    </div>
+    </div>
+                    <ul class="category-tree">
+                        {{template "categoryTree" .CatView}} 
+                    </ul>
+    </form>
+                </div>
+                    <div class="tenders-list" id="tendersList">
+        <!-- Карточка тендера (шаблон) -->
+        {{range .Tenders}}<div class="tender-card">
+            <div class="tender-header">
+                <h3 class="tender-title">{{.Name}}</h3>
+                <span class="tender-status status-active">{{.Status}}</span>
+            </div>
+            
+            <div class="tender-company">
+                <i class="fas fa-building"></i>
+                {{.Company}}
+            </div>
+            
+            <p class="tender-description">
+                {{.Description}}
+            </p>
+            
+            <div class="tender-details">
+                <div class="detail-item">
+                    <i class="far fa-calendar-alt"></i>
+                    <div>
+                        <span class="detail-label">Начало:</span>
+                        <span class="detail-value">{{.DateTimeStart}}</span>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <i class="far fa-calendar-check"></i>
+                    <div>
+                        <span class="detail-label">Окончание:</span>
+                        <span class="detail-value">{{.DateTimeEnd}}</span>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div>
+                        <span class="detail-label">Фед.округ:</span>
+                        <span class="detail-value">{{.District}}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tender-footer">
+                <span class="tender-id">{{.ID}}</span>
+                <button class="tender-btn" onclick="viewTenderDetails({{.ID}})">
+                    Подробнее <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>{{end}}
+                    </div>
+                </div>
+
+        </div>
+    </main>
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>О портале</h3>
+                <ul class="footer-links">
+                    <li><a href="#"><i class="fas fa-info-circle"></i> О нас</a></li>
+                    <li><a href="#"><i class="fas fa-balance-scale"></i> Правовая информация</a></li>
+                    <li><a href="#"><i class="fas fa-shield-alt"></i> Безопасность</a></li>
+                    <li><a href="#"><i class="fas fa-chart-line"></i> Статистика</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Участникам</h3>
+                <ul class="footer-links">
+                    <li><a href="#"><i class="fas fa-user-plus"></i> Регистрация</a></li>
+                    <li><a href="#"><i class="fas fa-file-signature"></i> Как подать заявку</a></li>
+                    <li><a href="#"><i class="fas fa-comments-dollar"></i> Финансовое обеспечение</a></li>
+                    <li><a href="#"><i class="fas fa-question"></i> Частые вопросы</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Контакты</h3>
+                <div class="footer-contact">
+                    <p><i class="fas fa-phone"></i> 8-800-xxx-xx-xx</p>
+                    <p><i class="fas fa-envelope"></i> support@tender-portal.ru</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Москва, ул. Тендерная, д. 1</p>
+                    <p><i class="fas fa-clock"></i> Пн-Пт: 9:00-18:00</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <p>© 2024 Портал государственных тендеров. Все права защищены.</p>
+            <p style="margin-top: 5px;">ПОДВАЛ САЙТА</p>
+        </div>
+    </footer>
+    <script>
+        document.getElementById('sortSelect').value = {{.Sort}};
+    </script>
+</body>
+</html>
