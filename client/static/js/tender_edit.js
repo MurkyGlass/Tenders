@@ -31,6 +31,20 @@ async function EditDraftTenderForm(id) {
             alert("Ошибка:"+ await response.text())
         }
 }
+async function EditForDraftTenderForm(id) {
+    const formData = new FormData(document.getElementById('tenderForm'));
+  
+        const response = await fetch('/protected/lk/tenders/'+id+'/edit/active', {//
+            method: 'POST',
+            body: formData
+        });
+        if (response.ok){
+            alert("Закупка изменена")
+            window.location.href = '/protected/lk/tenders/'+id
+        }else{
+            alert("Ошибка:"+ await response.text())
+        }
+}
 // todo validation for file format and size
 document.getElementById('file_select').addEventListener('click', function(e) {
     // Сохраняем текущие файлы ДО открытия диалога

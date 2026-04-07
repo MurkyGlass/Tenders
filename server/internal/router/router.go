@@ -58,7 +58,8 @@ func NewRouter(h *handler.Handlers, db *sqlx.DB) *mux.Router {
 	lkRouter.HandleFunc("/tenders/{id}", h.GetMyTenderwindow()).Methods("GET")
 	lkRouter.HandleFunc("/tenders/{id}/edit", h.GetEditTenderWindow()).Methods("GET")
 	lkRouter.HandleFunc("/tenders/{id}/edit", h.EditTender()).Methods("POST")
-	lkRouter.HandleFunc("/tenders/{id}/edit/draft", h.EditDraftTender()).Methods("POST")
+	lkRouter.HandleFunc("/tenders/{id}/edit/draft", h.EditDraftTender(1)).Methods("POST")
+	lkRouter.HandleFunc("/tenders/{id}/edit/active", h.EditDraftTender(2)).Methods("POST")
 	//--------------------------------------------------------------------------------------
 	tenderRouter := prRouter.PathPrefix("/tender").Subrouter()
 	tenderRouter.HandleFunc("/create", h.GetCreateTenderWindow()).Methods("GET")

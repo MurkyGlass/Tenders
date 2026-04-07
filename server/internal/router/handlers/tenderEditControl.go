@@ -15,7 +15,7 @@ import (
 
 	_ "github.com/lib/pq"
 )
-func (h *Handlers) EditDraftTender() func(w http.ResponseWriter, r *http.Request) {
+func (h *Handlers) EditDraftTender(IdStatus int) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		contentType := r.Header.Get("Content-Type")
 
@@ -89,7 +89,7 @@ func (h *Handlers) EditDraftTender() func(w http.ResponseWriter, r *http.Request
 				h.handleError(w, "В доступе отказано", fmt.Errorf("Conflict, id company by user != id company by tender"), 409)
 				return
 			}
-			tender.IdStatus = 1 //Черновик todo в случае с кнопкой сохранить как черновик статус должен быть 1
+			tender.IdStatus = IdStatus //Черновик todo в случае с кнопкой сохранить как черновик статус должен быть 1
 
 			//Validation
 			err = tender.Validate()
