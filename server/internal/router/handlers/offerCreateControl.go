@@ -35,7 +35,7 @@ func (h *Handlers) CreateOffer(IdStatus int) func(w http.ResponseWriter, r *http
 			}
 			var offer models.Offer
 			var err error
-			offer.Price, err = strconv.ParseFloat(r.PostForm.Get("price"),64)
+			offer.Price, err = strconv.ParseFloat(r.PostForm.Get("price"), 64)
 			if err != nil {
 				h.handleError(w, "Bad price", fmt.Errorf("failed price parsing"), 400)
 				return
@@ -54,8 +54,8 @@ func (h *Handlers) CreateOffer(IdStatus int) func(w http.ResponseWriter, r *http
 				return
 			}
 
-			idtender,err := h.getIDFromRequest(r)
-			if err != nil{
+			idtender, err := h.getIDFromRequest(r)
+			if err != nil {
 				h.handleError(w, "Failed parse tender id", err, 500)
 				return
 			}
@@ -64,8 +64,8 @@ func (h *Handlers) CreateOffer(IdStatus int) func(w http.ResponseWriter, r *http
 				h.handleError(w, "db request failed", err, 500)
 				return
 			}
-			if tender.IdCompany == user.IdCompany{
-				h.handleError(w,"Нельзя создать коммерческое предложение на свой же тендер",fmt.Errorf("You cannot create a commercial offer for your own tender"),409)
+			if tender.IdCompany == user.IdCompany {
+				h.handleError(w, "Нельзя создать коммерческое предложение на свой же тендер", fmt.Errorf("You cannot create a commercial offer for your own tender"), 409)
 				return
 			}
 			offer.IdTender = tender.ID
@@ -73,7 +73,7 @@ func (h *Handlers) CreateOffer(IdStatus int) func(w http.ResponseWriter, r *http
 			offer.IdStatus = IdStatus //Активный, 1 - Черновик todo в случае с кнопкой сохранить как черновик статус должен быть 1
 			//validation
 			err = offer.Validate()
-			if err != nil{
+			if err != nil {
 				h.handleError(w, "Failed validate offer", err, 500)
 				return
 			}
@@ -195,17 +195,38 @@ func (h *Handlers) GetCreateOfferWindow() func(w http.ResponseWriter, r *http.Re
 			h.handleError(w, "Failed tendercreate load:", err, 500)
 			return
 		}
-		id, err := h.getIDFromRequest(r)
-		if err != nil {
-			h.handleError(w, "Failed get id-tender:", err, 500)
+		id, ok := r.Context().Value("id_user").(int)
+		if !ok {
+			h.handleError(w, "Bad user id", fmt.Errorf("Bad User id"), 500)
 			return
 		}
+		user, err := h.Repo.Users().GetByID(r.Context(), id)
+		if err != nil {
+			h.handleError(w, "db request failed", err, 500)
+			return
+		}
+
+		idtender, err := h.getIDFromRequest(r)
+		if err != nil {
+			h.handleError(w, "Failed parse tender id", err, 500)
+			return
+		}
+		tender, err := h.Repo.Tenders().GetByID(r.Context(), idtender)
+		if err != nil {
+			h.handleError(w, "db request failed", err, 500)
+			return
+		}
+		if tender.IdCompany == user.IdCompany {
+			h.handleError(w, "Нельзя создать коммерческое предложение на свой же тендер", fmt.Errorf("You cannot create a commercial offer for your own tender"), 409)
+			return
+		}
+
 		type Data struct {
 			TenderID int
 			Link     string
 		}
 
-		err = tmpl.Execute(w, &Data{Link: fmt.Sprintf("/main/tenders/%d", id), TenderID: id})
+		err = tmpl.Execute(w, &Data{Link: fmt.Sprintf("/main/tenders/%d", id), TenderID: tender.ID})
 		if err != nil {
 			h.handleError(w, "Failed tendercreate render:", err, 500)
 			return

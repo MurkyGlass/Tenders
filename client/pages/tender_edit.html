@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание тендера</title>
+    <link rel="stylesheet" href="/static/css/.css">
+    <link rel="stylesheet" href="/static/css/tender_create.css">
+    <link rel="stylesheet" href="/static/css/tender.css">
+    <script src="/static/js/main.js" async></script>
+    <script src="/static/js/tender.js" async></script>
+    <script src="/static/js/tender_edit.js" async></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <div class="logo-icon">Т</div>
+                <div class="logo-text">
+                    <h1>Портал государственных тендеров</h1>
+                    <p>Официальная площадка для проведения торгов</p>
+                </div>
+            </div>
+            <button class="account-btn" id="accountBtn">
+                <i class="fas fa-user-circle btn-icon"></i>
+                Личный кабинет
+            </button>
+        </div>
+    </header>
+{{define "categoryTree"}}
+    {{range .}}
+        <li class="category-item">
+            <div class="category-content">
+                {{if .Childs}}
+                    <span class="toggle-btn" onclick="toggleCategory(this)">▼</span>
+                {{else}}
+                    <span class="toggle-placeholder"></span>
+                {{end}}
+                <label class="category-label">
+                    <input type="checkbox" {{if .Checked}}checked="true"{{end}} name="category_ids" value="{{.Category.ID}}">
+                    {{.Category.Name}}
+                </label>
+            </div>
+            {{if .Childs}}
+                <ul class="category-children">
+                    {{template "categoryTree" .Childs}}
+                </ul>
+            {{end}}
+        </li>
+    {{end}}
+{{end}}
+    <main>
+        <div class="content-container">
+            <!-- Хлебные крошки -->
+            <div class="breadcrumbs">
+                <a href="/protected/lk">Личный кабинет</a>
+                <i class="fas fa-chevron-right"></i>
+                <a href="/protected/lk/tenders">Мои тендеры</a>
+                <i class="fas fa-chevron-right"></i>
+                <a href="/protected/lk/tenders/{{.Tender.ID}}">Тендер №{{.Tender.ID}}</a>
+                <i class="fas fa-chevron-right"></i>
+                <span>Дополнение тендера №{{.Tender.ID}}</span>
+            </div>
+
+            <!-- Заголовок страницы -->
+            <div class="page-header">
+                <h2 class="content-title">
+                    <i class="fas fa-plus-circle"></i>
+                    Дополнение тендера
+                </h2>
+            </div>
+
+            <!-- Форма создания тендера -->
+            <form class="tender-create-form" id="tenderForm">
+                {{if eq .Tender.IdStatus 2}}
+                <div class="form-wrapper">
+                    <!-- Основная информация -->
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <i class="fas fa-info-circle"></i>
+                            <h3>Основная информация</h3>
+                        </div>
+                        
+                        <div class="form-card-body">
+
+                            <div class="form-group">
+                                <label class="form-label" for="description">
+                                    Описание тендера
+                                </label>
+                                <textarea class="form-textarea" 
+                                          id="description"
+                                          name="description" 
+                                          placeholder="Подробное описание тендера, требования к участникам, условия проведения"
+                                          maxlength="500">{{.Tender.Description}}</textarea>
+                                <div class="form-hint">
+                                    <i class="fas fa-info-circle"></i>
+                                    Максимум 500 символов. Поле необязательное
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                    <label class="form-label" >
+                                        Текущая документация <span class="required">*</span>
+                                    </label>
+                                    {{range .OldFiles}}
+                                    <label>
+                                        <input type="checkbox" value="{{.ID}}" name="oldfiles">
+                                        {{.Name}}
+                                    </label>
+                                    {{end}}
+                                    <div class="form-hint">
+                                        <i class="fas fa-info-circle"></i>
+                                        Выбирете файлы подлежащие удалению, в случае изменения текущего файла, следует выделить файл как удаляемый и подгрузить новый.
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="file_select">
+                                        Добавляемая документация <span class="required">*</span>
+                                    </label>
+                                
+                                    <input class="form-input-hidden" 
+                                        id="file_select" 
+                                        name="files" 
+                                        type="file" 
+                                        multiple 
+                                        required
+                                        accept=".pdf, .doc, .docx, .xls, .xlsx, .zip"
+                                        style="position: absolute; opacity: 0; width: 0; height: 0; z-index: -1;">
+    
+                               
+                                    <div class="file-upload-wrapper">
+                                        <button type="button" class="file-upload-btn" onclick="document.getElementById('file_select').click();">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                            Выберите файлы
+                                        </button>
+                                        <span class="file-name" id="file-name-display">Файлы не выбраны</span>
+                                    </div>
+                                    
+                                    <!-- Список выбранных файлов -->
+                                    <div class="file-list" id="file-list"></div>
+                                    <div class="form-hint">
+                                        <i class="fas fa-info-circle"></i>
+                                        В случае добавления файла, который уже существует он не будет сохранен. Следует пометить старый файл как удаляемый либо же переименовать загружаемый файл.
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <i class="fas fa-calendar-alt"></i>
+                            <h3>Дополнительная информация</h3>
+                        </div>
+                        
+                        <div class="form-card-body">
+
+                                <div class="form-group">
+                                    <label class="form-label" for="id_district">
+                                        Регион проведения <span class="required">*</span>
+                                    </label>
+                                    <select class="form-input"  id="id_district" name="id_district" required>
+                                        {{range .District}}
+                                        <option value="{{.ID}}" {{if eq .ID $.Tender.IdDistrict}} selected {{end}}>{{.Name}}</option>
+                                        {{end}}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="category_ids">
+                                        Категории
+                                    </label>
+                                    <div class="categories-actions">
+                                        <button type="button" class="cbtn" onclick="expandAll()">Развернуть все</button>
+                                        <button type="button" class="cbtn" onclick="collapseAll()">Свернуть все</button>
+                                    </div>
+                                    
+                                    <ul class="category-tree">
+                                        {{template "categoryTree" .CatView}} 
+                                    </ul>
+                                </div>
+                            <div class="form-hint warning" id="dateWarning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Следует заполнить для удобства навигации пользователей
+                            </div>
+                        </div>
+                    </div>                   
+                    <!-- Кнопки действий -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+                            <i class="fas fa-times"></i>
+                            Отмена
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="EditTenderForm({{.Tender.ID}})">
+                            <i class="fas fa-check"></i>
+                            Дополнить тендер
+                        </button>
+                    </div>
+                </div>
+                {{else}}
+                <div class="form-wrapper">
+                    <!-- Основная информация -->
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <i class="fas fa-info-circle"></i>
+                            <h3>Основная информация</h3>
+                        </div>
+                        
+                        <div class="form-card-body">
+                            <div class="form-group">
+                                <label class="form-label" for="name">
+                                    Название тендера <span class="required">*</span>
+                                </label>
+                                <input type="text" 
+                                       id="name"
+                                       class="form-input" 
+                                       name="name" 
+                                       placeholder="Введите название тендера"                                      
+                                       minlength="3" 
+                                       maxlength="100" 
+                                       required
+                                       value="{{.Tender.Name}}">
+                                <div class="form-hint">
+                                    <i class="fas fa-info-circle"></i>
+                                    От 3 до 100 символов
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="description">
+                                    Описание тендера
+                                </label>
+                                <textarea class="form-textarea" 
+                                          id="description"
+                                          name="description" 
+                                          placeholder="Подробное описание тендера, требования к участникам, условия проведения"
+                                          maxlength="500">{{.Tender.Description}}</textarea>
+                                <div class="form-hint">
+                                    <i class="fas fa-info-circle"></i>
+                                    Максимум 500 символов. Поле необязательное
+                                </div>
+                            </div>
+                                 <div class="form-group">
+                                    <label class="form-label" >
+                                        Текущая документация <span class="required">*</span>
+                                    </label>
+                                    {{range .OldFiles}}
+                                    <label>
+                                        <input type="checkbox" value="{{.ID}}" name="oldfiles">
+                                        {{.Name}}
+                                    </label>
+                                    {{end}}
+                                    <div class="form-hint">
+                                        <i class="fas fa-info-circle"></i>
+                                        Выбирете файлы подлежащие удалению, в случае изменения текущего файла, следует выделить файл как удаляемый и подгрузить новый.
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="file_select">
+                                        Добавляемая документация <span class="required">*</span>
+                                    </label>
+                                
+                                    <input class="form-input-hidden" 
+                                        id="file_select" 
+                                        name="files" 
+                                        type="file" 
+                                        multiple 
+                                        required
+                                        accept=".pdf, .doc, .docx, .xls, .xlsx, .zip"
+                                        style="position: absolute; opacity: 0; width: 0; height: 0; z-index: -1;">
+    
+                               
+                                    <div class="file-upload-wrapper">
+                                        <button type="button" class="file-upload-btn" onclick="document.getElementById('file_select').click();">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                            Выберите файлы
+                                        </button>
+                                        <span class="file-name" id="file-name-display">Файлы не выбраны</span>
+                                    </div>
+                                    
+                                    <!-- Список выбранных файлов -->
+                                    <div class="file-list" id="file-list"></div>
+                                    <div class="form-hint">
+                                        <i class="fas fa-info-circle"></i>
+                                        В случае добавления файла, который уже существует он не будет сохранен. Следует пометить старый файл как удаляемый либо же переименовать загружаемый файл.
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <i class="fas fa-calendar-alt"></i>
+                            <h3>Дополнительная информация</h3>
+                        </div>
+                        
+                        <div class="form-card-body">
+
+                                <div class="form-group">
+                                    <label class="form-label" for="id_district">
+                                        Регион проведения <span class="required">*</span>
+                                    </label>
+                                    <select class="form-input"  id="id_district" name="id_district" required>
+                                        {{range .District}}
+                                        <option value="{{.ID}}" {{if eq .ID $.Tender.IdDistrict}} selected {{end}}>{{.Name}}</option>
+                                        {{end}}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="category_ids">
+                                        Категории
+                                    </label>
+                                    <div class="categories-actions">
+                                        <button type="button" class="cbtn" onclick="expandAll()">Развернуть все</button>
+                                        <button type="button" class="cbtn" onclick="collapseAll()">Свернуть все</button>
+                                    </div>
+                                    
+                                    <ul class="category-tree">
+                                        {{template "categoryTree" .CatView}} 
+                                    </ul>
+                                </div>
+                            <div class="form-hint warning" id="dateWarning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Следует заполнить для удобства навигации пользователей
+                            </div>
+                        </div>
+                    </div>  
+                    <!-- Сроки проведения -->
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <i class="fas fa-calendar-alt"></i>
+                            <h3>Сроки проведения</h3>
+                        </div>
+                        
+                        <div class="form-card-body">
+                            <div class="form-row">
+                                <div class="form-group half">
+                                    <label class="form-label" for="datetime_start">
+                                        <i class="fas fa-play"></i>
+                                        Дата и время начала <span class="required">*</span>
+                                    </label>
+                                    <input type="datetime-local" 
+                                           id="datetime_start"
+                                           class="form-input" 
+                                           name="datetime_start" 
+                                           required
+                                           value="{{.DateTimeStart}}">
+                                </div>
+                                
+                                <div class="form-group half">
+                                    <label class="form-label" for="datetime_end">
+                                        <i class="fas fa-stop"></i>
+                                        Дата и время окончания <span class="required">*</span>
+                                    </label>
+                                    <input type="datetime-local" 
+                                           id="datetime_end"
+                                           class="form-input" 
+                                           name="datetime_end" 
+                                           required
+                                           value="{{.DateTimeEnd}}">
+                                </div>
+                            </div>
+                            <div class="form-hint warning" id="dateWarning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Дата окончания должна быть позже даты начала
+                            </div>
+                        </div>
+                    </div>
+
+                    
+
+                    <!-- Кнопки действий -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+                            <i class="fas fa-times"></i>
+                            Отмена
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="EditTenderForm({{.Tender.ID}})">
+                            <i class="fas fa-check"></i>
+                            Дополнить тендер
+                        </button>
+                        <button type="button" class="btn btn-outline" id="saveDraftBtn">
+                            <i class="fas fa-save"></i>
+                            Сохранить как черновик
+                        </button>
+                    </div>
+                </div>
+                {{end}}
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>О портале</h3>
+                <ul class="footer-links">
+                    <li><a href="#"><i class="fas fa-info-circle"></i> О нас</a></li>
+                    <li><a href="#"><i class="fas fa-balance-scale"></i> Правовая информация</a></li>
+                    <li><a href="#"><i class="fas fa-shield-alt"></i> Безопасность</a></li>
+                    <li><a href="#"><i class="fas fa-chart-line"></i> Статистика</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Участникам</h3>
+                <ul class="footer-links">
+                    <li><a href="#"><i class="fas fa-user-plus"></i> Регистрация</a></li>
+                    <li><a href="#"><i class="fas fa-file-signature"></i> Как подать заявку</a></li>
+                    <li><a href="#"><i class="fas fa-comments-dollar"></i> Финансовое обеспечение</a></li>
+                    <li><a href="#"><i class="fas fa-question"></i> Частые вопросы</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Контакты</h3>
+                <div class="footer-contact">
+                    <p><i class="fas fa-phone"></i> 8-800-xxx-xx-xx</p>
+                    <p><i class="fas fa-envelope"></i> support@tender-portal.ru</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Москва, ул. Тендерная, д. 1</p>
+                    <p><i class="fas fa-clock"></i> Пн-Пт: 9:00-18:00</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <p>© 2024 Портал государственных тендеров. Все права защищены.</p>
+        </div>
+    </footer>
+</body>
+</html>

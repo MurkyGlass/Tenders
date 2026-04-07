@@ -278,6 +278,7 @@ func (l *lloffer) ExistsByID(ctx context.Context, IdOf int) (bool, error) {
 type LlDoc interface {
 	Create(ctx context.Context, idD int) error
 	Delete(ctx context.Context, idD int) error
+	DeleteAll(ctx context.Context, idD int) error
 	Exists(ctx context.Context) (bool, error)
 	ExistsByID(ctx context.Context, Id int) (bool, error)
 }
@@ -318,7 +319,19 @@ func (l *lldoc) Delete(ctx context.Context, idD int) error {
 	}
 	return nil
 }
-
+func (l *lldoc) DeleteAll(ctx context.Context, idD int) error {
+	if l.l.err != nil {
+		return l.l.err
+	}
+	q := `
+		DELETE FROM Log_Doc WHERE id_doc = $1
+	`
+	_, err := l.l.db.ExecContext(ctx, q, idD)
+	if err != nil {
+		return fmt.Errorf("Failed delete link log - doc: %w", err)
+	}
+	return nil
+}
 // return true where this log have links by doc, else false. If error, return false and error
 func (l *lldoc) Exists(ctx context.Context) (bool, error) {
 

@@ -162,19 +162,25 @@ func (h *Handlers) GetMyTendersListwindow(FilterParams []int) func(w http.Respon
 		id, ok := r.Context().Value("id_user").(int)
 		if !ok {
 			h.handleError(w, "Bad user id", fmt.Errorf("Bad User id"), 500)
+			return
 		}
 		user, err := h.Repo.Users().GetByID(r.Context(), id)
 		if err != nil {
 			h.handleError(w, "db request failed", err, 500)
+			return
 		}
 		company, err := h.Repo.Company().GetByID(r.Context(), user.IdCompany)
 		if err != nil {
 			h.handleError(w, "db request failed", err, 500)
+			return
 		}
 		//
 		var TenderViews []views.TenderView
 		for _, tender := range tenders {
-			// черновик, завершен(отобр. в отдельном списке)
+			//  не черновик и не активный
+			if tender.IdStatus != 1 && tender.IdStatus != 2 {
+				continue
+			}
 			if tender.IdCompany != company.ID {
 				continue
 			}
