@@ -114,6 +114,7 @@
                     </ul>
     </form>
                 </div>
+                {{if .Tenders}}
                     <div class="tenders-list" id="tendersList">
         <!-- Карточка тендера (шаблон) -->
         {{range .Tenders}}<div class="tender-card">
@@ -163,6 +164,9 @@
             </div>
         </div>{{end}}
                     </div>
+                    {{else}}
+                    <span>Пока что нет закупок</span>
+                    {{end}}
                 </div>
 
         </div>

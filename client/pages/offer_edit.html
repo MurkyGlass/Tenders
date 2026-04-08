@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание коммерческого предложения</title>
+    <link rel="stylesheet" href="/static/css/.css">
+    <link rel="stylesheet" href="/static/css/tender_create.css">
+    <link rel="stylesheet" href="/static/css/tender.css">
+    <link rel="stylesheet" href="/static/css/offer.css">
+    <script src="/static/js/main.js" async></script>
+    <script src="/static/js/offeredit.js" async></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <div class="logo-icon">Т</div>
+                <div class="logo-text">
+                    <h1>Портал государственных тендеров</h1>
+                    <p>Официальная площадка для проведения торгов</p>
+                </div>
+            </div>
+            <button class="account-btn" id="accountBtn">
+                <i class="fas fa-user-circle btn-icon"></i>
+                Личный кабинет
+            </button>
+        </div>
+    </header>
+    <main>
+        <div class="content-container">
+            <!-- Хлебные крошки -->
+            <div class="breadcrumbs">
+                <a href="/protected/lk">Личный кабинет</a>
+                <i class="fas fa-chevron-right"></i>
+                <a href="/protected/lk/offers">Мои предложения</a>
+                <i class="fas fa-chevron-right"></i>
+                <a href="/protected/lk/offers/{{.Offer.ID}}">Предложение №{{.Offer.ID}}</a>
+                <i class="fas fa-chevron-right"></i>
+                <span>Дополнение предложения №{{.Offer.ID}}</span>
+            </div>
+
+            <!-- Заголовок страницы -->
+            <div class="page-header">
+                <h2 class="content-title">
+                    <i class="fas fa-plus-circle"></i>
+                    Дополнение коммерческого предложения для тендера №{{.Offer.IdTender}}
+                </h2>
+                <p class="page-subtitle">Заполните все обязательные поля для публикации</p>
+            </div>
+
+            <form class="tender-create-form" id="offerForm">
+                <div class="form-wrapper">
+                    <!-- Основная информация -->
+                    <div class="form-card">
+                        <div class="form-card-header">
+                            <i class="fas fa-info-circle"></i>
+                            <h3>Основная информация</h3>
+                        </div>
+                        
+                        <div class="form-card-body">
+                            <div class="form-group">
+                                <label class="form-label" for="description">
+                                    Цена
+                                </label>
+                                <input id="price"
+                                name="price"
+                                type="number"
+                                class="form-input"
+                                required
+                                value="{{.Offer.Price}}"/>
+                                <span class="offer-price-label">руб.</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="description">
+                                    Описание коммерческого предложения
+                                </label>
+                                <textarea class="form-textarea" 
+                                          id="description"
+                                          name="description" 
+                                          placeholder="Подробное описание предложения, условия, дополнительная информация"
+                                          maxlength="500">{{.Offer.Description}}</textarea>
+                                <div class="form-hint">
+                                    <i class="fas fa-info-circle"></i>
+                                    Максимум 500 символов. Поле необязательное
+                                </div>
+                            </div>
+                                <div class="form-group">
+                                    <label class="form-label" >
+                                        Текущая документация <span class="required">*</span>
+                                    </label>
+                                    {{if .Offer.Files}}
+                                    {{range .Offer.Files}}
+                                    <label>
+                                        <input type="checkbox" value="{{.ID}}" name="oldfiles">
+                                        {{.Name}}
+                                    </label>
+                                    {{end}}
+                                    {{else}}
+                                    <span>нет прикрепленных документов</span>
+                                    {{end}}
+                                    <div class="form-hint">
+                                        <i class="fas fa-info-circle"></i>
+                                        Выбирете файлы подлежащие удалению, в случае изменения текущего файла, следует выделить файл как удаляемый и подгрузить новый.
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="file_select">
+                                        Добавляемая документация <span class="required">*</span>
+                                    </label>
+                                
+                                    <input class="form-input-hidden" 
+                                        id="file_select" 
+                                        name="files" 
+                                        type="file" 
+                                        multiple 
+                                        required
+                                        accept=".pdf, .doc, .docx, .xls, .xlsx, .zip"
+                                        style="position: absolute; opacity: 0; width: 0; height: 0; z-index: -1;">
+    
+                               
+                                    <div class="file-upload-wrapper">
+                                        <button type="button" class="file-upload-btn" onclick="document.getElementById('file_select').click();">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                            Выберите файлы
+                                        </button>
+                                        <span class="file-name" id="file-name-display">Файлы не выбраны</span>
+                                    </div>
+                                    
+                                    <!-- Список выбранных файлов -->
+                                    <div class="file-list" id="file-list"></div>
+                                    <div class="form-hint">
+                                        <i class="fas fa-info-circle"></i>
+                                        В случае добавления файла, который уже существует он не будет сохранен. Следует пометить старый файл как удаляемый либо же переименовать загружаемый файл.
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                    <!-- Кнопки действий -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+                            <i class="fas fa-times"></i>
+                            Отмена
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="EditOfferForm({{.Offer.ID}})">
+                            <i class="fas fa-check"></i>
+                            Дополнить коммерческое предложение
+                        </button>
+                        {{if eq .Offer.Status "Черновик"}}        
+                            <button type="button" class="btn btn-outline" id="saveDraftBtn" onclick="EditDraftOfferForm({{.Offer.ID}})">
+                                <i class="fas fa-save"></i>
+                                Сохранить как черновик
+                            </button>
+                        {{end}}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>О портале</h3>
+                <ul class="footer-links">
+                    <li><a href="#"><i class="fas fa-info-circle"></i> О нас</a></li>
+                    <li><a href="#"><i class="fas fa-balance-scale"></i> Правовая информация</a></li>
+                    <li><a href="#"><i class="fas fa-shield-alt"></i> Безопасность</a></li>
+                    <li><a href="#"><i class="fas fa-chart-line"></i> Статистика</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Участникам</h3>
+                <ul class="footer-links">
+                    <li><a href="#"><i class="fas fa-user-plus"></i> Регистрация</a></li>
+                    <li><a href="#"><i class="fas fa-file-signature"></i> Как подать заявку</a></li>
+                    <li><a href="#"><i class="fas fa-comments-dollar"></i> Финансовое обеспечение</a></li>
+                    <li><a href="#"><i class="fas fa-question"></i> Частые вопросы</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Контакты</h3>
+                <div class="footer-contact">
+                    <p><i class="fas fa-phone"></i> 8-800-xxx-xx-xx</p>
+                    <p><i class="fas fa-envelope"></i> support@tender-portal.ru</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Москва, ул. Тендерная, д. 1</p>
+                    <p><i class="fas fa-clock"></i> Пн-Пт: 9:00-18:00</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <p>© 2024 Портал государственных тендеров. Все права защищены.</p>
+        </div>
+    </footer>
+</body>
+</html>

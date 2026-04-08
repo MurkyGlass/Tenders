@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/static/css/tender.css">
     <link rel="stylesheet" href="/static/css/offer.css">
     <script src="/static/js/main.js" async></script>
+    <script src="/static/js/myofferview.js" async></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -30,12 +31,21 @@
         <div class="nav-container">
             <ul class="nav-menu">
                 <li><a href="/main"><i class="fas fa-home"></i> Главная</a></li>
-                <li><a href="/main/tenders" class="active"><i class="fas fa-gavel"></i> Активные тендеры</a></li>
+                <li><a href="/main/tenders"><i class="fas fa-gavel"></i> Активные тендеры</a></li>
                 <li><a href="#"><i class="fas fa-archive"></i> Архив торгов</a></li>
                 <li><a href="#"><i class="fas fa-newspaper"></i> Новости</a></li>
                 <li><a href="#"><i class="fas fa-book"></i> Документация</a></li>
                 <li><a href="#"><i class="fas fa-question-circle"></i> Помощь</a></li>
                 <li><a href="#"><i class="fas fa-phone-alt"></i> Контакты</a></li>
+            </ul>
+        </div>
+    </nav>
+    <nav>
+        <div class="nav-container">
+            <ul class="nav-menu">
+                <li><a href="/protected/lk/tenders"><i class="fas fa-list-ul"></i> Мои тендеры</a></li>
+                <li><a href="/protected/lk/offers" class="active"><i class="fas fa-file-pen"></i> Мои Коммерческие предложения</a></li>
+                <li><a href="#"><i class="fas fa-hourglass-half"></i> Ожидают выбора</a></li>
             </ul>
         </div>
     </nav>
@@ -102,6 +112,11 @@
                         </div>
                         <div class="offer-footer">
                             <span class="offer-id">Предложение №{{.Offer.ID}}</span><!--Подумать о возможности добавления айди оффера относительно-->
+                            <button class="create-offer-btn" onclick="EditOfferWindow({{.Offer.ID}})">
+                                <i class="fas fa-file-signature"></i>
+                                <span>Дополнить</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
                         </div>
                     </div>
             </div>

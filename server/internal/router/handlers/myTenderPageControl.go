@@ -34,8 +34,8 @@ func (h *Handlers) GetMyTenderwindow() func(w http.ResponseWriter, r *http.Reque
 			h.handleError(w, "db request failed", err, 500)
 			return
 		}
-		if user.IdCompany != tender.IdCompany{
-			h.handleError(w,"В доступе отказано",fmt.Errorf("Conflict, id company by user != id company by tender"),409)
+		if user.IdCompany != tender.IdCompany {
+			h.handleError(w, "В доступе отказано", fmt.Errorf("Conflict, id company by user != id company by tender"), 409)
 			return
 		}
 		tmpl, err := template.ParseFiles("./client/pages/my_tender_view.html")
@@ -112,6 +112,9 @@ func (h *Handlers) GetMyTenderwindow() func(w http.ResponseWriter, r *http.Reque
 		}
 		for _, offer := range offers {
 			if offer.IdTender == tender.ID {
+				if offer.IdStatus == 1 || offer.IdStatus == 3 {
+					continue
+				}
 				var offerview views.OfferView
 				offerview.ID = offer.ID
 				offerview.Description = offer.Description

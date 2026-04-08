@@ -113,6 +113,21 @@ func (h *Handlers) GetTenderwindow() func(w http.ResponseWriter, r *http.Request
 			h.handleError(w, "Failed get tender:", err, 500)
 			return
 		}
+		//pesronal data
+		id, ok := r.Context().Value("id_user").(int)
+		if !ok {
+			h.handleError(w, "Bad user id", fmt.Errorf("Bad User id"), 500)
+			return
+		}
+		user, err := h.Repo.Users().GetByID(r.Context(), id)
+		if err != nil {
+			h.handleError(w, "db request failed", err, 500)
+			return
+		}
+		if user.IdCompany != tender.IdCompany && tender.IdStatus == 1 {
+			h.handleError(w, "В доступе отказано", fmt.Errorf("Conflict, id company by user != id company by tender"), 409)
+			return
+		}
 		tmpl, err := template.ParseFiles("./client/pages/tender_view.html")
 		if err != nil {
 			h.handleError(w, "Failed tender load:", err, 500)
@@ -187,6 +202,9 @@ func (h *Handlers) GetTenderwindow() func(w http.ResponseWriter, r *http.Request
 		}
 		for _, offer := range offers {
 			if offer.IdTender == tender.ID {
+				if offer.IdStatus == 1 || offer.IdStatus == 3{
+					continue
+				}
 				var offerview views.OfferView
 				offerview.ID = offer.ID
 				offerview.Description = offer.Description

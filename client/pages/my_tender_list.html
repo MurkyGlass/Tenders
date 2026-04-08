@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Тендеры</title>
+    <title>Мои закупки</title>
     <link rel="stylesheet" href="/static/css/.css">
     <link rel="stylesheet" href="/static/css/tender.css">
     <script src="/static/js/main.js" async></script>
@@ -46,7 +46,7 @@
         <div class="nav-container">
             <ul class="nav-menu">
                 <li><a href="/protected/lk/tenders" class="active"><i class="fas fa-list-ul"></i> Мои тендеры</a></li>
-                <li><a href="#"><i class="fas fa-file-pen"></i> Мои Коммерческие предложения</a></li>
+                <li><a href="/protected/lk/offers"><i class="fas fa-file-pen"></i> Мои Коммерческие предложения</a></li>
                 <li><a href="#"><i class="fas fa-hourglass-half"></i> Ожидают выбора</a></li>
             </ul>
         </div>
@@ -75,7 +75,7 @@
 {{end}}
     <main>
         <div class="content-container">
-            <h2 class="content-title">Текущие закупки</h2>
+            <h2 class="content-title">Мои закупки</h2>
             <div class="content-body">
                 <div class="tenders-filters">
                     <div class="tenders-filters-string">
@@ -126,6 +126,7 @@
                 </div>
                     <div class="tenders-list" id="tendersList">
         <!-- Карточка тендера (шаблон) -->
+        {{if .Tenders}}
         {{range .Tenders}}<div class="tender-card">
             <div class="tender-header">
                 <h3 class="tender-title">{{.Name}}</h3>
@@ -172,7 +173,11 @@
                 </button>
             </div>
         </div>{{end}}
+        
                     </div>
+                    {{else}}
+        <span>Пока что нет закупок</span>
+        {{end}}
                 </div>
 
         </div>

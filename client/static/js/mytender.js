@@ -19,3 +19,6 @@ async function viewMyTenderDetails(id){
             } 
     window.location.href='/protected/lk/tenders/'+id
 }
+async function Refresh(){
+    await fetch("/auth/refresh");
+}

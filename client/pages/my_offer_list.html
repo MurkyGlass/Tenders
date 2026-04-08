@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>коммерческое предложение №{{.Offer.ID}}</title>
+    <title>Мои коммерческие предложения</title>
     <link rel="stylesheet" href="/static/css/.css">
     <link rel="stylesheet" href="/static/css/tender.css">
     <link rel="stylesheet" href="/static/css/offer.css">
+    <script src="/static/js/myofferlist.js" async></script>
     <script src="/static/js/main.js" async></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -26,11 +27,13 @@
             </button>
         </div>
     </header>
+    {{.LoginForm}}
+    {{.RegistrationForm}}
     <nav>
         <div class="nav-container">
             <ul class="nav-menu">
                 <li><a href="/main"><i class="fas fa-home"></i> Главная</a></li>
-                <li><a href="/main/tenders" class="active"><i class="fas fa-gavel"></i> Активные тендеры</a></li>
+                <li><a href="/main/tenders"><i class="fas fa-gavel"></i> Активные тендеры</a></li>
                 <li><a href="#"><i class="fas fa-archive"></i> Архив торгов</a></li>
                 <li><a href="#"><i class="fas fa-newspaper"></i> Новости</a></li>
                 <li><a href="#"><i class="fas fa-book"></i> Документация</a></li>
@@ -39,29 +42,40 @@
             </ul>
         </div>
     </nav>
+    <nav>
+        <div class="nav-container">
+            <ul class="nav-menu">
+                <li><a href="/protected/lk/tenders"><i class="fas fa-list-ul"></i> Мои тендеры</a></li>
+                <li><a href="/protected/lk/offers" class="active"><i class="fas fa-file-pen"></i> Мои Коммерческие предложения</a></li>
+                <li><a href="#"><i class="fas fa-hourglass-half"></i> Ожидают выбора</a></li>
+            </ul>
+        </div>
+    </nav>
     <main>
-        <div class="content-container">   
-            <h2 class="content-title">Коммерческое предложение №{{.Offer.ID}} к тендеру №{{.Offer.IdTender}}:</h2>
+        <div class="content-container">
+            <h2 class="content-title">Мои коммерческие предложения</h2>
             <div class="content-body">
                 <!-- Карточка коммерческого предложения (Offer) -->
+                {{if .Offers}}
+                    {{range .Offers}}
                     <div class="offer-card">
                         <div class="offer-header">
                             <div class="offer-company">
                                 <i class="fas fa-building"></i>
-                                <span class="offer-company-name">{{.Offer.Company}}</span>
+                                <span class="offer-company-name">{{.Company}}</span>
                             </div>
-                            <span class="offer-status status-accepted">{{.Offer.Status}}</span>
+                            <span class="offer-status status-accepted">{{.Status}}</span>
                         </div>
 
                         <div class="offer-price">
                             <i class="fas fa-ruble-sign"></i>
-                            <span class="offer-price-value">{{.Offer.Price}}</span>
+                            <span class="offer-price-value">{{.Price}}</span>
                             <span class="offer-price-label">руб.</span>
                         </div>
 
                         <div class="offer-description">
                             <i class="fas fa-file-alt"></i>
-                            <p>{{.Offer.Description}}</p>
+                            <p>{{.Description}}</p>
                         </div>
 
                         <div class="offer-details">
@@ -69,41 +83,23 @@
                                 <i class="far fa-calendar-alt"></i>
                                 <div>
                                     <span class="detail-label">Дата подачи:</span>
-                                    <span class="detail-value">{{.Offer.DateTimeCreate}}</span>
-                                </div>
-                            </div>
-                            <div class="detail-item">
-                                <i class="cf cf-file-document"></i>
-                                <div>
-                                    <span class="detail-label">Документы:</span>
-                                    <!--файлы-->
-                                    <div class="file-list" id="file-list">
-                                        {{if .Offer.Files}}
-                                            {{range .Offer.Files}}
-                                                <div class="file-list-item">
-                                                    <span>
-                                                        <i class="fas fa-file"></i> 
-                                                        {{.Name}}
-                                                    </span>
-                                                    <a href="/protected/offers/documents/{{.ID}}">
-                                                        <span> Скачать </span>
-                                                    </a>            
-                                                </div>
-                                            {{end}}
-                                            <a href="/protected/offers/{{.Offer.ID}}/documents">
-                                                <span> Скачать архивом</span>
-                                            </a>
-                                        {{else}}
-                                            <span>Нет прикрепленных документов</span>
-                                        {{end}}
-                                    </div>
+                                    <span class="detail-value">{{.DateTimeCreate}}</span>
                                 </div>
                             </div>
                         </div>
+
                         <div class="offer-footer">
-                            <span class="offer-id">Предложение №{{.Offer.ID}}</span><!--Подумать о возможности добавления айди оффера относительно-->
+                            <span class="offer-id">Предложение №{{.ID}}</span><!--Подумать о возможности добавления айди оффера относительно-->
+                            <button class="offer-btn" onclick="OpenMyOfferWindow({{.ID}})"><!--Переход на карточку коммерческого предложения с возможностью просмотра файлов-->
+                                <i class="fas fa-eye"></i>
+                                Подробнее
+                            </button>
                         </div>
                     </div>
+                    {{end}}
+                 {{else}}
+                 <span>Пока что нет предложений</span>
+                 {{end}}        
             </div>
         </div>
     </main>
