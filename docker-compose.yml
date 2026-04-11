@@ -7,6 +7,7 @@ services:
     environment:
       DATABASE_URL: "host=go_db_tender user=postgres password=postgres dbname=postgres sslmode=disable"
       SECRET_KEY: "TypoOchenSlogniiKey"
+      TZ: "Europe/Moscow"
     volumes:
       - documents:/app/documents
     ports:
@@ -27,12 +28,15 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
       POSTGRES_DB: postgres
+      TZ: "Europe/Moscow"  # Добавить эту строку
+      PGTZ: "Europe/Moscow"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./db/migrations/:/docker-entrypoint-initdb.d
     restart: always #  Указываем политику перезапуска
     networks:
       - app-network # Объединяем в сеть
+    
 
 networks: # Создаем сеть
   app-network:

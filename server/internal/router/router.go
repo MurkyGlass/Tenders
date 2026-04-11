@@ -60,6 +60,10 @@ func NewRouter(h *handler.Handlers, db *sqlx.DB) *mux.Router {
 	lkRouter.HandleFunc("/tenders/{id}/edit", h.EditTender()).Methods("POST")
 	lkRouter.HandleFunc("/tenders/{id}/edit/draft", h.EditDraftTender(1)).Methods("POST")
 	lkRouter.HandleFunc("/tenders/{id}/edit/active", h.EditDraftTender(2)).Methods("POST")
+	//awaiting tenders
+	lkRouter.HandleFunc("/await/tenders", h.GetMyAwaitTendersListwindow()).Methods("GET")
+	lkRouter.HandleFunc("/await/tenders/{id}", h.GetCompletedTenderwindow()).Methods("GET")
+	lkRouter.HandleFunc("/await/tenders/{id}/offers/{idoffer}", h.CompletTender()).Methods("POST")
 	//company offers
 	lkRouter.HandleFunc("/offers", h.GetOfferListWindow()).Methods("GET")
 	lkRouter.HandleFunc("/offers/{id}", h.GetMyOfferWindow()).Methods("GET")
@@ -74,12 +78,6 @@ func NewRouter(h *handler.Handlers, db *sqlx.DB) *mux.Router {
 	//---------------------------------------------------------------------------------------------\\
 	// Health check
 	r.HandleFunc("/health", h.HealthCheck()).Methods("GET")
-	//testing
-	r.HandleFunc("/users", h.GetUsers()).Methods("GET")
-	r.HandleFunc("/logs", h.GetLogs()).Methods("GET")
-	r.HandleFunc("/tenders", h.GetTenders()).Methods("GET")
-	r.HandleFunc("/tender/{id}/categories", h.GetTenderCategoryLinksbyId()).Methods("GET")
-	r.HandleFunc("/tenders/categories", h.GetTenderCategoryLinks()).Methods("GET")
-	r.HandleFunc("/companies", h.GetCompanies()).Methods("GET")
+
 	return r
 }

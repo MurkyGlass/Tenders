@@ -42,10 +42,9 @@ INSERT INTO Statuses (name) VALUES
 ('Активный'),
 ('Завершен'),
 ('Отменен'),
-('Приостановлен'),
+('Победитель'),
 ('На рассмотрении'),
-('Отказ')
-ON CONFLICT (name) DO NOTHING;
+('Отклонен');
 --Categories
 INSERT INTO categories (id_category, name) VALUES
 -- Корневые категории (уровень 0) - 4 шт

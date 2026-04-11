@@ -40,6 +40,14 @@ func (h *Handlers) EditOffer(IdStatus int) func(w http.ResponseWriter, r *http.R
 				return
 			}
 			offer, err := h.Repo.Offer().GetByID(r.Context(), id)
+			if err != nil {
+				h.handleError(w, "db request failed", err, 500)
+				return
+			}
+			if offer.IdStatus != 1 && offer.IdStatus != 2 {
+				h.handleError(w, "В доступе отказано", fmt.Errorf("Conflict, status"), 409)
+				return
+			}
 			offer.Price, err = strconv.ParseFloat(r.PostForm.Get("price"), 64)
 			if err != nil {
 				h.handleError(w, "Bad price", fmt.Errorf("failed price parsing"), 400)
@@ -277,8 +285,16 @@ func (h *Handlers) GetEditOfferWindow() func(w http.ResponseWriter, r *http.Requ
 			return
 		}
 		offer, err := h.Repo.Offer().GetByID(r.Context(), idoffer)
+		if err != nil {
+			h.handleError(w, "db request failed", err, 500)
+			return
+		}
 		if user.IdCompany != offer.IdCompany {
 			h.handleError(w, "В доступе отказано", fmt.Errorf("Conflict, id company by user != id company by offer"), 409)
+			return
+		}
+		if offer.IdStatus != 1 && offer.IdStatus != 2 {
+			h.handleError(w, "В доступе отказано", fmt.Errorf("Conflict, status"), 409)
 			return
 		}
 		status, err := h.Repo.Status().GetByID(r.Context(), offer.IdStatus)

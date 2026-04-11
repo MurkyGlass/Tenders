@@ -65,8 +65,20 @@ func (h *Handlers) CreateOffer(IdStatus int) func(w http.ResponseWriter, r *http
 				h.handleError(w, "db request failed", err, 500)
 				return
 			}
+			if tender.DateTimeStart.Before(time.Now()) {
+				h.handleError(w, fmt.Sprintf("Нельзя создать коммерческое предложение до начала Тендера:%s;%s",tender.DateTimeStart.String(),time.Now().String()), fmt.Errorf("Tender start not after now"), 409)
+				return
+			}
+			if tender.DateTimeEnd.Before(time.Now()) {
+				h.handleError(w, "Нельзя создать коммерческое предложение после окончания Тендера", fmt.Errorf("Tender end not before now"), 409)
+				return
+			}
 			if tender.IdCompany == user.IdCompany {
 				h.handleError(w, "Нельзя создать коммерческое предложение на свой же тендер", fmt.Errorf("You cannot create a commercial offer for your own tender"), 409)
+				return
+			}
+			if tender.IdStatus != 2 {
+				h.handleError(w, "В доступе отказано", fmt.Errorf("Conflict, tender status"), 409)
 				return
 			}
 			offer.IdTender = tender.ID
@@ -227,7 +239,7 @@ func (h *Handlers) GetCreateOfferWindow() func(w http.ResponseWriter, r *http.Re
 			Link     string
 		}
 
-		err = tmpl.Execute(w, &Data{Link: fmt.Sprintf("/main/tenders/%d", id), TenderID: tender.ID})
+		err = tmpl.Execute(w, &Data{Link: fmt.Sprintf("/main/tenders/%d", tender.ID), TenderID: tender.ID})
 		if err != nil {
 			h.handleError(w, "Failed tendercreate render:", err, 500)
 			return

@@ -344,7 +344,11 @@ func (h *Handlers) getIDFromRequest(r *http.Request) (int, error) {
 	idStr := vars["id"]
 	return strconv.Atoi(idStr)
 }
-
+func (h *Handlers) getIDOfferFromRequest(r *http.Request) (int, error) {
+	vars := mux.Vars(r)
+	idStr := vars["idoffer"]
+	return strconv.Atoi(idStr)
+}
 func (h *Handlers) getLoginFromRequest(r *http.Request) (string, error) {
 	vars := mux.Vars(r)
 	Str := vars["login"]

@@ -15,6 +15,7 @@ import (
 
 	_ "github.com/lib/pq"
 )
+
 func (h *Handlers) EditDraftTender(IdStatus int) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		contentType := r.Header.Get("Content-Type")
@@ -46,6 +47,10 @@ func (h *Handlers) EditDraftTender(IdStatus int) func(w http.ResponseWriter, r *
 			}
 			if !tender.DateTimeEnd.After(time.Now()) {
 				h.handleError(w, "В доступе отказано", fmt.Errorf("Conflict,by time end and Now"), 409)
+				return
+			}
+			if tender.IdStatus != 1  {
+				h.handleError(w, "В доступе отказано", fmt.Errorf("Conflict,status"), 409)
 				return
 			}
 			//edit
@@ -384,6 +389,10 @@ func (h *Handlers) EditTender() func(w http.ResponseWriter, r *http.Request) {
 			}
 			if !tender.DateTimeEnd.After(time.Now()) {
 				h.handleError(w, "В доступе отказано", fmt.Errorf("Conflict,by time end and Now"), 409)
+				return
+			}
+			if tender.IdStatus != 1 && tender.IdStatus != 2 {
+				h.handleError(w, "В доступе отказано", fmt.Errorf("Conflict,status"), 409)
 				return
 			}
 			//edit

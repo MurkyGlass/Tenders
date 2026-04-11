@@ -113,19 +113,13 @@ func (h *Handlers) GetTenderwindow() func(w http.ResponseWriter, r *http.Request
 			h.handleError(w, "Failed get tender:", err, 500)
 			return
 		}
-		//pesronal data
-		id, ok := r.Context().Value("id_user").(int)
-		if !ok {
-			h.handleError(w, "Bad user id", fmt.Errorf("Bad User id"), 500)
+
+		if tender.IdStatus == 1 {
+			h.handleError(w, "В доступе отказано, черновик", fmt.Errorf("Conflict, tender status is draft"), 409)
 			return
 		}
-		user, err := h.Repo.Users().GetByID(r.Context(), id)
-		if err != nil {
-			h.handleError(w, "db request failed", err, 500)
-			return
-		}
-		if user.IdCompany != tender.IdCompany && tender.IdStatus == 1 {
-			h.handleError(w, "В доступе отказано", fmt.Errorf("Conflict, id company by user != id company by tender"), 409)
+		if tender.IdStatus != 2 && tender.IdStatus != 6 {
+			h.handleError(w, "В доступе отказано", fmt.Errorf("Conflict, tender status"), 409)
 			return
 		}
 		tmpl, err := template.ParseFiles("./client/pages/tender_view.html")
@@ -202,7 +196,7 @@ func (h *Handlers) GetTenderwindow() func(w http.ResponseWriter, r *http.Request
 		}
 		for _, offer := range offers {
 			if offer.IdTender == tender.ID {
-				if offer.IdStatus == 1 || offer.IdStatus == 3{
+				if offer.IdStatus != 2 && offer.IdStatus != 6{
 					continue
 				}
 				var offerview views.OfferView
@@ -227,7 +221,7 @@ func (h *Handlers) GetTenderwindow() func(w http.ResponseWriter, r *http.Request
 			Tender           *views.TenderView
 			Offers           []views.OfferView
 		}
-		err = tmpl.Execute(w, &data{Tender: tenview, LoginForm: LoginForm, RegistrationForm: RegistrationForm,Offers: offersview})
+		err = tmpl.Execute(w, &data{Tender: tenview, LoginForm: LoginForm, RegistrationForm: RegistrationForm, Offers: offersview})
 		if err != nil {
 			h.handleError(w, "Failed tender render:", err, 500)
 			return

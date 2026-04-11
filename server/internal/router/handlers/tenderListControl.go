@@ -217,7 +217,7 @@ func (h *Handlers) GetTendersListwindow(FilterParams []int) func(w http.Response
 		var TenderViews []views.TenderView
 		for _, tender := range tenders {
 			// черновик, завершен(отобр. в отдельном списке)
-			if tender.IdStatus == 1 || tender.IdStatus == 3 {
+			if tender.IdStatus != 2 && tender.IdStatus != 6{
 				continue
 			}
 			if search != "" {

@@ -113,19 +113,9 @@ func (h *Handlers) GetOfferWindow() func(w http.ResponseWriter, r *http.Request)
 			h.handleError(w, "Failed get offer:", err, 500)
 			return
 		}
-		//pesronal data
-		id, ok := r.Context().Value("id_user").(int)
-		if !ok {
-			h.handleError(w, "Bad user id", fmt.Errorf("Bad User id"), 500)
-			return
-		}
-		user, err := h.Repo.Users().GetByID(r.Context(), id)
-		if err != nil {
-			h.handleError(w, "db request failed", err, 500)
-			return
-		}
-		if user.IdCompany != offer.IdCompany && offer.IdStatus == 1 {
-			h.handleError(w, "В доступе отказано", fmt.Errorf("Conflict, id company by user != id company by offer"), 409)
+
+		if offer.IdStatus != 2 && offer.IdStatus != 6 {
+			h.handleError(w, "В доступе отказано", fmt.Errorf("Conflict, bad status"), 409)
 			return
 		}
 		tmpl, err := template.ParseFiles("./client/pages/offer_view.html")
