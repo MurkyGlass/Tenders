@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мои закупки</title>
+    <title>Тендеры</title>
     <link rel="stylesheet" href="/static/css/.css">
     <link rel="stylesheet" href="/static/css/tender.css">
     <script src="/static/js/main.js" async></script>
     <script src="/static/js/tender.js" async></script>
-    <script src="/static/js/mytender.js" async></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -34,20 +33,11 @@
             <ul class="nav-menu">
                 <li><a href="/main"><i class="fas fa-home"></i> Главная</a></li>
                 <li><a href="/main/tenders"><i class="fas fa-gavel"></i> Активные тендеры</a></li>
-                <li><a href="/main/tenders/completed"><i class="fas fa-archive"></i> Архив торгов</a></li>
+                <li><a href="/main/tenders/completed" class="active"><i class="fas fa-archive"></i> Архив торгов</a></li>
                 <li><a href="#"><i class="fas fa-newspaper"></i> Новости</a></li>
                 <li><a href="#"><i class="fas fa-book"></i> Документация</a></li>
                 <li><a href="#"><i class="fas fa-question-circle"></i> Помощь</a></li>
                 <li><a href="#"><i class="fas fa-phone-alt"></i> Контакты</a></li>
-            </ul>
-        </div>
-    </nav>
-    <nav>
-        <div class="nav-container">
-            <ul class="nav-menu">
-                <li><a href="/protected/lk/tenders" class="active"><i class="fas fa-list-ul"></i> Мои тендеры</a></li>
-                <li><a href="/protected/lk/offers"><i class="fas fa-file-pen"></i> Мои Коммерческие предложения</a></li>
-                <li><a href="/protected/lk/await/tenders"><i class="fas fa-hourglass-half"></i> Ожидают выбора</a></li>
             </ul>
         </div>
     </nav>
@@ -75,7 +65,7 @@
 {{end}}
     <main>
         <div class="content-container">
-            <h2 class="content-title">Мои закупки</h2>
+            <h2 class="content-title">Архив торгов</h2>
             <div class="content-body">
                 <div class="tenders-filters">
                     <div class="tenders-filters-string">
@@ -83,7 +73,6 @@
                             <input id="searchbox" type="text" class="search-input" placeholder="Поиск тендеров...">
                             <i class="fas fa-search search-icon" onclick="Search()"></i>
                         </div>
-                        <button class="cbtn" onclick="createTenderLink()">Создать закупку</button>
                     </div>  
                     <div class="tenders-filters-string">
                         <div class="sort-container">
@@ -92,10 +81,6 @@
                                 Сортировка:
                             </label>
                             <select id="sortSelect" class="sort-select" onchange="applySort(this.value)">
-                                <option value="date_new">📅 Сначала новые</option>
-                                <option value="date_old">📅 Сначала старые</option>
-                                <option value="deadline">⏰ Заканчиваются скоро</option>
-                                <option value="deadline_far">⏰ Заканчиваются позже</option>
                                 <option value="name_asc">📝 По названию (А-Я)</option>
                                 <option value="name_desc">📝 По названию (Я-А)</option>
                                 <option value="duration_asc">⏱️ Сначала короткие</option>
@@ -124,9 +109,9 @@
                     </ul>
     </form>
                 </div>
+                {{if .Tenders}}
                     <div class="tenders-list" id="tendersList">
         <!-- Карточка тендера (шаблон) -->
-        {{if .Tenders}}
         {{range .Tenders}}<div class="tender-card">
             <div class="tender-header">
                 <h3 class="tender-title">{{.Name}}</h3>
@@ -168,12 +153,11 @@
             
             <div class="tender-footer">
                 <span class="tender-id">{{.ID}}</span>
-                <button class="tender-btn" onclick="viewMyTenderDetails({{.ID}})">
+                <button class="tender-btn" onclick="viewTenderDetails({{.ID}})">
                     Подробнее <i class="fas fa-arrow-right"></i>
                 </button>
             </div>
         </div>{{end}}
-        
                     </div>
                     {{else}}
                     <div class="tenders-list" id="tendersList">

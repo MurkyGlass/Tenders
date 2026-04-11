@@ -33,8 +33,13 @@
         <div class="nav-container">
             <ul class="nav-menu">
                 <li><a href="/main"><i class="fas fa-home"></i> Главная</a></li>
+                {{if eq .Tender.Status "Завершен"}}
+                <li><a href="/main/tenders"><i class="fas fa-gavel"></i> Активные тендеры</a></li>
+                <li><a href="/main/tenders/completed" class="active"><i class="fas fa-archive"></i> Архив торгов</a></li>
+                {{else}}
                 <li><a href="/main/tenders" class="active"><i class="fas fa-gavel"></i> Активные тендеры</a></li>
-                <li><a href="#"><i class="fas fa-archive"></i> Архив торгов</a></li>
+                <li><a href="/main/tenders/completed"><i class="fas fa-archive"></i> Архив торгов</a></li>
+                {{end}}
                 <li><a href="#"><i class="fas fa-newspaper"></i> Новости</a></li>
                 <li><a href="#"><i class="fas fa-book"></i> Документация</a></li>
                 <li><a href="#"><i class="fas fa-question-circle"></i> Помощь</a></li>
@@ -118,11 +123,14 @@
             
             <div class="tender-footer">
                 <span class="tender-id">{{.Tender.ID}}</span>
+                {{if eq .Tender.Status "Завершен"}}
+                {{else}}
                 <button class="create-offer-btn" onclick="CreateOfferWindow({{.Tender.ID}})">
                     <i class="fas fa-file-signature"></i>
                     <span>Подать коммерческое предложение</span>
                     <i class="fas fa-chevron-right"></i>
                 </button>
+                {{end}}
             </div>
         </div>
             </div>
@@ -163,10 +171,13 @@
 
                         <div class="offer-footer">
                             <span class="offer-id">Предложение №{{.ID}}</span><!--Подумать о возможности добавления айди оффера относительно-->
+                            {{if eq $.Tender.Status "Завершен"}}
+                            {{else}}
                             <button class="offer-btn" onclick="OpenOfferWindow({{.ID}})"><!--Переход на карточку коммерческого предложения с возможностью просмотра файлов-->
                                 <i class="fas fa-eye"></i>
                                 Подробнее
                             </button>
+                            {{end}}
                         </div>
                     </div>
                     {{end}}

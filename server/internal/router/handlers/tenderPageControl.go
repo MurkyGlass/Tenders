@@ -118,7 +118,7 @@ func (h *Handlers) GetTenderwindow() func(w http.ResponseWriter, r *http.Request
 			h.handleError(w, "В доступе отказано, черновик", fmt.Errorf("Conflict, tender status is draft"), 409)
 			return
 		}
-		if tender.IdStatus != 2 && tender.IdStatus != 6 {
+		if tender.IdStatus != 2 && tender.IdStatus != 6 && tender.IdStatus != 3{
 			h.handleError(w, "В доступе отказано", fmt.Errorf("Conflict, tender status"), 409)
 			return
 		}
@@ -196,7 +196,7 @@ func (h *Handlers) GetTenderwindow() func(w http.ResponseWriter, r *http.Request
 		}
 		for _, offer := range offers {
 			if offer.IdTender == tender.ID {
-				if offer.IdStatus != 2 && offer.IdStatus != 6{
+				if offer.IdStatus != 2 && offer.IdStatus != 6 && offer.IdStatus != 5 && offer.IdStatus != 7{
 					continue
 				}
 				var offerview views.OfferView
