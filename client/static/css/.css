@@ -889,3 +889,122 @@
         font-size: 0.85rem;
     }
 }
+/* ===== ИНФОРМАЦИОННЫЕ СЕКЦИИ НА ГЛАВНОЙ ===== */
+.info-section {
+    margin-bottom: 3rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.info-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.section-title {
+    font-size: 1.8rem;
+    color: #1e3c72;
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-left: 1rem;
+    border-left: 5px solid #2a5298;
+}
+
+.info-text {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #2c3e50;
+}
+
+.info-text p {
+    margin-bottom: 1rem;
+}
+
+.info-text ul {
+    margin: 1rem 0 1rem 2rem;
+}
+
+.info-text li {
+    margin-bottom: 0.5rem;
+}
+/* ===== ГЕРОЙ-БАННЕР С ФОТО ===== */
+.hero-banner {
+    position: relative;
+    width: 100%;
+    height: 70vh; /* 70% высоты экрана, можно изменить */
+    min-height: 400px;
+    background-image: url('/static/images/main_hero.png'); /* Укажите путь к вашему изображению */
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed; /* параллакс-эффект (опционально) */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+/* Затемнение для читаемости текста */
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* чёрный полупрозрачный слой */
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: white;
+    max-width: 800px;
+    padding: 1rem;
+}
+
+.hero-content .hero-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.hero-content .hero-subtitle {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.hero-cta {
+    display: inline-block;
+    background-color: #2a5298;
+    color: white;
+    padding: 12px 32px;
+    border-radius: 40px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.hero-cta:hover {
+    background-color: #1e3c72;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 768px) {
+    .hero-banner {
+        height: 50vh;
+        min-height: 350px;
+        background-attachment: scroll;
+    }
+    .hero-content .hero-title {
+        font-size: 2.2rem;
+    }
+    .hero-content .hero-subtitle {
+        font-size: 1.2rem;
+    }
+}
