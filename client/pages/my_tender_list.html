@@ -92,17 +92,17 @@
                                 Сортировка:
                             </label>
                             <select id="sortSelect" class="sort-select" onchange="applySort(this.value)">
-                                <option value="date_new">📅 Сначала новые</option>
-                                <option value="date_old">📅 Сначала старые</option>
-                                <option value="deadline">⏰ Заканчиваются скоро</option>
-                                <option value="deadline_far">⏰ Заканчиваются позже</option>
-                                <option value="name_asc">📝 По названию (А-Я)</option>
-                                <option value="name_desc">📝 По названию (Я-А)</option>
-                                <option value="duration_asc">⏱️ Сначала короткие</option>
-                                <option value="duration_desc">⏱️ Сначала длинные</option>
-                                <option value="status">🏷️ По статусу</option>
-                                <option value="company">🏢 По компании</option>
-                                <option value="district">📍 По району</option>
+                                <option value="date_new">Сначала новые</option>
+                                <option value="date_old">Сначала старые</option>
+                                <option value="deadline">Заканчиваются скоро</option>
+                                <option value="deadline_far">Заканчиваются позже</option>
+                                <option value="name_asc">По названию (А-Я)</option>
+                                <option value="name_desc">По названию (Я-А)</option>
+                                <option value="duration_asc">Сначала короткие</option>
+                                <option value="duration_desc">Сначала длинные</option>
+                                <option value="status">По статусу</option>
+                                <option value="company">По компании</option>
+                                <option value="district">По району</option>
                             </select>
                         </div>
                     </div>
@@ -135,7 +135,7 @@
             
             <div class="tender-company">
                 <i class="fas fa-building"></i>
-                {{.Company}}
+                <a href="/main/companies/{{.IdCompany}}">{{.Company}}</a>
             </div>
             
             <p class="tender-description">

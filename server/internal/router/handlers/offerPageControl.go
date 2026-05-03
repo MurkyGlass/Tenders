@@ -128,7 +128,7 @@ func (h *Handlers) GetOfferWindow() func(w http.ResponseWriter, r *http.Request)
 		}
 		var offersview *views.OfferView
 		offersview = &views.OfferView{ID: offer.ID, Description: offer.Description, DateTimeCreate: GetDateString(offer.DateTimeCreate),
-			Price: offer.Price, Company: company.Name, Status: status.Name, Files: files, IdTender: offer.IdTender}
+			Price: offer.Price, Company: company.Name, Status: status.Name, Files: files, IdTender: offer.IdTender,IdCompany: offer.IdCompany,}
 		type data struct {
 			Offer *views.OfferView
 		}

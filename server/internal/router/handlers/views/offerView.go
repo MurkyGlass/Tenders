@@ -10,5 +10,6 @@ type OfferView struct {
 	DateTimeCreate string
 	Company        string
 	Status         string
+	IdCompany      int
 	Files          []models.Doc
 }

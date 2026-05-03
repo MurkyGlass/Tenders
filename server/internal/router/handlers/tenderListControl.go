@@ -245,7 +245,7 @@ func (h *Handlers) GetTendersListwindow(FilterParams []int) func(w http.Response
 			TenderViews = append(TenderViews, views.TenderView{ID: tender.ID, Name: tender.Name,
 				Description: tender.Description, DateTimeStart: GetDateString(tender.DateTimeStart),
 				DateTimeEnd: GetDateString(tender.DateTimeEnd), Company: CompMap[tender.IdCompany], Status: StMap[tender.IdStatus],
-				District: DistMap[tender.IdDistrict]})
+				District: DistMap[tender.IdDistrict],IdCompany: tender.IdCompany,})
 		}
 
 		tmpl, err := template.ParseFiles("./client/pages/tender_list.html")

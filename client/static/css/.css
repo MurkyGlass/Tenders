@@ -1008,3 +1008,7 @@
         font-size: 1.2rem;
     }
 }
+a, a:link, a:visited, a:hover {
+    text-decoration: none;        
+    color: inherit;
+}

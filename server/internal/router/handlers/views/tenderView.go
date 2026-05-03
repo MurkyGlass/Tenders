@@ -11,6 +11,7 @@ type TenderView struct {
 	Company       string
 	Status        string
 	District      string
+	IdCompany     int
 	Categories    []string
 	Files         []models.Doc
 }

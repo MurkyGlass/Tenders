@@ -66,7 +66,7 @@ func (h *Handlers) GetMyAwaitTendersListwindow() func(w http.ResponseWriter, r *
 			TenderViews = append(TenderViews, views.TenderView{ID: tender.ID, Name: tender.Name,
 				Description: tender.Description, DateTimeStart: GetDateString(tender.DateTimeStart),
 				DateTimeEnd: GetDateString(tender.DateTimeEnd), Company: company.Name, Status: StMap[tender.IdStatus],
-				District: DistMap[tender.IdDistrict]})
+				District: DistMap[tender.IdDistrict],IdCompany: tender.IdCompany,})
 		}
 
 		tmpl, err := template.ParseFiles("./client/pages/awaiting_tender_list.html")

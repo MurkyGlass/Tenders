@@ -200,7 +200,7 @@ func (h *Handlers) GetCompletedTenderwindow() func(w http.ResponseWriter, r *htt
 		var tenview *views.TenderView
 		tenview = &views.TenderView{ID: tender.ID, Name: tender.Name, Description: tender.Description,
 			DateTimeStart: GetDateString(tender.DateTimeStart), DateTimeEnd: GetDateString(tender.DateTimeEnd), Company: company.Name,
-			Status: status.Name, District: district.Name, Categories: catlist, Files: files}
+			Status: status.Name, District: district.Name, Categories: catlist, Files: files,IdCompany: tender.IdCompany,}
 		var offersview []views.OfferView
 		offers, err := h.Repo.Offer().GetAll(r.Context())
 		if err != nil {
@@ -238,6 +238,7 @@ func (h *Handlers) GetCompletedTenderwindow() func(w http.ResponseWriter, r *htt
 				offerview.Description = offer.Description
 				offerview.Price = offer.Price
 				offerview.DateTimeCreate = GetDateString(offer.DateTimeCreate)
+				offerview.IdCompany = offer.IdCompany
 				comp, err := h.Repo.Company().GetByID(r.Context(), offer.IdCompany)
 				if err != nil {
 					h.handleError(w, "Failed get company by offer", err, 500)

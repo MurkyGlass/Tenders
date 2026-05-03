@@ -49,6 +49,7 @@ func (h *Handlers) GetOfferListWindow() func(w http.ResponseWriter, r *http.Requ
 				offerview.Company = comp.Name
 				st, err := h.Repo.Status().GetByID(r.Context(), offer.IdStatus)
 				offerview.Status = st.Name
+				offerview.IdCompany = offer.IdCompany
 				offersview = append(offersview, offerview)
 			}
 		}

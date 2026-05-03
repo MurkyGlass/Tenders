@@ -111,7 +111,7 @@ func (h *Handlers) GetMyTenderwindow() func(w http.ResponseWriter, r *http.Reque
 		var tenview *views.TenderView
 		tenview = &views.TenderView{ID: tender.ID, Name: tender.Name, Description: tender.Description,
 			DateTimeStart: GetDateString(tender.DateTimeStart), DateTimeEnd: GetDateString(tender.DateTimeEnd), Company: company.Name,
-			Status: status.Name, District: district.Name, Categories: catlist, Files: files}
+			Status: status.Name, District: district.Name, Categories: catlist, Files: files,IdCompany: tender.IdCompany,}
 		var offersview []views.OfferView
 		offers, err := h.Repo.Offer().GetAll(r.Context())
 		if err != nil {
@@ -136,6 +136,7 @@ func (h *Handlers) GetMyTenderwindow() func(w http.ResponseWriter, r *http.Reque
 				offerview.Company = comp.Name
 				st, err := h.Repo.Status().GetByID(r.Context(), offer.IdStatus)
 				offerview.Status = st.Name
+				offerview.IdCompany = offer.IdCompany
 				offersview = append(offersview, offerview)
 			}
 		}
