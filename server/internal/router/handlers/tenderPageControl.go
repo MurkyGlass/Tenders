@@ -70,7 +70,7 @@ func (h *Handlers) GetTenderDocuments() func(w http.ResponseWriter, r *http.Requ
 		}
 	}
 }
-func (h *Handlers) GetTenderDocumentById() func(w http.ResponseWriter, r *http.Request) {
+func (h *Handlers) GetDocumentById() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := h.getIDFromRequest(r)
 		if err != nil {

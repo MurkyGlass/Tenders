@@ -2,18 +2,16 @@ package handler
 
 import (
 	"archive/zip"
-	"fmt"
 	"html/template"
 	"io"
 	"main/internal/repositories/models"
-	"main/internal/router/handlers/views"
 	"net/http"
 	"os"
 
 	_ "github.com/lib/pq"
 )
 
-func (h *Handlers) GetOfferDocuments() func(w http.ResponseWriter, r *http.Request) {
+func (h *Handlers) GetCompanyDocuments() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := h.getIDFromRequest(r)
 		if err != nil {
@@ -25,7 +23,7 @@ func (h *Handlers) GetOfferDocuments() func(w http.ResponseWriter, r *http.Reque
 			h.handleError(w, "Failed get docs:", err, 500)
 			return
 		}
-		doclinks, err := h.Repo.LinkerDoc(0).Offer().GetAll(r.Context(), id)
+		doclinks, err := h.Repo.LinkerDoc(0).Company().GetAll(r.Context(), id)
 		if err != nil {
 			h.handleError(w, "Failed get doc-links:", err, 500)
 			return
@@ -71,7 +69,7 @@ func (h *Handlers) GetOfferDocuments() func(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-func (h *Handlers) GetOfferWindow() func(w http.ResponseWriter, r *http.Request) {
+func (h *Handlers) GetCompanyWindow() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := h.getIDFromRequest(r)
 		if err != nil {
@@ -79,29 +77,15 @@ func (h *Handlers) GetOfferWindow() func(w http.ResponseWriter, r *http.Request)
 			return
 		}
 
-		offer, err := h.Repo.Offer().GetByID(r.Context(), id)
+		company, err := h.Repo.Company().GetByID(r.Context(), id)
 		if err != nil {
-			h.handleError(w, "Failed get offer:", err, 500)
+			h.handleError(w, "Failed get tender:", err, 500)
 			return
 		}
 
-		if offer.IdStatus != 2 && offer.IdStatus != 6 {
-			h.handleError(w, "В доступе отказано", fmt.Errorf("Conflict, bad status"), 409)
-			return
-		}
-		tmpl, err := template.ParseFiles("./client/pages/offer_view.html")
+		tmpl, err := template.ParseFiles("./client/pages/company_view.html")
 		if err != nil {
-			h.handleError(w, "Failed offer load:", err, 500)
-			return
-		}
-		company, err := h.Repo.Company().GetByID(r.Context(), offer.IdCompany)
-		if err != nil {
-			h.handleError(w, "Failed get company:", err, 500)
-			return
-		}
-		status, err := h.Repo.Status().GetByID(r.Context(), offer.IdStatus)
-		if err != nil {
-			h.handleError(w, "Failed get status:", err, 500)
+			h.handleError(w, "Failed tender load:", err, 500)
 			return
 		}
 
@@ -110,7 +94,7 @@ func (h *Handlers) GetOfferWindow() func(w http.ResponseWriter, r *http.Request)
 			h.handleError(w, "Failed get files:", err, 500)
 			return
 		}
-		doclinks, err := h.Repo.LinkerDoc(0).Offer().GetAll(r.Context(), offer.ID)
+		doclinks, err := h.Repo.LinkerDoc(0).Company().GetAll(r.Context(), company.ID)
 		if err != nil {
 			h.handleError(w, "Failed get files-links:", err, 500)
 			return
@@ -126,15 +110,16 @@ func (h *Handlers) GetOfferWindow() func(w http.ResponseWriter, r *http.Request)
 				}
 			}
 		}
-		var offersview *views.OfferView
-		offersview = &views.OfferView{ID: offer.ID, Description: offer.Description, DateTimeCreate: GetDateString(offer.DateTimeCreate),
-			Price: offer.Price, Company: company.Name, Status: status.Name, Files: files, IdTender: offer.IdTender}
+
 		type data struct {
-			Offer *views.OfferView
+			LoginForm        template.HTML
+			RegistrationForm template.HTML
+			Company          models.Company
+			Files            []models.Doc
 		}
-		err = tmpl.Execute(w, &data{Offer: offersview})
+		err = tmpl.Execute(w, &data{Company: *company, Files: files, LoginForm: LoginForm, RegistrationForm: RegistrationForm})
 		if err != nil {
-			h.handleError(w, "Failed offer render:", err, 500)
+			h.handleError(w, "Failed tender render:", err, 500)
 			return
 		}
 	}

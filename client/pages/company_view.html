@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ожидают выбора</title>
+    <title>Компания - {{.Company.Name}}</title>
     <link rel="stylesheet" href="/static/css/.css">
     <link rel="stylesheet" href="/static/css/tender.css">
+    <link rel="stylesheet" href="/static/css/offer.css">
+    <script src="/static/js/tenderview.js" async></script>
     <script src="/static/js/main.js" async></script>
-    <script src="/static/js/tender.js" async></script>
-    <script src="/static/js/awaittender.js" async></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -35,82 +35,82 @@
                 <li><a href="/main"><i class="fas fa-home"></i> Главная</a></li>
                 <li><a href="/main/tenders"><i class="fas fa-gavel"></i> Активные тендеры</a></li>
                 <li><a href="/main/tenders/completed"><i class="fas fa-archive"></i> Архив торгов</a></li>
-                <li><a href="/main/companies"><i class="fas fa-building"></i> Наши партнеры</a></li>
+                <li><a href="/main/companies" class="active"><i class="fas fa-building"></i> Наши партнеры</a></li>
                 <li><a href="#"><i class="fas fa-book"></i> Документация</a></li>
                 <li><a href="#"><i class="fas fa-question-circle"></i> Помощь</a></li>
                 <li><a href="#"><i class="fas fa-phone-alt"></i> Контакты</a></li>
             </ul>
         </div>
     </nav>
-    <nav>
-        <div class="nav-container">
-            <ul class="nav-menu">
-                <li><a href="/protected/lk/tenders"><i class="fas fa-list-ul"></i> Мои тендеры</a></li>
-                <li><a href="/protected/lk/offers"><i class="fas fa-file-pen"></i> Мои Коммерческие предложения</a></li>
-                <li><a href="/protected/lk/await/tenders" class="active"><i class="fas fa-hourglass-half"></i> Ожидают выбора</a></li>
-            </ul>
-        </div>
-    </nav>
     <main>
         <div class="content-container">
-            <h2 class="content-title">Ожидают выбора</h2>
+            <h2 class="content-title">Компания №{{.Company.ID}}</h2>
             <div class="content-body">
-                    <div class="tenders-list" id="tendersList">
         <!-- Карточка тендера (шаблон) -->
-        {{if .Tenders}}
-        {{range .Tenders}}<div class="tender-card">
+       <div class="tender-card">
             <div class="tender-header">
-                <h3 class="tender-title">{{.Name}}</h3>
-                <span class="tender-status status-active">{{.Status}}</span>
+                <h3 class="tender-title">{{.Company.Name}}</h3>
             </div>
             
             <div class="tender-company">
-                <i class="fas fa-building"></i>
-                {{.Company}}
+                <i class="fas fa-envelope"></i>
+                {{.Company.Email}}
             </div>
             
             <p class="tender-description">
-                {{.Description}}
+                {{.Company.Description}}
             </p>
-            
+
+            <h3 class="tender-title">Документы:</h3>
+            <div class="file-list" id="file-list">
+                {{if .Files}}
+                    {{range .Files}}
+                        <div class="file-list-item">
+                            <span>
+                                <i class="fas fa-file"></i> 
+                                {{.Name}}
+                            </span>
+                            <a href="/protected/companies/documents/{{.ID}}">
+                                <span> Скачать </span>
+                            </a>            
+                        </div>
+                    {{end}}
+                    <a href="/protected/companies/{{.Company.ID}}/documents">
+                        <span> Скачать архивом</span>
+                    </a>
+                {{else}}
+                    <span>Нет прикрепленных документов</span>
+                {{end}}
+            </div>
+            <h3 class="tender-title">Дополнительная информация:</h3>
             <div class="tender-details">
                 <div class="detail-item">
-                    <i class="far fa-calendar-alt"></i>
+                    <i class="fas fa-location-dot"></i>
                     <div>
-                        <span class="detail-label">Начало:</span>
-                        <span class="detail-value">{{.DateTimeStart}}</span>
+                        <span class="detail-label">Адресс:</span>
+                        <span class="detail-value">{{.Company.Address}}</span>
                     </div>
                 </div>
                 <div class="detail-item">
-                    <i class="far fa-calendar-check"></i>
                     <div>
-                        <span class="detail-label">Окончание:</span>
-                        <span class="detail-value">{{.DateTimeEnd}}</span>
+                        <span class="detail-label">ИНН:</span>
+                        <span class="detail-value">{{.Company.INN}}</span>
                     </div>
                 </div>
                 <div class="detail-item">
-                    <i class="fas fa-map-marker-alt"></i>
                     <div>
-                        <span class="detail-label">Фед.округ:</span>
-                        <span class="detail-value">{{.District}}</span>
+                        <span class="detail-label">ЕГРЮЛ:</span>
+                        <span class="detail-value">{{.Company.EGRUL}}</span>
                     </div>
                 </div>
             </div>
             
             <div class="tender-footer">
-                <span class="tender-id">{{.ID}}</span>
-                <button class="tender-btn" onclick="viewMyTenderDetails({{.ID}})">
-                    Завершить <i class="fas fa-arrow-right"></i>
-                </button>
+                <span class="tender-id">{{.Company.ID}}</span>
             </div>
-        </div>{{end}}
-        
-                    </div>
-                    {{else}}
-        <span>Пока что нет закупок</span>
-        {{end}}
-                </div>
-
+        </div>
+            </div>
+           
         </div>
     </main>
     <footer>

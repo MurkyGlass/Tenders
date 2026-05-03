@@ -108,12 +108,12 @@ func (h *Handlers) GetMyTendersListwindow(FilterParams []int) func(w http.Respon
 		case "name_asc":
 			// сортировка по названию (А-Я)
 			sort.Slice(tenders, func(i int, j int) bool {
-				return tenders[i].Name < tenders[j].Name
+				return CompareStrings(tenders[i].Name, tenders[j].Name) == -1
 			})
 		case "name_desc":
 			// сортировка по названию (Я-А)
 			sort.Slice(tenders, func(i int, j int) bool {
-				return tenders[i].Name > tenders[j].Name
+				return CompareStrings(tenders[i].Name, tenders[j].Name) == 1
 			})
 		case "duration_asc":
 			// сортировка по длительности (сначала короткие)

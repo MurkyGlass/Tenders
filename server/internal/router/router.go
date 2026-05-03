@@ -20,14 +20,22 @@ func NewRouter(h *handler.Handlers, db *sqlx.DB) *mux.Router {
 	//main page
 	r.HandleFunc("", h.GetMainwindow()).Methods("GET")
 	mainRouter := r.PathPrefix("/main").Subrouter()
+	//public
+	//main
 	mainRouter.HandleFunc("", h.GetMainwindow()).Methods("GET")
+	//tenders
 	mainRouter.HandleFunc("/tenders", h.GetTendersListwindow(nil)).Methods("GET")
 	mainRouter.HandleFunc("/tenders", h.FilterParams()).Methods("POST")
+	//completed tenders
 	mainRouter.HandleFunc("/tenders/completed", h.GetCompletedTendersListwindow(nil)).Methods("GET")
 	mainRouter.HandleFunc("/tenders/completed", h.CompletedFilterParams()).Methods("POST")
+	//tender
 	mainRouter.HandleFunc("/tenders/{id}", h.GetTenderwindow()).Methods("GET")
+	//registration
 	mainRouter.HandleFunc("/registration", h.Registration()).Methods("POST")
-
+	//companies
+	mainRouter.HandleFunc("/companies", h.GetCompaniesListwindow()).Methods("GET")
+	mainRouter.HandleFunc("/companies/{id}", h.GetCompanyWindow()).Methods("GET")
 	//authentification
 	r.HandleFunc("/auth/login", jwtService.LoginHandler).Methods("POST")
 	r.HandleFunc("/auth/refresh", jwtService.RefreshHandler).Methods("GET")
@@ -35,9 +43,8 @@ func NewRouter(h *handler.Handlers, db *sqlx.DB) *mux.Router {
 	//protected
 	prRouter := r.PathPrefix("/protected").Subrouter()
 	prRouter.Use(jwtService.Middleware)
-
 	//tenders docs
-	prRouter.HandleFunc("/tenders/documents/{id}", h.GetTenderDocumentById()).Methods("GET")
+	prRouter.HandleFunc("/tenders/documents/{id}", h.GetDocumentById()).Methods("GET")
 	prRouter.HandleFunc("/tenders/{id}/documents", h.GetTenderDocuments()).Methods("GET")
 	//--------------------------------------------------------------------------------------
 	//offer-create
@@ -48,8 +55,11 @@ func NewRouter(h *handler.Handlers, db *sqlx.DB) *mux.Router {
 	//offers
 	prRouter.HandleFunc("/offers/{id}", h.GetOfferWindow()).Methods("GET")
 	//offers docs
-	prRouter.HandleFunc("/offers/documents/{id}", h.GetOfferDocumentById()).Methods("GET")
+	prRouter.HandleFunc("/offers/documents/{id}", h.GetDocumentById()).Methods("GET")
 	prRouter.HandleFunc("/offers/{id}/documents", h.GetOfferDocuments()).Methods("GET")
+	//companies docs
+	prRouter.HandleFunc("/companies/documents/{id}", h.GetDocumentById()).Methods("GET")
+	prRouter.HandleFunc("/companies/{id}/documents", h.GetCompanyDocuments()).Methods("GET")
 	//--------------------------------------------------------------------------------------
 	lkRouter := prRouter.PathPrefix("/lk").Subrouter()
 	lkRouter.HandleFunc("", h.GetProfilwindow()).Methods("GET")
