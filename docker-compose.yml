@@ -30,6 +30,8 @@ services:
       POSTGRES_DB: postgres
       TZ: "Europe/Moscow"  # Добавить эту строку
       PGTZ: "Europe/Moscow"
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./db/migrations/:/docker-entrypoint-initdb.d

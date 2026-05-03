@@ -94,6 +94,11 @@ func NewRouter(h *handler.Handlers, db *sqlx.DB) *mux.Router {
 	//---------------------------------------------------------------------------------------------\\
 	// Health check
 	r.HandleFunc("/health", h.HealthCheck()).Methods("GET")
-
+	//
+	//protected
+	adminRouter := r.PathPrefix("/admin").Subrouter()
+	adminRouter.Use(jwtService.MiddlewareAdmin)
+	//
+	adminRouter.HandleFunc("/panel",h.GetAdminPanelWindow()).Methods("GET")
 	return r
 }

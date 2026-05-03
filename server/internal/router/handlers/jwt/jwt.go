@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"main/internal/repositories"
 	"main/internal/repositories/models"
 	"net/http"
@@ -179,7 +180,7 @@ func (s *Service) RefreshHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	token, err := s.repo.Refresh().GetByToken(r.Context(), refreshToken)
-	if token == nil{
+	if token == nil {
 		http.SetCookie(w, &http.Cookie{
 			Name:     "refresh_token",
 			Value:    "",
@@ -295,6 +296,65 @@ func (s *Service) RevokeHandler(w http.ResponseWriter, r *http.Request) {
 		MaxAge:   -1,
 	})
 	respondJSON(w, http.StatusOK, map[string]string{"status": "success"})
+}
+
+// Middleware для аутентификации Admin
+func (s *Service) MiddlewareAdmin(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var access string
+		var refresh string
+		for _, c := range r.Cookies() {
+			if c.Name == "access_token" {
+				access = c.Value
+			}
+			if c.Name == "refresh_token" {
+				refresh = c.Value
+			}
+		}
+		if access == "" && refresh == "" {
+			respondError(w, http.StatusUnauthorized, "Invalid token")
+			return
+		}
+		claims := &Claims{}
+
+		token, err := jwt.ParseWithClaims(access, claims, func(token *jwt.Token) (interface{}, error) {
+			return []byte(s.config.SecretKey), nil
+		})
+
+		if err != nil || !token.Valid {
+			respondError(w, http.StatusForbidden, "Invalid token")
+			return
+		}
+		tx, err := s.repo.BeginTx(r.Context())
+		if err != nil {
+			s.logger.Errorf("Failed begin tx(log auth) by user:%d:err:%v", claims.UserID, err)
+			respondError(w, http.StatusInternalServerError, "Failed begin tranzaction")
+			return
+		}
+		defer tx.Rollback()
+		user, err := tx.Users().GetByID(r.Context(), claims.UserID)
+		if err != nil {
+			s.logger.Errorf("Failed get user:%d:err:%v", claims.UserID, err)
+			respondError(w, http.StatusInternalServerError, fmt.Sprintf("Failed get user:%d:err:%v", claims.UserID, err))
+			return
+		}
+		if user.IdRole != 2 {
+			s.logger.Errorf("Failed log auth in admin panel(conflict not admin) by user:%d", user.ID)
+			respondError(w, http.StatusInternalServerError, fmt.Sprintf("Failed log auth in admin panel(conflict not admin) by user:%d", user.ID))
+			return
+		}
+		_, err = tx.Log().Create(r.Context(), &models.Log{IdUser: claims.UserID, IdEntity: 5, IdType: 7}).Exists(r.Context())
+		if err != nil {
+			s.logger.Errorf("Failed log auth by user:%d:err:%v", claims.UserID, err)
+		}
+		err = tx.Commit()
+		if err != nil {
+			respondError(w, http.StatusInternalServerError, "Failed commit")
+			return
+		}
+		ctx := context.WithValue(r.Context(), "id_user", claims.UserID)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
 
 // Middleware для аутентификации

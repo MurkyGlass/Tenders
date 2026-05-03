@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Админ панель</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+        * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        }
+
+        body {
+        background: #f0f2f6;
+        font-family: 'Inter', sans-serif;
+        display: flex;
+        min-height: 100vh;
+        }
+        button {
+            background: #53565c;
+            margin: 1%;
+            padding: 1%;
+        }
+        h2 {
+            color: black;
+        }
+    </style>
+</head>
+<body>
+
+  <!-- Пустая область справа для визуального контекста (не является частью панели) -->
+    <div style="flex: 1; display: flex; align-items: center; justify-content: center; color: #fefefe; font-family: monospace;">
+          
+        <div style="display: flex; flex-direction: column;">
+            <h1 style="color: black;">Добро пожаловать, {{.User.Name}}, в админ панель!</h3> 
+            <h2>Категории:</h2>
+            <div style="display: flex; flex-direction: row;">
+                <button onclick="AddCategory()">Добавить категорию</button>
+                <button>Удалить категорию</button>
+                <button>Изменить категорию</button>
+            </div>
+            <h2>Тест:</h2>
+            <div style="display: flex; flex-direction: row;">
+                <button>Test..1</button>
+                <button>Test..2</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        function AddCategory(){
+            window.location.href = '/admin/category/create'
+        }
+    </script>
+</body>
+</html>
