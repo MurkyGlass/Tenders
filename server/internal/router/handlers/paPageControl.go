@@ -34,12 +34,34 @@ func (h *Handlers) GetProfilwindow() func(w http.ResponseWriter, r *http.Request
 			h.handleError(w, "Failed profil load:", err, 500)
 			return
 		}
+		docs, err := h.Repo.Doc().GetAll(r.Context())
+		if err != nil {
+			h.handleError(w, "Failed get files:", err, 500)
+			return
+		}
+		doclinks, err := h.Repo.LinkerDoc(0).Company().GetAll(r.Context(), company.ID)
+		if err != nil {
+			h.handleError(w, "Failed get files-links:", err, 500)
+			return
+		}
+		var files []models.Doc
+		for _, link := range doclinks {
+			for _, d := range docs {
+				if d.ID == link.DocID {
+					files = append(files, d)
+					break
+				} else {
+					continue
+				}
+			}
+		}
 		type data struct {
 			User    models.User
 			Company models.Company
 			Role    models.RoleInCompany
+			Files   []models.Doc
 		}
-		d := &data{User: *user, Company: *company, Role: *role}
+		d := &data{User: *user, Company: *company, Role: *role,Files: files}
 		err = tmpl.Execute(w, d)
 		if err != nil {
 			h.handleError(w, "Failed profil render:", err, 500)
@@ -47,6 +69,7 @@ func (h *Handlers) GetProfilwindow() func(w http.ResponseWriter, r *http.Request
 		}
 	}
 }
+
 // Изминения личных данных пользователя и компании производимое директором или имеющим доступ, для иных случаев следует обдумать отдельный метод
 func (h *Handlers) EditingLK() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {

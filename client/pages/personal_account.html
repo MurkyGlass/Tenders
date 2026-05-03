@@ -6,6 +6,8 @@
     <title>Личный кабинет</title>
     <link rel="stylesheet" href="/static/css/.css">
     <link rel="stylesheet" href="/static/css/pa.css">
+    <link rel="stylesheet" href="/static/css/tender.css">
+    <link rel="stylesheet" href="/static/css/offer.css">
     <script src="/static/js/pa.js" async></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -234,56 +236,90 @@
         <div class="content-container">
             <h2 class="content-title">Личный кабинет</h2>
             <div class="content-main">
-            <div class="content-group">
-                <div class="content-column">
-                    <div class="content-block">
-                    <div class="content-item">
-                        <h1>Компания</h1>
+                <div class="content-group">
+                    <div class="content-column">
+                        <div class="content-block">
+                            <div class="content-item">
+                                <h1>Компания</h1>
+                            </div>
+                        </div>
+                        <div class="content-block">
+                            <div class="content-item">
+                                <h3>Компания:</h3>
+                                <h3>Эл.почта:</h3>
+                                <h3>ИНН:</h3>
+                                <h3>ЕГРЮЛ:</h3>
+                                <h3>Адресс:</h3>
+                                <h3>Описание:</h3>
+                            </div>
+                            <div class="content-item">
+                                <h3>{{.Company.Name}}</h3>
+                                <h3>{{.Company.Email}}</h3>
+                                <h3>{{.Company.INN}}</h3>
+                                <h3>{{.Company.EGRUL}}</h3>
+                                <h3>{{.Company.Address}}</h3>
+                                <h3 class="descr">{{.Company.Description}}</h3>
+                            </div>                 
+                        </div>
                     </div>
+                    <div class="content-column">
+                        <div class="content-block">
+                            <div class="content-item">
+                                <h1>Пользователь</h1>
+                            </div>     
+                        </div>         
+                        <div class="content-block">
+                            <div class="content-item">
+                                <h3>Логин: </h3>
+                                <h3>ФИО: </h3>
+                                <h3>Эл.почта: </h3>
+                                <h3> Должность: </h3>
+                            </div>
+                            <div class="content-item">
+                                <h3>{{.User.Login}}</h3>
+                                <h3>{{.User.Name}}</h3>
+                                <h3>{{.User.Email}}</h3>
+                                <h3>{{.Role.Name}}</h3>
+                            </div>
+                        </div>
                     </div>
-                <div class="content-block">
-                    <div class="content-item">
-                        <h3>Компания:</h3>
-                        <h3>Эл.почта:</h3>
-                        <h3>ИНН:</h3>
-                        <h3>ЕГРЮЛ:</h3>
-                        <h3>Адресс:</h3>
-                        <h3>Описание:</h3>
-                    </div>
-                    <div class="content-item">
-                        <h3>{{.Company.Name}}</h3>
-                        <h3>{{.Company.Email}}</h3>
-                        <h3>{{.Company.INN}}</h3>
-                        <h3>{{.Company.EGRUL}}</h3>
-                        <h3>{{.Company.Address}}</h3>
-                        <h3 class="descr">{{.Company.Description}}</h3>
-                    </div>                 
                 </div>
-                </div>
-                <div class="content-column">
-                    <div class="content-block">
-                    <div class="content-item">
-                        <h1>Пользователь</h1>
-                    </div>     
-                    </div>         
-                <div class="content-block">
-                    <div class="content-item">
-                        <h3>Логин: </h3>
-                        <h3>ФИО: </h3>
-                        <h3>Эл.почта: </h3>
-                        <h3> Должность: </h3>
+                <div class="content-group">
+                    <div class="content-column">
+                        <div class="content-block">
+                            <div class="content-item">
+                                <h1>Прикрепленные документы</h1>
+                            </div>
+                        </div>
+                        <div class="content-block">
+                            <div class="content-item">
+                                <div class="file-list" id="file-list">
+                                    {{if .Files}}
+                                        {{range .Files}}
+                                            <div class="file-list-item">
+                                                <span>
+                                                    <i class="fas fa-file"></i> 
+                                                    {{.Name}}
+                                                </span>
+                                                <a href="/protected/companies/documents/{{.ID}}">
+                                                    <span> Скачать </span>
+                                                </a>            
+                                            </div>
+                                        {{end}}
+                                        <a href="/protected/companies/{{.Company.ID}}/documents">
+                                            <span> Скачать архивом</span>
+                                        </a>
+                                    {{else}}
+                                        <span>Нет прикрепленных документов</span>
+                                    {{end}}
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="content-item">
-                        <h3>{{.User.Login}}</h3>
-                        <h3>{{.User.Name}}</h3>
-                        <h3>{{.User.Email}}</h3>
-                        <h3>{{.Role.Name}}</h3>
-                    </div>
-                </div>
-                </div>
                 </div>
                 <div class="content-group">
                     <button class="btn" id="editbtn">Редактировать</button>
+                    <button class="btn" id="editfilesbtn" onclick="DocsEdit()">Редактировать документы</button>
                     <button class="btn" id="createrolebtn">Создать должность</button>
                     <button class="btn" id="adduserbtn">Добавить сотрудника</button>
                 </div>
@@ -326,5 +362,24 @@
             <p>© IP Kolobov, 2026 Портал коммерческих закупок. Все права защищены.</p>
         </div>
     </footer>
+    <script>
+        async function DocsEdit() {
+                    const resp = await fetch("/protected/companies/{{.Company.ID}}/docs/edit");
+                    if(!resp.ok){
+                        if(resp.status == 403){
+                            await Refresh()
+                            await DocsEdit()
+                        }
+                        return
+                    } 
+                    
+                
+                    window.location.href = "/protected/companies/{{.Company.ID}}/docs/edit";
+        }
+
+        async function Refresh(){
+            await fetch("/auth/refresh");
+        }
+    </script>
 </body>
 </html>

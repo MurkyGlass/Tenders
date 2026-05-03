@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Дополнение коммерческого предложения</title>
+    <title>Редактирование документов компании</title>
     <link rel="stylesheet" href="/static/css/.css">
     <link rel="stylesheet" href="/static/css/tender_create.css">
     <link rel="stylesheet" href="/static/css/tender.css">
     <link rel="stylesheet" href="/static/css/offer.css">
     <script src="/static/js/main.js" async></script>
-    <script src="/static/js/offeredit.js" async></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -34,20 +33,15 @@
             <div class="breadcrumbs">
                 <a href="/protected/lk">Личный кабинет</a>
                 <i class="fas fa-chevron-right"></i>
-                <a href="/protected/lk/offers">Мои предложения</a>
-                <i class="fas fa-chevron-right"></i>
-                <a href="/protected/lk/offers/{{.Offer.ID}}">Предложение №{{.Offer.ID}}</a>
-                <i class="fas fa-chevron-right"></i>
-                <span>Дополнение предложения №{{.Offer.ID}}</span>
+                <span>Дополнить документы</span>
             </div>
 
             <!-- Заголовок страницы -->
             <div class="page-header">
                 <h2 class="content-title">
                     <i class="fas fa-plus-circle"></i>
-                    Дополнение коммерческого предложения для тендера №{{.Offer.IdTender}}
+                    Дополнение документов компании - {{.Company.Name}}
                 </h2>
-                <p class="page-subtitle">Заполните все обязательные поля для публикации</p>
             </div>
 
             <form class="tender-create-form" id="offerForm">
@@ -60,39 +54,13 @@
                         </div>
                         
                         <div class="form-card-body">
-                            <div class="form-group">
-                                <label class="form-label" for="description">
-                                    Цена
-                                </label>
-                                <input id="price"
-                                name="price"
-                                type="number"
-                                class="form-input"
-                                required
-                                value="{{.Offer.Price}}"/>
-                                <span class="offer-price-label">руб.</span>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label" for="description">
-                                    Описание коммерческого предложения
-                                </label>
-                                <textarea class="form-textarea" 
-                                          id="description"
-                                          name="description" 
-                                          placeholder="Подробное описание предложения, условия, дополнительная информация"
-                                          maxlength="500">{{.Offer.Description}}</textarea>
-                                <div class="form-hint">
-                                    <i class="fas fa-info-circle"></i>
-                                    Максимум 500 символов. Поле необязательное
-                                </div>
-                            </div>
                                 <div class="form-group">
                                     <label class="form-label" >
                                         Текущая документация <span class="required">*</span>
                                     </label>
-                                    {{if .Offer.Files}}
+                                    {{if .Files}}
                                     <div class="file-column">
-                                        {{range .Offer.Files}}
+                                        {{range .Files}}
                                             <label>
                                                 <input type="checkbox" value="{{.ID}}" name="oldfiles">
                                                 {{.Name}}
@@ -145,16 +113,10 @@
                             <i class="fas fa-times"></i>
                             Отмена
                         </button>
-                        <button type="button" class="btn btn-primary" onclick="EditOfferForm({{.Offer.ID}})">
+                        <button type="button" class="btn btn-primary" onclick="EditCompanyForm({{.Company.ID}})">
                             <i class="fas fa-check"></i>
-                            Дополнить коммерческое предложение
+                            Дополнить документацию
                         </button>
-                        {{if eq .Offer.Status "Черновик"}}        
-                            <button type="button" class="btn btn-outline" id="saveDraftBtn" onclick="EditDraftOfferForm({{.Offer.ID}})">
-                                <i class="fas fa-save"></i>
-                                Сохранить как черновик
-                            </button>
-                        {{end}}
                     </div>
                 </div>
             </form>
@@ -197,5 +159,105 @@
             <p>© IP Kolobov, 2026 Портал коммерческих закупок. Все права защищены.</p>
         </div>
     </footer>
+    <script>
+        window.addEventListener('pageshow', function(event) {
+            if(event.persisted){
+                window.location.href = this.window.location.pathname
+            }
+        });
+        async function EditCompanyForm(id) {
+            const formData = new FormData(document.getElementById('offerForm'));
+        
+                const response = await fetch('/protected/companies/'+id+'/docs/edit', {//
+                    method: 'POST',
+                    body: formData
+                });
+                if (response.ok){
+                    alert("Документация дополнена")
+                    window.location.href = '/protected/lk'
+                }else{
+                    alert("Ошибка:"+ await response.text())
+                }
+        }
+
+        // todo validation for file format and size
+        document.getElementById('file_select').addEventListener('click', function(e) {
+            // Сохраняем текущие файлы ДО открытия диалога
+            const oldFiles = Array.from(this.files);
+            console.log('Сохранено до выбора:', oldFiles.length);
+            
+            const input = this;
+            
+            const handleChange = () => {
+                const newFiles = Array.from(input.files);
+                console.log('Новые файлы:', newFiles.length);
+                
+                const dt = new DataTransfer();
+                
+                oldFiles.forEach(file => dt.items.add(file));
+                
+                newFiles.forEach(newFile => {
+                    const exists = oldFiles.some(oldFile => 
+                        oldFile.name === newFile.name && oldFile.size === newFile.size
+                    );
+                    
+                    if (!exists) {
+                        dt.items.add(newFile);
+                    }
+                });
+                
+                input.files = dt.files;
+                
+                updateFileDisplay();
+                
+                input.removeEventListener('change', handleChange);
+            };
+            
+            this.addEventListener('change', handleChange);
+        });
+
+        function removeFile(index) {
+            const input = document.getElementById('file_select');
+            
+            const dt = new DataTransfer();
+            
+            for (let i = 0; i < input.files.length; i++) {
+                if (i !== index) {
+                    dt.items.add(input.files[i]);
+                }
+            }
+            
+            input.files = dt.files;
+            
+            updateFileDisplay();
+        }
+
+        function updateFileDisplay() {
+            const input = document.getElementById('file_select');
+            const display = document.getElementById('file-name-display');
+            const list = document.getElementById('file-list');
+            
+            if (input.files.length === 0) {
+                display.textContent = 'Файлы не выбраны';
+                list.innerHTML = '';
+                return;
+            }
+            
+            display.textContent = `Выбрано файлов: ${input.files.length}`;
+
+            list.innerHTML = Array.from(input.files).map((file, index) => `
+                <div class="file-list-item">
+                    <span>
+                        <i class="fas fa-file"></i> 
+                        ${file.name}
+                        <span class="file-size">(${(file.size / 1024).toFixed(1)} KB)</span>
+                    </span>
+                    <span class="remove-file" onclick="removeFile(${index})">
+                        <i class="fas fa-times"></i>
+                    </span>
+                </div>
+            `).join('');
+        }
+    </script>
 </body>
 </html>

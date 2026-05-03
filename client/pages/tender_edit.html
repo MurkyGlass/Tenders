@@ -102,11 +102,17 @@
                                     <label class="form-label" >
                                         Текущая документация <span class="required">*</span>
                                     </label>
-                                    {{range .OldFiles}}
-                                    <label>
-                                        <input type="checkbox" value="{{.ID}}" name="oldfiles">
-                                        {{.Name}}
-                                    </label>
+                                    {{if .OldFiles}}
+                                    <div class="file-column">
+                                        {{range .OldFiles}}
+                                            <label>
+                                                <input type="checkbox" value="{{.ID}}" name="oldfiles">
+                                                {{.Name}}
+                                            </label>
+                                        {{end}}
+                                    </div>
+                                    {{else}}
+                                        <span>нет прикрепленных документов</span>
                                     {{end}}
                                     <div class="form-hint">
                                         <i class="fas fa-info-circle"></i>
