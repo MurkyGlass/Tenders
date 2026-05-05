@@ -9,9 +9,8 @@ import (
 type CategoryRepository interface {
 	GetAll(ctx context.Context) ([]models.Category, error)
 	GetByID(ctx context.Context, id int) (*models.Category, error)
-	Create(ctx context.Context, name string, IdParent int) error
-	Update(ctx context.Context, name string, Id int) error
-	Delete(ctx context.Context, id int) error
+	Create(ctx context.Context, categ *models.Category, IdParent int) error
+	Update(ctx context.Context, name string, Id int, IdParent int) error
 }
 
 type categoryRepository struct {
@@ -42,9 +41,13 @@ func (r *categoryRepository) GetByID(ctx context.Context, id int) (*models.Categ
 	}
 	return &cat, nil
 }
-func (r *categoryRepository) Create(ctx context.Context, name string, IdParent int) error {
+func (r *categoryRepository) Create(ctx context.Context, categ *models.Category, IdParent int) error {
+	err := categ.Validate()
+	if err != nil {
+		return err
+	}
 	query := `INSERT INTO Categories (name)
-			VALUES ($1)
+			VALUES (:name)
 			RETURNING id_category`
 
 	stmt, err := r.db.PrepareNamedContext(ctx, query)
@@ -52,26 +55,25 @@ func (r *categoryRepository) Create(ctx context.Context, name string, IdParent i
 		return fmt.Errorf("failed to prepare query: %w", err)
 	}
 	defer stmt.Close()
-	ID := 0
-	err = stmt.QueryRowxContext(ctx, name).Scan(&ID)
+	err = stmt.QueryRowxContext(ctx, categ).Scan(&categ.ID)
 	if err != nil {
 		return fmt.Errorf("failed to create category and get its ID: %w", err)
 	}
-	if ID == 0 {
+	if categ.ID == 0 {
 		return fmt.Errorf("failed  get category ID: %w", err)
 	}
 	if IdParent != 0 {
 		query := `INSERT INTO Category_Links (id_parent, id_children)
 			VALUES ($1,$2)`
 
-		_, err := r.db.ExecContext(ctx, query, IdParent, ID)
+		_, err := r.db.ExecContext(ctx, query, IdParent, categ.ID)
 		if err != nil {
 			return fmt.Errorf("failed to create link by parent: %w", err)
 		}
 	}
 	return nil
 }
-func (r *categoryRepository) Update(ctx context.Context, name string, Id int) error {
+func (r *categoryRepository) Update(ctx context.Context, name string, Id int, IdParent int) error {
 	query := `
 		UPDATE Categories
 		SET name = $1
@@ -81,18 +83,22 @@ func (r *categoryRepository) Update(ctx context.Context, name string, Id int) er
 	if err != nil {
 		return fmt.Errorf("failed to update category: %w", err)
 	}
-	return nil
-}
-func (r *categoryRepository) Delete(ctx context.Context, id int) error {
-	query := `DELETE FROM Category_Links WHERE id_parent = $1 or id_children = $1`
-	_, err := r.db.ExecContext(ctx, query, id)
-	if err != nil {
-		return fmt.Errorf("failed to delete catlinks: %w", err)
-	}
-	query = `DELETE FROM Categories WHERE id_category = $1`
-	_, err = r.db.ExecContext(ctx, query, id)
-	if err != nil {
-		return fmt.Errorf("failed to delete category: %w", err)
+	if IdParent != -1 {
+		query := `Delete from Category_Links where id_children = $1`
+
+		_, err := r.db.ExecContext(ctx, query, Id)
+		if err != nil {
+			return fmt.Errorf("failed to delete link: %w", err)
+		}
+		if IdParent != 0 {
+			query := `INSERT INTO Category_Links (id_parent, id_children)
+			VALUES ($1,$2)`
+
+			_, err := r.db.ExecContext(ctx, query, IdParent, Id)
+			if err != nil {
+				return fmt.Errorf("failed to create link by parent: %w", err)
+			}
+		}
 	}
 	return nil
 }

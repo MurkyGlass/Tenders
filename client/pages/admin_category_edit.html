@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Изменение категории</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+        * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        }
+
+        body {
+        background: #f0f2f6;
+        font-family: 'Inter', sans-serif;
+        display: flex;
+        min-height: 100vh;
+        }
+        button {
+            background: #53565c;
+            margin: 1%;
+            padding: 1%;
+        }
+        h2 {
+            color: black;
+        }
+       
+
+    select:hover {
+      border-color: #94a3b8;
+    }
+
+    select:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+    </style>
+</head>
+<body>
+
+  <!-- Пустая область справа для визуального контекста (не является частью панели) -->
+    <div style="flex: 1; display: flex; align-items: center; justify-content: center; color: #fefefe; font-family: monospace;">
+          
+        <div style="display: flex; flex-direction: column;">
+            <h1 style="color: black;">Изменение категории</h3> 
+            <h2>Категории:</h2>
+            <span>Выберите категорию которую хотите изменить*</span>
+                {{if .Categories}}
+                    <select id="current">
+                        <option value="0" selected>Нет</option>
+                        
+                        {{range .Categories}}
+                            <option value="{{.ID}}">{{.Name}}</option>
+                        {{end}}
+                    </select>
+                {{else}}
+                <span>Нет категорий</span>
+                {{end}}
+            <h2>Новое название:</h2>     
+            <input id="Name" type="text"> 
+            <h2>Родительская категория</h2>
+            {{if .Categories}}
+                    <select id="parent">
+                        <option value="0" selected>Нет</option>
+                        <option value="-1">Не изменять</option>
+                        {{range .Categories}}
+                            <option value="{{.ID}}">{{.Name}}</option>
+                        {{end}}
+                    </select>
+                {{else}}
+                <span>Нет категорий</span>
+                {{end}}
+            <button id="addbtn">Изменить</button>
+            <button onclick="back()">Назад</button>
+        </div>
+    </div>
+    <script>
+        function back(){
+            window.history.back()
+        }
+        async function Add(){
+            var par = document.getElementById('parent')
+            var select = par.value
+            var cur = document.getElementById('current')
+            var currentid = cur.value
+            var nameinp = document.getElementById('Name')
+            var name = nameinp.value
+            if (name === ""){
+                alert("Имя не заполнено..")
+                return
+            }
+            if( currentid ==="0")
+            {
+                alert("Категория не выбрана")
+                return
+            }
+            if (currentid === select){
+                alert("Нельзя быть для себя и родителем и ребенком")
+                return
+            }
+                var data = { id:currentid,name: name ,parentid: select};
+
+                const response = await fetch('/admin/category/edit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                })
+            if(response.ok){
+                alert("категория успешно изменена")
+                back()
+            }else{
+                alert("Ошибка:"+ await response.text())
+            }
+        }
+        document.getElementById('addbtn').addEventListener('click',Add)
+    </script>
+</body>
+</html>

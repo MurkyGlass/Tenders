@@ -39,19 +39,16 @@
             <h2>Категории:</h2>
             <div style="display: flex; flex-direction: row;">
                 <button onclick="AddCategory()">Добавить категорию</button>
-                <button>Удалить категорию</button>
-                <button>Изменить категорию</button>
-            </div>
-            <h2>Тест:</h2>
-            <div style="display: flex; flex-direction: row;">
-                <button>Test..1</button>
-                <button>Test..2</button>
+                <button onclick="EditCategory()">Изменить категорию</button>
             </div>
         </div>
     </div>
     <script>
         function AddCategory(){
             window.location.href = '/admin/category/create'
+        }
+        function EditCategory(){
+            window.location.href = '/admin/category/edit'
         }
     </script>
 </body>
