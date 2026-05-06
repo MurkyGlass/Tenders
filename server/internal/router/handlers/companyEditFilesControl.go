@@ -16,6 +16,15 @@ import (
 
 func (h *Handlers) EditCompanyDocs() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		f, err := h.readRightsInContext(r.Context(), UploadCompanyDocsPerms)
+		if err != nil {
+			h.handleError(w, "Error get Rights:", err, 500)
+			return
+		}
+		if !f {
+			h.handleError(w, "No rights for this action", fmt.Errorf("No rights for this action"), 409)
+			return
+		}
 		contentType := r.Header.Get("Content-Type")
 
 		if strings.Contains(contentType, "multipart/form-data") {
@@ -221,6 +230,15 @@ func (h *Handlers) EditCompanyDocs() func(w http.ResponseWriter, r *http.Request
 }
 func (h *Handlers) GetEditCompanyDocsWindow() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		f, err := h.readRightsInContext(r.Context(), UploadCompanyDocsPerms)
+		if err != nil {
+			h.handleError(w, "Error get Rights:", err, 500)
+			return
+		}
+		if !f {
+			h.handleError(w, "No rights for this action", fmt.Errorf("No rights for this action"), 409)
+			return
+		}
 		tmpl, err := template.ParseFiles("./client/pages/company_documents_edit.html")
 		if err != nil {
 			h.handleError(w, "Failed company docs edit load:", err, 500)

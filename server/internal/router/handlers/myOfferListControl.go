@@ -11,6 +11,16 @@ import (
 
 func (h *Handlers) GetOfferListWindow() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		f, err := h.readRightsInContext(r.Context(), ViewOwnOffersPerms)
+		if err != nil {
+			h.handleError(w, "Error get Rights:", err, 500)
+			return
+		}
+		if !f {
+			h.handleError(w, "No rights for this action", fmt.Errorf("No rights for this action"), 409)
+			return
+		}
+
 		tmpl, err := template.ParseFiles("./client/pages/my_offer_list.html")
 		if err != nil {
 			h.handleError(w, "Failed offerlist load:", err, 500)

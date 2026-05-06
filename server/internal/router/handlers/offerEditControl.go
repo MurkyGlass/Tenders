@@ -17,6 +17,26 @@ import (
 
 func (h *Handlers) EditOffer(IdStatus int) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		f, err := h.readRightsInContext(r.Context(), EditOfferPerms)
+		if err != nil {
+			h.handleError(w, "Error get Rights:", err, 500)
+			return
+		}
+		if !f {
+			h.handleError(w, "No rights for this action", fmt.Errorf("No rights for this action"), 409)
+			return
+		}
+		if IdStatus == 2 {
+			f, err := h.readRightsInContext(r.Context(), EditPublishOfferPerms)
+			if err != nil {
+				h.handleError(w, "Error get Rights:", err, 500)
+				return
+			}
+			if !f {
+				h.handleError(w, "No rights for this action", fmt.Errorf("No rights for this action"), 409)
+				return
+			}
+		}
 		contentType := r.Header.Get("Content-Type")
 
 		if strings.Contains(contentType, "multipart/form-data") {

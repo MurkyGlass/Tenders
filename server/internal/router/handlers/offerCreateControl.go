@@ -16,6 +16,26 @@ import (
 
 func (h *Handlers) CreateOffer(IdStatus int) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		f, err := h.readRightsInContext(r.Context(), CreateOfferPerms)
+		if err != nil {
+			h.handleError(w, "Error get Rights:", err, 500)
+			return
+		}
+		if !f {
+			h.handleError(w, "No rights for this action", fmt.Errorf("No rights for this action"), 409)
+			return
+		}
+		if IdStatus == 2 {
+			f, err := h.readRightsInContext(r.Context(), PublishOfferPerms)
+			if err != nil {
+				h.handleError(w, "Error get Rights:", err, 500)
+				return
+			}
+			if !f {
+				h.handleError(w, "No rights for this action", fmt.Errorf("No rights for this action"), 409)
+				return
+			}
+		}
 		contentType := r.Header.Get("Content-Type")
 
 		if strings.Contains(contentType, "multipart/form-data") {
@@ -66,7 +86,7 @@ func (h *Handlers) CreateOffer(IdStatus int) func(w http.ResponseWriter, r *http
 				return
 			}
 			if tender.DateTimeStart.Before(time.Now()) {
-				h.handleError(w, fmt.Sprintf("Нельзя создать коммерческое предложение до начала Тендера:%s;%s",tender.DateTimeStart.String(),time.Now().String()), fmt.Errorf("Tender start not after now"), 409)
+				h.handleError(w, fmt.Sprintf("Нельзя создать коммерческое предложение до начала Тендера:%s;%s", tender.DateTimeStart.String(), time.Now().String()), fmt.Errorf("Tender start not after now"), 409)
 				return
 			}
 			if tender.DateTimeEnd.Before(time.Now()) {
@@ -203,6 +223,15 @@ func (h *Handlers) CreateOffer(IdStatus int) func(w http.ResponseWriter, r *http
 }
 func (h *Handlers) GetCreateOfferWindow() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		f, err := h.readRightsInContext(r.Context(), CreateOfferPerms)
+		if err != nil {
+			h.handleError(w, "Error get Rights:", err, 500)
+			return
+		}
+		if !f {
+			h.handleError(w, "No rights for this action", fmt.Errorf("No rights for this action"), 409)
+			return
+		}
 		tmpl, err := template.ParseFiles("./client/pages/offer_create.html")
 		if err != nil {
 			h.handleError(w, "Failed tendercreate load:", err, 500)

@@ -200,12 +200,71 @@
                             value="{{.User.Email}}">
                     </div>
                 
-                <button type="submit" class="register-submit" id="editSubmit" style="margin: 1%;">
-                    Сохранить
-                </button>
-                <button type="button" class="register-submit" id="editbackbtn" style="margin: 1%;">
-                    Отмена
-                </button>
+                    <button type="submit" class="register-submit" id="editSubmit" style="margin: 1%;">
+                        Сохранить
+                    </button>
+                    <button type="button" class="register-submit" id="editbackbtn" style="margin: 1%;">
+                        Отмена
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="register-modal" id="roleCreateModal">
+        <div class="register-overlay" id="registerOverlay"></div>
+        <div class="register-container">
+            <div class="register-header">
+                <h2>Создание должности</h2>
+                <button class="register-close" id="roleCreateClose" onclick="RoleformClose()">&times;</button>
+            </div>
+        
+            <form class="register-form" id="roleCreateForm">
+                
+                <div class="form-section">
+
+                    <div class="form-group">
+                        <label for="name" class="form-label">
+                            Название
+                        </label>
+                        <input 
+                            type="text" 
+                            id="nameRole" 
+                            name="name"
+                            class="form-input"
+                            placeholder="старший менеджер"
+                            required
+                            maxlength="50">
+                    </div>
+                    <div class="form-group">
+                        <label  class="form-label">
+                            Права
+                        </label>
+                        {{if .Rights}}
+                            <div style="display: flex; flex-direction: column;">
+                                {{range .Rights}}
+                                    <label>
+                                        <input 
+                                        type="checkbox" 
+                                        id="nameRole" 
+                                        name="rights"
+                                        value="{{.ID}}">
+                                        {{.RusName}}
+                                    </label>
+                                {{end}}
+                            </div>
+                        {{else}}
+                            <span>к сожалению права отключены или вы столкнулись с ошибкой подгрузки</span>
+                        {{end}}
+                        
+                    </div>
+                    <button type="submit" class="register-submit" id="roleCreateSubmit" style="margin: 1%;">
+                        Сохранить
+                    </button>
+                    <button type="button" class="register-submit" id="roleCreatebackbtn" style="margin: 1%;" onclick="RoleformClose()">
+                        Отмена
+                    </button>
+                </div>
             </form>
         </div>
     </div>
@@ -320,7 +379,7 @@
                 <div class="content-group">
                     <button class="btn" id="editbtn">Редактировать</button>
                     <button class="btn" id="editfilesbtn" onclick="DocsEdit()">Редактировать документы</button>
-                    <button class="btn" id="createrolebtn">Создать должность</button>
+                    <button class="btn" id="createrolebtn" onclick="RoleformShow()">Создать должность</button>
                     <button class="btn" id="adduserbtn">Добавить сотрудника</button>
                 </div>
             </div>
@@ -380,6 +439,14 @@
         async function Refresh(){
             await fetch("/auth/refresh");
         }
+        function RoleformShow(){
+            document.getElementById('roleCreateModal').classList.add("show")
+        }
+        function RoleformClose(){
+            document.getElementById('roleCreateModal').classList.remove("show")
+        }
+        //todo create rolein company + (list + editing)
+        //todo create users
     </script>
 </body>
 </html>

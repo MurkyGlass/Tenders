@@ -55,13 +55,19 @@ func (h *Handlers) GetProfilwindow() func(w http.ResponseWriter, r *http.Request
 				}
 			}
 		}
+		rights, err := h.Repo.Right().GetAll(r.Context())
+		if err != nil {
+			h.handleError(w, "Failed get rights:", err, 500)
+			return
+		}
 		type data struct {
 			User    models.User
 			Company models.Company
 			Role    models.RoleInCompany
 			Files   []models.Doc
+			Rights  []models.Right
 		}
-		d := &data{User: *user, Company: *company, Role: *role,Files: files}
+		d := &data{User: *user, Company: *company, Role: *role, Files: files,Rights: rights}
 		err = tmpl.Execute(w, d)
 		if err != nil {
 			h.handleError(w, "Failed profil render:", err, 500)
@@ -73,6 +79,15 @@ func (h *Handlers) GetProfilwindow() func(w http.ResponseWriter, r *http.Request
 // Изминения личных данных пользователя и компании производимое директором или имеющим доступ, для иных случаев следует обдумать отдельный метод
 func (h *Handlers) EditingLK() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		f, err := h.readRightsInContext(r.Context(), EditCompanyDataPerms)
+		if err != nil {
+			h.handleError(w, "Error get Rights:", err, 500)
+			return
+		}
+		if !f {
+			h.handleError(w, "No rights for this action", fmt.Errorf("No rights for this action"), 409)
+			return
+		}
 		contentType := r.Header.Get("Content-Type")
 
 		if strings.Contains(contentType, "multipart/form-data") {

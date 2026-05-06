@@ -15,6 +15,15 @@ import (
 
 func (h *Handlers) FilterParamsByMyTenders() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		f, err := h.readRightsInContext(r.Context(), ViewOwnTendersPerms)
+		if err != nil {
+			h.handleError(w, "Error get Rights:", err, 500)
+			return
+		}
+		if !f {
+			h.handleError(w, "No rights for this action", fmt.Errorf("No rights for this action"), 409)
+			return
+		}
 		contentType := r.Header.Get("Content-Type")
 
 		if strings.Contains(contentType, "multipart/form-data") {
@@ -49,6 +58,15 @@ func (h *Handlers) FilterParamsByMyTenders() func(w http.ResponseWriter, r *http
 }
 func (h *Handlers) GetMyTendersListwindow(FilterParams []int) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		f, err := h.readRightsInContext(r.Context(), ViewOwnTendersPerms)
+		if err != nil {
+			h.handleError(w, "Error get Rights:", err, 500)
+			return
+		}
+		if !f {
+			h.handleError(w, "No rights for this action", fmt.Errorf("No rights for this action"), 409)
+			return
+		}
 		tenders, err := h.Repo.Tenders().GetAll(r.Context())
 		if err != nil {
 			h.handleError(w, "Failed get tenders:", err, 500)

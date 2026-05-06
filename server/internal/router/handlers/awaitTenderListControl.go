@@ -11,6 +11,15 @@ import (
 
 func (h *Handlers) GetMyAwaitTendersListwindow() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		f, err := h.readRightsInContext(r.Context(), ChooseWinnerPerms)
+		if err != nil {
+			h.handleError(w, "Error get Rights:", err, 500)
+			return
+		}
+		if !f {
+			h.handleError(w, "No rights for this action", fmt.Errorf("No rights for this action"), 409)
+			return
+		}
 		tenders, err := h.Repo.Tenders().GetAll(r.Context())
 		if err != nil {
 			h.handleError(w, "Failed get tenders:", err, 500)

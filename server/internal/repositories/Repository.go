@@ -123,7 +123,7 @@ func (r *repository) LinkerTCategory(idTender int) LinkerCategory {
 	return NewLinkerCategory(idTender, r.db)
 }
 func (r *repository) LinkerRoleRight(idRole int) LinkerRight {
-	return NewLinkerCategory(idRole, r.db)
+	return NewLinkerRight(idRole, r.db)
 }
 
 func (r *repository) BeginTx(ctx context.Context) (Transaction, error) {
@@ -191,7 +191,7 @@ func (t *transaction) LinkerTCategory(idTender int) LinkerCategory {
 	return NewLinkerCategory(idTender, t.tx)
 }
 func (t *transaction) LinkerRoleRight(idRole int) LinkerRight {
-	return NewLinkerCategory(idRole, t.tx)
+	return NewLinkerRight(idRole, t.tx)
 }
 func (t *transaction) Refresh() RefreshRepository {
 	return NewRefreshRepository(t.tx)

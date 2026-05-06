@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"main/internal/repositories"
@@ -14,7 +15,7 @@ import (
 )
 
 const (
-	LoginForm        = `<div class="login-modal" id="loginModal">
+	LoginForm = `<div class="login-modal" id="loginModal">
         <div class="login-overlay" id="loginOverlay">
         </div>
         <div class="login-container">
@@ -423,3 +424,50 @@ func GetDateString(t time.Time) string {
 	}
 	return fmt.Sprintf("%s.%s.%d %s:%s", daystr, monstr, t.Year(), hstr, mstr)
 }
+func (h *Handlers) readRightsInContext(ctx context.Context, rights []string) (bool, error) {
+	id, ok := ctx.Value("id_user").(int)
+	if !ok {
+		return false, fmt.Errorf("Bad user id")
+	}
+	user, err := h.Repo.Users().GetByID(ctx, id)
+	if err != nil {
+		return false, fmt.Errorf("db request failed")
+	}
+	if user.IdRoleInCompany != 1 {
+		for _, r := range rights {
+			if ctx.Value(r) == "no" {
+				return false, nil
+			}
+		}
+	}
+	return true, nil
+}
+//tenders
+var ViewOwnTendersPerms = []string{"view_own_tenders"}//view my tenders
+
+var EditTenderPerms = []string{"view_own_tenders", "edit_own_tender"}//edit draft
+var EditPublishTenderPerms = []string{"view_own_tenders", "edit_own_tender","change_tender_status"}//edit
+
+var ChooseWinnerPerms = []string{"view_own_tenders", "choose_winner"}//await tenders
+
+var CreateTenderPerms = []string{"create_tender"}//create draft
+var PublishTenderPerms = []string{"create_tender", "change_tender_status"}//create
+
+//offers
+var ViewOwnOffersPerms = []string{"view_own_offers"}
+
+var EditOfferPerms = []string{"view_own_offers", "edit_own_offer"}//edit draft
+var EditPublishOfferPerms = []string{"view_own_offers", "edit_own_offer","change_offer_status"}//edit
+
+var CreateOfferPerms = []string{"create_offer"}//create draft
+var PublishOfferPerms = []string{"create_offer", "change_offer_status"}//create
+
+
+
+//company
+
+var EditCompanyDataPerms = []string{"edit_company_data"}//edit company
+var UploadCompanyDocsPerms = []string{"upload_company_docs"}//docs
+
+var ManageUsersPerms = []string{"manage_company_users"}
+var ManageRolesPerms = []string{"manage_roles"}

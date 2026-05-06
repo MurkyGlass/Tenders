@@ -353,6 +353,11 @@ func (s *Service) MiddlewareAdmin(next http.Handler) http.Handler {
 			return
 		}
 		ctx := context.WithValue(r.Context(), "id_user", claims.UserID)
+		ctx, err = s.writeRightsInContext(ctx, claims.UserID)
+		if err != nil {
+			respondError(w, http.StatusInternalServerError, "Failed Rights write")
+			return
+		}
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -400,8 +405,56 @@ func (s *Service) Middleware(next http.Handler) http.Handler {
 			return
 		}
 		ctx := context.WithValue(r.Context(), "id_user", claims.UserID)
+		ctx, err = s.writeRightsInContext(ctx, claims.UserID)
+		if err != nil {
+			respondError(w, http.StatusInternalServerError, "Failed Rights write")
+			return
+		}
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+func (s *Service) writeRightsInContext(ctx context.Context, idUser int) (context.Context, error) {
+	user, err := s.repo.Users().GetByID(ctx, idUser)
+	if err != nil {
+		s.logger.Errorf("Failed get user:%d:err:%v", idUser, err)
+		return nil, err
+	}
+	role, err := s.repo.RoleInCompany().GetByID(ctx, user.IdRoleInCompany)
+	if err != nil {
+		s.logger.Errorf("Failed get user role:%d:err:%v", user.IdRoleInCompany, err)
+		return nil, err
+	}
+	if role.ID == 1 {
+		return ctx, nil
+	}
+	rights, err := s.repo.Right().GetAll(ctx)
+	if err != nil {
+		s.logger.Errorf("Failed get rights, err:%v", err)
+		return nil, err
+	}
+	rolerigtsids, err := s.repo.LinkerRoleRight(role.ID).GetById(ctx)
+	if err != nil {
+		s.logger.Errorf("Failed get rights-role, err:%v", err)
+		return nil, err
+	}
+	for _, ri := range rights {
+		var flag bool
+		for _, idri := range rolerigtsids {
+			if idri == ri.ID {
+				flag = true
+				break
+			} else {
+				flag = false
+			}
+		}
+		if flag {
+			ctx = context.WithValue(ctx, ri.Name, "yes")
+		} else {
+			ctx = context.WithValue(ctx, ri.Name, "no")
+		}
+	}
+	return ctx, nil
 }
 
 // Генерация access токена

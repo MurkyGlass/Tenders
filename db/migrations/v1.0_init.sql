@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS Role_in_Company(
 );
 CREATE TABLE IF NOT EXISTS Rights(
     id_right SERIAL PRIMARY KEY,
+    rus_name VARCHAR(50) UNIQUE not null,
     name VARCHAR(50) NOT NULL UNIQUE
 );
 CREATE TABLE IF NOT EXISTS Right_RoleInCompany(

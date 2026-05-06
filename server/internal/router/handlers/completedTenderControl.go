@@ -13,6 +13,16 @@ import (
 
 func (h *Handlers) CompletTender() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		f, err := h.readRightsInContext(r.Context(), ChooseWinnerPerms)
+		if err != nil {
+			h.handleError(w, "Error get Rights:", err, 500)
+			return
+		}
+		if !f {
+			h.handleError(w, "No rights for this action", fmt.Errorf("No rights for this action"), 409)
+			return
+		}
+		
 		id, err := h.getIDFromRequest(r)
 		if err != nil {
 			h.handleError(w, "Invalid ID", err, 500)
@@ -109,6 +119,16 @@ func (h *Handlers) CompletTender() func(w http.ResponseWriter, r *http.Request) 
 }
 func (h *Handlers) GetCompletedTenderwindow() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		f, err := h.readRightsInContext(r.Context(), ChooseWinnerPerms)
+		if err != nil {
+			h.handleError(w, "Error get Rights:", err, 500)
+			return
+		}
+		if !f {
+			h.handleError(w, "No rights for this action", fmt.Errorf("No rights for this action"), 409)
+			return
+		}
+
 		id, err := h.getIDFromRequest(r)
 		if err != nil {
 			h.handleError(w, "Invalid ID", err, 500)

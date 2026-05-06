@@ -18,6 +18,15 @@ import (
 
 func (h *Handlers) EditDraftTender(IdStatus int) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		f, err := h.readRightsInContext(r.Context(), EditTenderPerms)
+		if err != nil {
+			h.handleError(w, "Error get Rights:", err, 500)
+			return
+		}
+		if !f {
+			h.handleError(w, "No rights for this action", fmt.Errorf("No rights for this action"), 409)
+			return
+		}
 		contentType := r.Header.Get("Content-Type")
 
 		if strings.Contains(contentType, "multipart/form-data") {
@@ -49,7 +58,7 @@ func (h *Handlers) EditDraftTender(IdStatus int) func(w http.ResponseWriter, r *
 				h.handleError(w, "В доступе отказано", fmt.Errorf("Conflict,by time end and Now"), 409)
 				return
 			}
-			if tender.IdStatus != 1  {
+			if tender.IdStatus != 1 {
 				h.handleError(w, "В доступе отказано", fmt.Errorf("Conflict,status"), 409)
 				return
 			}
@@ -360,6 +369,15 @@ func (h *Handlers) EditDraftTender(IdStatus int) func(w http.ResponseWriter, r *
 }
 func (h *Handlers) EditTender() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		f, err := h.readRightsInContext(r.Context(), EditPublishTenderPerms)
+		if err != nil {
+			h.handleError(w, "Error get Rights:", err, 500)
+			return
+		}
+		if !f {
+			h.handleError(w, "No rights for this action", fmt.Errorf("No rights for this action"), 409)
+			return
+		}
 		contentType := r.Header.Get("Content-Type")
 
 		if strings.Contains(contentType, "multipart/form-data") {
@@ -739,6 +757,15 @@ func BuildCategoryTreeByChecked(categories []models.Category, links []models.Lin
 // good
 func (h *Handlers) GetEditTenderWindow() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		f, err := h.readRightsInContext(r.Context(), EditTenderPerms)
+		if err != nil {
+			h.handleError(w, "Error get Rights:", err, 500)
+			return
+		}
+		if !f {
+			h.handleError(w, "No rights for this action", fmt.Errorf("No rights for this action"), 409)
+			return
+		}
 		tmpl, err := template.ParseFiles("./client/pages/tender_edit.html")
 		if err != nil {
 			h.handleError(w, "Failed tenderedit load:", err, 500)

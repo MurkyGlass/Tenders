@@ -79,6 +79,26 @@ func validateTenderFile(fileHeader *multipart.FileHeader) error {
 
 func (h *Handlers) CreateTender(IdStatus int) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		f, err := h.readRightsInContext(r.Context(), CreateTenderPerms)
+		if err != nil {
+			h.handleError(w, "Error get Rights:", err, 500)
+			return
+		}
+		if !f {
+			h.handleError(w, "No rights for this action", fmt.Errorf("No rights for this action"), 409)
+			return
+		}
+		if IdStatus == 2 {
+			f, err := h.readRightsInContext(r.Context(), PublishTenderPerms)
+			if err != nil {
+				h.handleError(w, "Error get Rights:", err, 500)
+				return
+			}
+			if !f {
+				h.handleError(w, "No rights for this action", fmt.Errorf("No rights for this action"), 409)
+				return
+			}
+		}
 		contentType := r.Header.Get("Content-Type")
 
 		if strings.Contains(contentType, "multipart/form-data") {
@@ -320,6 +340,15 @@ func (h *Handlers) CreateTender(IdStatus int) func(w http.ResponseWriter, r *htt
 }
 func (h *Handlers) GetCreateTenderWindow() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		f, err := h.readRightsInContext(r.Context(), CreateTenderPerms)
+		if err != nil {
+			h.handleError(w, "Error get Rights:", err, 500)
+			return
+		}
+		if !f {
+			h.handleError(w, "No rights for this action", fmt.Errorf("No rights for this action"), 409)
+			return
+		}
 		tmpl, err := template.ParseFiles("./client/pages/tender_create.html")
 		if err != nil {
 			h.handleError(w, "Failed tendercreate load:", err, 500)

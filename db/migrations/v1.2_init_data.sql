@@ -154,7 +154,24 @@ INSERT INTO category_links (id_parent, id_children) VALUES
 (50, 58), (50, 59), (50, 60), (50, 61);
 
 
-
+--Rights
+INSERT INTO Rights (rus_name,name) VALUES
+('создание тендера','create_tender'),
+('Изменение тендера','edit_own_tender'),
+('Удаление тендера','delete_own_tender'),
+('Просмотр наших тендеров','view_own_tenders'),
+('Публикация тендера','change_tender_status'),
+('Выбор победителя тендера','choose_winner'),
+('Создание коммерческого предложения','create_offer'),
+('Изменение коммерческого предложения','edit_own_offer'),
+('Удаление коммерческого предложения','delete_own_offer'),
+('Просмотр наших коммерческих предложений','view_own_offers'),
+('Публикация Коммерческого предложения','change_offer_status'),
+('Изменение данных компании','edit_company_data'),
+('Загрузка документов компании','upload_company_docs'),
+('Управления сотрудниками','manage_company_users'),
+('Управление должностями','manage_roles')
+ON CONFLICT (name) DO NOTHING;
 --Testing data
 INSERT INTO Companies (
     name, 

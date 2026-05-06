@@ -12,10 +12,11 @@ type LinkerRight interface {
 	Delete(ctx context.Context, idT int) error
 	Exists(ctx context.Context) (bool, error)
 	ExistsByID(ctx context.Context, Id int) (bool, error)
+	GetById(ctx context.Context) ([]int, error)
 }
 type linkerRight struct {
 	idRole int
-	db    QueryExecutor
+	db     QueryExecutor
 }
 
 func NewLinkerRight(idRole int, db QueryExecutor) LinkerRight {
@@ -74,4 +75,16 @@ func (l *linkerRight) ExistsByID(ctx context.Context, IdRight int) (bool, error)
 		return false, fmt.Errorf("Failed find link role - right: %w", err)
 	}
 	return ex, nil
+}
+func (l *linkerRight) GetById(ctx context.Context) ([]int, error) {
+
+	q := `
+			SELECT id_right FROM Right_RoleInCompany WHERE id_role = $1
+	`
+	var rigts []int
+	err := l.db.SelectContext(ctx, rigts, q, l.idRole)
+	if err != nil {
+		return nil, fmt.Errorf("Failed find link role - right: %w", err)
+	}
+	return rigts, nil
 }
