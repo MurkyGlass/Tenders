@@ -148,10 +148,12 @@ func (h *Handlers) CreateTender(IdStatus int) func(w http.ResponseWriter, r *htt
 			id, ok := r.Context().Value("id_user").(int)
 			if !ok {
 				h.handleError(w, "Bad user id", fmt.Errorf("Bad User id"), 500)
+				return
 			}
 			user, err := h.Repo.Users().GetByID(r.Context(), id)
 			if err != nil {
 				h.handleError(w, "db request failed", err, 500)
+				return
 			}
 
 			tender.IdCompany = user.IdCompany
@@ -161,6 +163,7 @@ func (h *Handlers) CreateTender(IdStatus int) func(w http.ResponseWriter, r *htt
 			err = tender.Validate()
 			if err != nil {
 				h.handleError(w, "tender validation failed", err, 500)
+				return
 			}
 			//parsing files
 			files := r.MultipartForm.File["files"]
@@ -173,6 +176,7 @@ func (h *Handlers) CreateTender(IdStatus int) func(w http.ResponseWriter, r *htt
 				err = validateTenderFile(file)
 				if err != nil {
 					h.handleError(w, err.Error(), err, 400)
+					return
 				}
 			}
 

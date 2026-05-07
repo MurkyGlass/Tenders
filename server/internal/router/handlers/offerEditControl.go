@@ -104,6 +104,7 @@ func (h *Handlers) EditOffer(IdStatus int) func(w http.ResponseWriter, r *http.R
 				err = validateTenderFile(file)
 				if err != nil {
 					h.handleError(w, err.Error(), err, 400)
+					return
 				}
 			}
 

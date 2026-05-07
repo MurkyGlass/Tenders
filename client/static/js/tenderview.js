@@ -8,8 +8,10 @@ async function CreateOfferWindow(id){
                     CreateOfferWindow(id)
                 }
                 if(resp.status == 409){
-                    alert("Нельзя создать коммерческое предложение на свой же тендер")
+                    alert("Ошибка:"+ await resp.text())
+                    return
                 }
+                alert("Ошибка:"+ await resp.text())
                 return
             } 
     window.location.href='/protected/tenders/'+id+'/offer/create'

@@ -93,10 +93,12 @@ func (h *Handlers) EditDraftTender(IdStatus int) func(w http.ResponseWriter, r *
 			id, ok := r.Context().Value("id_user").(int)
 			if !ok {
 				h.handleError(w, "Bad user id", fmt.Errorf("Bad User id"), 500)
+				return
 			}
 			user, err := h.Repo.Users().GetByID(r.Context(), id)
 			if err != nil {
 				h.handleError(w, "db request failed", err, 500)
+				return
 			}
 
 			if user.IdCompany != tender.IdCompany {
@@ -109,6 +111,7 @@ func (h *Handlers) EditDraftTender(IdStatus int) func(w http.ResponseWriter, r *
 			err = tender.Validate()
 			if err != nil {
 				h.handleError(w, "tender validation failed", err, 500)
+				return
 			}
 			//parsing files//todo
 			files := r.MultipartForm.File["files"]
@@ -117,6 +120,7 @@ func (h *Handlers) EditDraftTender(IdStatus int) func(w http.ResponseWriter, r *
 				err = validateTenderFile(file)
 				if err != nil {
 					h.handleError(w, err.Error(), err, 400)
+					return
 				}
 			}
 
@@ -424,10 +428,12 @@ func (h *Handlers) EditTender() func(w http.ResponseWriter, r *http.Request) {
 			id, ok := r.Context().Value("id_user").(int)
 			if !ok {
 				h.handleError(w, "Bad user id", fmt.Errorf("Bad User id"), 500)
+				return
 			}
 			user, err := h.Repo.Users().GetByID(r.Context(), id)
 			if err != nil {
 				h.handleError(w, "db request failed", err, 500)
+				return
 			}
 
 			if user.IdCompany != tender.IdCompany {
@@ -440,6 +446,7 @@ func (h *Handlers) EditTender() func(w http.ResponseWriter, r *http.Request) {
 			err = tender.Validate()
 			if err != nil {
 				h.handleError(w, "tender validation failed", err, 500)
+				return
 			}
 			//parsing files//todo
 			files := r.MultipartForm.File["files"]
@@ -448,6 +455,7 @@ func (h *Handlers) EditTender() func(w http.ResponseWriter, r *http.Request) {
 				err = validateTenderFile(file)
 				if err != nil {
 					h.handleError(w, err.Error(), err, 400)
+					return
 				}
 			}
 

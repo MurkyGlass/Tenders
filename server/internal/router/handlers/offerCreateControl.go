@@ -121,6 +121,7 @@ func (h *Handlers) CreateOffer(IdStatus int) func(w http.ResponseWriter, r *http
 				err = validateTenderFile(file)
 				if err != nil {
 					h.handleError(w, err.Error(), err, 400)
+					return
 				}
 			}
 

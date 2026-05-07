@@ -27,6 +27,114 @@
             </button>
         </div>
     </header>
+        <div class="register-modal" id="userModal">
+        <div class="register-overlay" id="registerOverlay"></div>
+        <div class="register-container">
+            <div class="register-header">
+                <h2>Добавление нового сотрудника</h2>
+                <button class="register-close" id="userClose" onclick="UserformClose()">&times;</button>
+            </div>
+        
+            <form class="register-form" id="userForm">
+                   
+                <div class="form-section">
+                
+                    <div class="form-group">
+                        <label for="userLogin" class="form-label">
+                            <i class="fas fa-user-circle"></i> Логин *
+                        </label>
+                        <input 
+                            type="text" 
+                            id="userLogin" 
+                            name="userLogin"
+                            class="form-input"
+                            placeholder="Придумайте уникальный логин"
+                            required
+                            pattern="[A-Za-z0-9_]{3,30}"
+                            maxlength="30">
+                        <div class="form-hint">Только латинские буквы, цифры и нижнее подчёркивание</div>
+                    </div>
+                
+                    <div class="form-group">
+                        <label for="userName" class="form-label">
+                            <i class="fas fa-user"></i> ФИО пользователя *
+                        </label>
+                        <input 
+                            type="text" 
+                            id="userName" 
+                            name="userName"
+                            class="form-input"
+                            placeholder="Введите ваше имя"
+                            required
+                            pattern="[A-Za-zА-Яа-я_]{3,30}"
+                            maxlength="30">
+                    </div>
+                
+                    <div class="form-group">
+                        <label for="userEmail" class="form-label">
+                            <i class="fas fa-envelope"></i> Личный email *
+                        </label>
+                        <input 
+                            type="email" 
+                            id="userEmail" 
+                            name="userEmail"
+                            class="form-input"
+                            placeholder="your.email@example.com"
+                            required
+                            maxlength="50">
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="form-label">
+                            Пароль *
+                        </label>
+                        <input 
+                            type="password"  
+                            name="password"
+                            class="form-input"
+                            placeholder="12345678"
+                            required
+                            minlength="8"
+                            maxlength="50">
+                    </div>
+                    <div class="form-group">
+                        <label for="enterypassword" class="form-label">
+                            Повторение пароля *
+                        </label>
+                        <input 
+                            type="password"  
+                            name="enterypassword"
+                            class="form-input"
+                            placeholder="12345678"
+                            required
+                            minlength="8"
+                            maxlength="50">
+                    </div>
+                    <div class="form-group">
+                        <label  class="form-label">
+                            Должность *
+                        </label>
+                        {{if .Roles}}
+                        <select name="role" required>
+                            {{range .Roles}}
+                            <option value="{{.ID}}">{{.Name}}</option>
+                            {{end}}
+                        </select>
+                        {{else}}
+                            <select name="role" required></select>
+                            <span>Вы пока не создали не одной должности, создайте должность и возвращайтесь</span>
+                        {{end}}
+                    </div>
+                    <button type="submit" class="register-submit" id="userSubmit" style="margin: 1%;">
+                        Сохранить
+                    </button>
+                    <button type="button" class="register-submit" id="userbackbtn" style="margin: 1%;" onclick="UserformClose()">
+                        Отмена
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
     <div class="register-modal" id="editModal">
         <div class="register-overlay" id="registerOverlay"></div>
         <div class="register-container">
@@ -41,7 +149,7 @@
                     <h3 class="section-title">
                         <i class="fas fa-building"></i> Данные {{.Company.Name}}
                     </h3>
-                    <input 
+                            <input 
                             type="hidden" 
                             id="companyId" 
                             name="companyId"
@@ -380,7 +488,7 @@
                     <button class="btn" id="editbtn">Редактировать</button>
                     <button class="btn" id="editfilesbtn" onclick="DocsEdit()">Редактировать документы</button>
                     <button class="btn" id="createrolebtn" onclick="RoleformShow()">Создать должность</button>
-                    <button class="btn" id="adduserbtn">Добавить сотрудника</button>
+                    <button class="btn" id="adduserbtn" onclick="UserformShow()">Добавить сотрудника</button>
                 </div>
             </div>
         </div>
@@ -429,6 +537,7 @@
                             await Refresh()
                             await DocsEdit()
                         }
+                         alert("Ошибка:"+await response.text())
                         return
                     } 
                     
@@ -439,14 +548,51 @@
         async function Refresh(){
             await fetch("/auth/refresh");
         }
-        function RoleformShow(){
+        async function RoleformShow(){
+            const response = await fetch('/protected/lk/company/role/create', {
+            method: 'POST'
+            });
+            if (response.status === 409){
+                alert("Ошибка:"+await response.text())
+                return
+            }
             document.getElementById('roleCreateModal').classList.add("show")
         }
         function RoleformClose(){
             document.getElementById('roleCreateModal').classList.remove("show")
         }
-        //todo create rolein company + (list + editing)
-        //todo create users
+        async function UserformShow(){
+            const response = await fetch('/protected/lk/company/user/create', {
+            method: 'POST'
+            });
+            if (response.status === 409){
+                alert("Ошибка:"+await response.text())
+                return
+            }
+            document.getElementById('userModal').classList.add("show")
+        }
+        function UserformClose(){
+            document.getElementById('userModal').classList.remove("show")
+        }
+        document.getElementById('userForm').addEventListener('submit', async function(event) {
+
+        event.preventDefault()
+        const formData = new FormData(this);
+  
+        const response = await fetch('/protected/lk/company/user/create', {
+            method: 'POST',
+            body: formData
+        });
+        if (response.ok){
+            alert("Пользователь успешно создана!")
+            window.location.href = "/protected/lk"
+            UserformClose()
+            return
+        }else{
+            alert("Ошибка:"+await response.text())
+        }
+        UserformShow()
+    });
     </script>
 </body>
 </html>

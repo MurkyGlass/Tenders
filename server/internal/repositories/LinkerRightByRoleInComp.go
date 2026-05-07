@@ -82,7 +82,7 @@ func (l *linkerRight) GetById(ctx context.Context) ([]int, error) {
 			SELECT id_right FROM Right_RoleInCompany WHERE id_role = $1
 	`
 	var rigts []int
-	err := l.db.SelectContext(ctx, rigts, q, l.idRole)
+	err := l.db.SelectContext(ctx, &rigts, q, l.idRole)
 	if err != nil {
 		return nil, fmt.Errorf("Failed find link role - right: %w", err)
 	}
