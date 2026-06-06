@@ -28,6 +28,7 @@ type Repository interface {
 	Role() RoleRepository
 	Status() StatusRepository
 	Refresh() RefreshRepository
+	Reset() ResetRepository
 	CategoryLink() CategoryLinkRepository
 	BeginTx(ctx context.Context) (Transaction, error)
 
@@ -54,6 +55,7 @@ type Transaction interface {
 	Role() RoleRepository
 	Status() StatusRepository
 	Refresh() RefreshRepository
+	Reset() ResetRepository
 	CategoryLink() CategoryLinkRepository
 
 	LinkerDoc(idDoc int) LinkerDoc
@@ -109,10 +111,12 @@ func (r *repository) Status() StatusRepository {
 func (r *repository) Refresh() RefreshRepository {
 	return NewRefreshRepository(r.db)
 }
+func (r *repository) Reset() ResetRepository {
+	return NewResetRepository(r.db)
+}
 func (r *repository) CategoryLink() CategoryLinkRepository {
 	return NewCategoryLinkRepository(r.db)
 }
-
 func (r *repository) LinkerDoc(idDoc int) LinkerDoc {
 	return NewLinkerDoc(idDoc, r.db, nil)
 }
@@ -180,7 +184,6 @@ func (t *transaction) Role() RoleRepository {
 func (t *transaction) Status() StatusRepository {
 	return NewStatusRepository(t.tx)
 }
-
 func (t *transaction) LinkerDoc(idDoc int) LinkerDoc {
 	return NewLinkerDoc(idDoc, t.tx, nil)
 }
@@ -195,6 +198,9 @@ func (t *transaction) LinkerRoleRight(idRole int) LinkerRight {
 }
 func (t *transaction) Refresh() RefreshRepository {
 	return NewRefreshRepository(t.tx)
+}
+func (t *transaction) Reset() ResetRepository {
+	return NewResetRepository(t.tx)
 }
 func (t *transaction) CategoryLink() CategoryLinkRepository {
 	return NewCategoryLinkRepository(t.tx)

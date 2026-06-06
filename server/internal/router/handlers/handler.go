@@ -66,7 +66,7 @@ const (
             
                 <div class="form-footer">
                     <button type="button" class="form-btn register-btn" id="regisBtn">Зарегистрироваться</button>
-                    <a href="#" class="form-link">Забыли пароль?</a>
+                    <a href="/main/password/reset" class="form-link">Забыли пароль?</a>
                 </div>
 
                 

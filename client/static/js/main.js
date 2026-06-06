@@ -67,6 +67,7 @@ function RegistrClose() {
 function RegistrShow() {
     LogFormClose()
     document.getElementById('registerModal').classList.add("show")
+    alert("При регистрации личной почты обращаем ваше внимание на то, что на домены 'gmail.com' системные письма могут не приходить вовсе или приходить с ошибками, в случае с восстановлением пароля это может быть критично!")
 }
 function PassToggle() {
     let password = document.getElementById("passwordInput")

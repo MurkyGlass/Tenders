@@ -188,6 +188,24 @@ INSERT INTO Companies (
     '1234567890123',
     'Компания специализируется на поставках медицинского оборудования и расходных материалов для государственных и частных медицинских учреждений. На рынке более 10 лет.'
 ) ON CONFLICT (name) DO NOTHING;
+-- admin user
+INSERT INTO Users (
+    login,
+    name, 
+    email, 
+    password, 
+    id_company, 
+    id_role_in_company, 
+    id_role
+) VALUES (
+    'admin',
+    'admin',
+    'info@admin.ru',
+    '$2a$10$SKQCISWmWeXFPHz25fUWyOaGVEu/pOpjEzcoJ9ZnmgN8Szd8/g8Fm',--12345678
+    1,
+    1,
+    2
+) ON CONFLICT (login) DO NOTHING;
 INSERT INTO Tenders (name, description, datetime_start, datetime_end, id_company, id_status, id_district)
 VALUES 
 -- Тендер 1: Поставка медицинского оборудования

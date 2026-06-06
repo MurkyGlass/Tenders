@@ -104,7 +104,13 @@ CREATE TABLE IF NOT EXISTS Doc_Offer(
 --Tecnical entities
 CREATE TABLE IF NOT EXISTS refresh_tokens (
     id SERIAL PRIMARY KEY,
-    token TEXT NOT NULL,
+    token TEXT NOT NULL UNIQUE,
+    id_user INT NOT NULL REFERENCES Users(id_user) ON DELETE CASCADE,
+    expires_at TIMESTAMP NOT NULL
+);
+CREATE TABLE IF NOT EXISTS reset_tokens (
+    id SERIAL PRIMARY KEY,
+    token TEXT NOT NULL UNIQUE,
     id_user INT NOT NULL REFERENCES Users(id_user) ON DELETE CASCADE,
     expires_at TIMESTAMP NOT NULL
 );

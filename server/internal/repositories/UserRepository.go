@@ -12,8 +12,10 @@ type UserRepository interface {
 	GetAll(ctx context.Context) ([]models.User, error)
 	GetByID(ctx context.Context, id int) (*models.User, error)
 	GetByLogin(ctx context.Context, login string) (*models.User, error)
+	GetByEmail(ctx context.Context, email string) (*models.User, error)
 	Create(ctx context.Context, user *models.User) error
 	Update(ctx context.Context, user *models.User) error
+	UpdatePassword(ctx context.Context, user *models.User) error 
 	Delete(ctx context.Context, id int) error
 }
 
@@ -52,6 +54,17 @@ func (r *userRepository) GetByLogin(ctx context.Context, login string) (*models.
 	query := `SELECT * FROM users WHERE login = $1`
 
 	err := r.db.GetContext(ctx, &user, query, login)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user: %w", err)
+	}
+	return &user, nil
+}
+func (r *userRepository) GetByEmail(ctx context.Context, email string) (*models.User, error) {
+	var user models.User
+
+	query := `SELECT * FROM users WHERE email = $1`
+
+	err := r.db.GetContext(ctx, &user, query, email)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
@@ -106,7 +119,30 @@ func (r *userRepository) Update(ctx context.Context, user *models.User) error {
 	}
 	return nil
 }
+func (r *userRepository) UpdatePassword(ctx context.Context, user *models.User) error {
+	err := user.Validate()
+	if err != nil {
+		return err
+	}
 
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("failed to hash password: %w", err)
+	}
+
+	user.Password = string(hashedPassword)
+
+	query := `
+		UPDATE users 
+		SET password = :password
+		WHERE id_user = :id_user
+	`
+	_, err = r.db.NamedExecContext(ctx, query, user)
+	if err != nil {
+		return fmt.Errorf("failed to update user password: %w", err)
+	}
+	return nil
+}
 func (r *userRepository) Delete(ctx context.Context, id int) error {
 	query := `DELETE FROM users WHERE id_user = $1`
 	_, err := r.db.ExecContext(ctx, query, id)

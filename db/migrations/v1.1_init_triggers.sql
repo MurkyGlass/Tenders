@@ -5,6 +5,11 @@ SELECT cron.schedule(
 $$DELETE from refresh_tokens WHERE expires_at < NOW()$$
 );
 SELECT cron.schedule(
+'Del_reset',
+'* * * * *',
+$$DELETE from reset_tokens WHERE expires_at < NOW()$$
+);
+SELECT cron.schedule(
 'Update_tender_status',
 '* * * * *',
 $$
