@@ -73,6 +73,7 @@ func NewRouter(h *handler.Handlers, db *sqlx.DB) *mux.Router {
 	lkRouter := prRouter.PathPrefix("/lk").Subrouter()
 	//roles
 	lkRouter.HandleFunc("/roles", h.GetRoleList()).Methods("GET")
+	lkRouter.HandleFunc("/roles/{id}", h.DeleteRole()).Methods("DELETE")
 	lkRouter.HandleFunc("/roles/{id}/edit", h.GetRoleEdit()).Methods("GET")
 	lkRouter.HandleFunc("/roles/{id}/edit", h.EditRoleInCompany()).Methods("POST")
 	//

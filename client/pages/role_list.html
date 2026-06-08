@@ -55,6 +55,9 @@
             <div class="tender-header">
                 <h3 class="tender-title">{{.Name}}</h3>
             </div>
+            <p class="tender-description">
+                    Права:
+                </p>
             {{if .Rights}}
                 {{range .Rights}}
                 <p class="tender-description">
@@ -70,6 +73,9 @@
             
             <div class="tender-footer">
                 <span class="tender-id">{{.ID}}</span>
+                <button class="tender-btn" onclick="DeleteRole({{.ID}})">
+                    Удалить
+                </button>
                 <button class="tender-btn" onclick="window.location.href = '/protected/lk/roles/{{.ID}}/edit'">
                     Редактировать <i class="fas fa-arrow-right"></i>
                 </button>
@@ -122,7 +128,19 @@
         </div>
     </footer>
     <script>
-
+        async function DeleteRole(id){
+    
+            const response = await fetch('/protected/lk/roles/'+ id, {
+                method: 'DELETE',
+            });
+            if (response.ok){
+                alert("Должность успешно удалена!;\nНе забудьте переназначить должности пользователям у которых была данная должность")
+                window.location.href = "/protected/lk/roles"
+                return
+            }else{
+                alert("Ошибка: "+await response.text())
+            }
+        }
     </script>
 </body>
 </html>

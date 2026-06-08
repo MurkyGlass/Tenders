@@ -19,7 +19,8 @@ ON CONFLICT (name) DO NOTHING;
 -- TODO Insert Rights,Districts,Categories,Statuses
 INSERT INTO Role_in_Company(name, is_creater)
 VALUES
-('Директор',TRUE)
+('Директор',TRUE),
+('Нет должности',FALSE)
 ON CONFLICT (id_role) DO NOTHING;
 INSERT INTO Role(name)
 VALUES

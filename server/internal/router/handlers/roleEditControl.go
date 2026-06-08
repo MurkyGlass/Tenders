@@ -163,11 +163,9 @@ func (h *Handlers) EditRoleInCompany() func(w http.ResponseWriter, r *http.Reque
 				h.handleError(w, "db request failed", err, 500)
 				return
 			}
-			if role.IdCompany == nil || role.ID == 1 {
-				if err != nil {
-					h.handleError(w, "редактирование системных ролей не предусмотренно", fmt.Errorf("редактирование системных ролей не предусмотренно"), 409)
-					return
-				}
+			if role.IdCompany == nil || role.ID == 1 || role.ID == 2 {
+				h.handleError(w, "редактирование системных ролей не предусмотренно", fmt.Errorf("редактирование системных ролей не предусмотренно"), 409)
+				return
 			}
 			role.Name = r.PostForm.Get("name")
 			role.IsCreater = false

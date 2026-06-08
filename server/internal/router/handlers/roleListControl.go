@@ -85,3 +85,64 @@ func (h *Handlers) GetRoleList() func(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+func (h *Handlers) DeleteRole() func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		f, err := h.readRightsInContext(r.Context(), ManageRolesPerms)
+		if err != nil {
+			h.handleError(w, "Error get Rights:", err, 500)
+			return
+		}
+		if !f {
+			h.handleError(w, "No rights for this action", fmt.Errorf("No rights for this action"), 409)
+			return
+		}
+		idrole, err := h.getIDFromRequest(r)
+		if err != nil {
+			h.handleError(w, "get id role failed", err, 500)
+			return
+		}
+		role, err := h.Repo.RoleInCompany().GetByID(r.Context(), idrole)
+		if err != nil {
+			h.handleError(w, "db request failed", err, 500)
+			return
+		}
+		if role.IdCompany == nil || role.ID == 1 || role.ID == 2 {
+			h.handleError(w, "удаление системных ролей не предусмотренно", fmt.Errorf("удаление системных ролей не предусмотренно"), 409)
+			return
+		}
+		tx, err := h.Repo.BeginTx(r.Context())
+		if err != nil {
+			h.handleError(w, "begin tx failed", err, 500)
+			return
+		}
+		defer tx.Rollback()
+		err = tx.LinkerRoleRight(role.ID).DeleteAll(r.Context())
+		if err != nil {
+			h.handleError(w, "db request failed", err, 500)
+			return
+		}
+		users, err := tx.Users().GetAll(r.Context())
+		if err != nil {
+			h.handleError(w, "db request failed", err, 500)
+			return
+		}
+		for _, user := range users {
+			if user.IdRoleInCompany == role.ID {
+				user.IdRoleInCompany = 2 // no actions
+				err = tx.Users().Update(r.Context(), &user)
+			}
+		}
+		err = tx.RoleInCompany().Delete(r.Context(), role.ID)
+		if err != nil {
+			h.handleError(w, "db request failed", err, 500)
+			return
+		}
+		err = tx.Commit()
+		if err != nil {
+			h.handleError(w, "commit failed", err, 500)
+			return
+		}
+		w.WriteHeader(200)
+		return
+	}
+}
