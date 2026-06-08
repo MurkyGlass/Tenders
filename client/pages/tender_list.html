@@ -117,7 +117,8 @@
                 {{if .Tenders}}
                     <div class="tenders-list" id="tendersList">
         <!-- Карточка тендера (шаблон) -->
-        {{range .Tenders}}<div class="tender-card">
+        {{range .Tenders}}
+        <div class="tender-card">
             <div class="tender-header">
                 <h3 class="tender-title">{{.Name}}</h3>
                 <span class="tender-status status-active">{{.Status}}</span>

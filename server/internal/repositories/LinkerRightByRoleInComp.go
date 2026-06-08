@@ -10,6 +10,7 @@ import (
 type LinkerRight interface {
 	Create(ctx context.Context, idR int) error
 	Delete(ctx context.Context, idT int) error
+	DeleteAll(ctx context.Context) error 
 	Exists(ctx context.Context) (bool, error)
 	ExistsByID(ctx context.Context, Id int) (bool, error)
 	GetById(ctx context.Context) ([]int, error)
@@ -39,6 +40,16 @@ func (l *linkerRight) Delete(ctx context.Context, idRight int) error {
 		DELETE FROM Right_RoleInCompany WHERE id_role = $1 AND id_right = $2
 	`
 	_, err := l.db.ExecContext(ctx, q, l.idRole, idRight)
+	if err != nil {
+		return fmt.Errorf("Failed delete link role - right: %w", err)
+	}
+	return nil
+}
+func (l *linkerRight) DeleteAll(ctx context.Context) error {
+	q := `
+		DELETE FROM Right_RoleInCompany WHERE id_role = $1
+	`
+	_, err := l.db.ExecContext(ctx, q, l.idRole)
 	if err != nil {
 		return fmt.Errorf("Failed delete link role - right: %w", err)
 	}

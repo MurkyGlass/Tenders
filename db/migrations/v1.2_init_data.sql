@@ -200,7 +200,7 @@ INSERT INTO Users (
 ) VALUES (
     'admin',
     'admin',
-    'info@admin.ru',
+    'arthur.kolobov.work@mail.ru',
     '$2a$10$SKQCISWmWeXFPHz25fUWyOaGVEu/pOpjEzcoJ9ZnmgN8Szd8/g8Fm',--12345678
     1,
     1,

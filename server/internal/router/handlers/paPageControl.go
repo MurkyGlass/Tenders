@@ -288,9 +288,24 @@ func (h *Handlers) CreateRoleInCompany() func(w http.ResponseWriter, r *http.Req
 			role.IdCompany = &idc
 			err = role.Validate()
 			if err != nil {
-				h.handleError(w, "ошибка валидации должности", err, 500)
+				h.handleError(w, "ошибка валидации должности", err, 400)
 				return
 			}
+			// unique role name in one company
+			roles, err := h.Repo.RoleInCompany().GetAll(r.Context())
+			if err != nil {
+				h.handleError(w, "Failed get roles", err, 500)
+				return
+			}
+			for _, ro := range roles {
+				if ro.IdCompany != nil {
+					if *ro.IdCompany == *role.IdCompany && ro.Name == role.Name {
+						h.handleError(w, "К сожалению такая должность уже существует", fmt.Errorf("Ксожалению такая должность уже существует"), 400)
+						return
+					}
+				}
+			}
+			//
 			tx, err := h.Repo.BeginTx(r.Context())
 			if err != nil {
 				h.handleError(w, "Failed begin transaction", err, 500)

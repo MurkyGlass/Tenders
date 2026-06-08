@@ -47,7 +47,7 @@ document.getElementById('roleCreateForm').addEventListener('submit', async funct
             alert("Ошибка:"+await response.text())
         }
         RoleformShow()
-    });
+});
         async function RoleformShow(){
              const response = await fetch('/protected/lk/company/role/create', {
             method: 'POST'
