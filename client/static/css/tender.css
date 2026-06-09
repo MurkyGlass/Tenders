@@ -554,3 +554,37 @@
     outline: none;
     box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.3);
 }
+
+@media (max-width: 768px) {
+    .cbtn {
+        white-space: normal;
+        padding: 10px 16px;
+        gap: 8px;
+        width: auto;
+        max-width: 100%;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .cbtn {
+        width: 100%;
+        padding: 12px 16px;
+        gap: 12px;
+        margin: 2% 0;
+        text-align: center;
+        word-break: break-word;
+        font-size: 1rem;
+    }
+    .cbtn + .cbtn {
+        margin-top: 8px;
+    }
+}
+
+@media (max-width: 360px) {
+    .cbtn {
+        padding: 10px 12px;
+        gap: 8px;
+        font-size: 0.9rem;
+    }
+}

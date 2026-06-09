@@ -1023,3 +1023,21 @@ a, a:link, a:visited, a:hover {
     width: 100%;
     min-width: 0; 
 }
+
+@media (max-width: 768px) {
+    body, h1, h2, h3, h4, h5, h6, p, span, div, li, a, button, input, label, textarea, .descr, .content-main {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    body, h1, h2, h3, h4, h5, h6, p, span, div, li, a, button, input, label, textarea, .descr, .content-main {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 360px) {
+    body, h1, h2, h3, h4, h5, h6, p, span, div, li, a, button, input, label, textarea, .descr, .content-main {
+        font-size: 0.875rem;
+    }
+}

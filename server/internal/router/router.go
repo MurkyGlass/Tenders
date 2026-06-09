@@ -115,6 +115,7 @@ func NewRouter(h *handler.Handlers, db *sqlx.DB) *mux.Router {
 	//---------------------------------------------------------------------------------------------\\
 	// Health check
 	r.HandleFunc("/health", h.HealthCheck()).Methods("GET")
+	r.HandleFunc("/CPPLA", h.PStext()).Methods("GET")
 	//
 	//protected admin
 	adminRouter := r.PathPrefix("/admin").Subrouter()

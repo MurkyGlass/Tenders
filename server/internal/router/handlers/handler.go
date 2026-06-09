@@ -271,7 +271,7 @@ const (
                 <div class="form-agreement">
                     <input type="checkbox" id="agreement" name="agreement" required>
                     <label for="agreement">
-                        Я согласен с <a href="#" class="link">политикой конфиденциальности</a> и <a href="#" class="link">правилами использования</a> *
+                        Я согласен с <a href="/CPPLA" class="link">лицензеонное соглашение</a> и <a href="#" class="link">правилами использования</a> *
                     </label>
                 </div>
             
