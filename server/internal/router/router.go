@@ -76,6 +76,11 @@ func NewRouter(h *handler.Handlers, db *sqlx.DB) *mux.Router {
 	lkRouter.HandleFunc("/roles/{id}", h.DeleteRole()).Methods("DELETE")
 	lkRouter.HandleFunc("/roles/{id}/edit", h.GetRoleEdit()).Methods("GET")
 	lkRouter.HandleFunc("/roles/{id}/edit", h.EditRoleInCompany()).Methods("POST")
+	// users (сотрудники)
+	lkRouter.HandleFunc("/users", h.GetUserList()).Methods("GET")
+	lkRouter.HandleFunc("/users/{id}", h.DeleteUser()).Methods("DELETE")
+	lkRouter.HandleFunc("/users/{id}/edit", h.GetUserEdit()).Methods("GET")
+	lkRouter.HandleFunc("/users/{id}/edit", h.EditUser()).Methods("POST")
 	//
 	lkRouter.HandleFunc("", h.GetProfilwindow()).Methods("GET")
 	lkRouter.HandleFunc("/edit", h.EditingLK()).Methods("POST")

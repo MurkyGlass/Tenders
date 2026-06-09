@@ -25,7 +25,7 @@ func (h *Handlers) GetRoleEdit() func(w http.ResponseWriter, r *http.Request) {
 
 		tmpl, err := template.ParseFiles("./client/pages/role_edit.html")
 		if err != nil {
-			h.handleError(w, "Failed main load:", err, 500)
+			h.handleError(w, "Failed role in company edit load:", err, 500)
 			return
 		}
 
@@ -90,7 +90,7 @@ func (h *Handlers) GetRoleEdit() func(w http.ResponseWriter, r *http.Request) {
 		}
 		err = tmpl.Execute(w, &Data{LoginForm: LoginForm, RegistrationForm: RegistrationForm, Role: view})
 		if err != nil {
-			h.handleError(w, "Failed main render:", err, 500)
+			h.handleError(w, "Failed role in company edit render:", err, 500)
 			return
 		}
 	}

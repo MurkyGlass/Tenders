@@ -12,6 +12,7 @@ type LogRepository interface {
 	Create(ctx context.Context, log *models.Log) LinkerLog
 	Update(ctx context.Context, log *models.Log) error
 	Delete(ctx context.Context, id int) error
+	DeleteByUser(ctx context.Context, id int) error
 }
 
 type logRepository struct {
@@ -87,6 +88,14 @@ func (r *logRepository) Update(ctx context.Context, log *models.Log) error {
 
 func (r *logRepository) Delete(ctx context.Context, id int) error {
 	query := `DELETE FROM logs WHERE id_log = $1`
+	_, err := r.db.ExecContext(ctx, query, id)
+	if err != nil {
+		return fmt.Errorf("failed to delete log: %w", err)
+	}
+	return nil
+}
+func (r *logRepository) DeleteByUser(ctx context.Context, id int) error {
+	query := `DELETE FROM logs WHERE id_user = $1`
 	_, err := r.db.ExecContext(ctx, query, id)
 	if err != nil {
 		return fmt.Errorf("failed to delete log: %w", err)

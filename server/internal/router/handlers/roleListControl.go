@@ -24,7 +24,7 @@ func (h *Handlers) GetRoleList() func(w http.ResponseWriter, r *http.Request) {
 
 		tmpl, err := template.ParseFiles("./client/pages/role_list.html")
 		if err != nil {
-			h.handleError(w, "Failed main load:", err, 500)
+			h.handleError(w, "Failed role list load:", err, 500)
 			return
 		}
 
@@ -80,7 +80,7 @@ func (h *Handlers) GetRoleList() func(w http.ResponseWriter, r *http.Request) {
 		}
 		err = tmpl.Execute(w, &Data{LoginForm: LoginForm, RegistrationForm: RegistrationForm, Company: company, Roles: viewss})
 		if err != nil {
-			h.handleError(w, "Failed main render:", err, 500)
+			h.handleError(w, "Failed role list render:", err, 500)
 			return
 		}
 	}
@@ -104,6 +104,20 @@ func (h *Handlers) DeleteRole() func(w http.ResponseWriter, r *http.Request) {
 		role, err := h.Repo.RoleInCompany().GetByID(r.Context(), idrole)
 		if err != nil {
 			h.handleError(w, "db request failed", err, 500)
+			return
+		}
+		id, ok := r.Context().Value("id_user").(int)
+		if !ok {
+			h.handleError(w, "Bad user id", fmt.Errorf("Bad User id"), 500)
+			return
+		}
+		user, err := h.Repo.Users().GetByID(r.Context(), id)
+		if err != nil {
+			h.handleError(w, "db request failed", err, 500)
+			return
+		}
+		if user.IdCompany != *role.IdCompany{
+			h.handleError(w, "удаление ролей других не предусмотренно", fmt.Errorf("удаление ролей других не предусмотренно"), 409)
 			return
 		}
 		if role.IdCompany == nil || role.ID == 1 || role.ID == 2 {

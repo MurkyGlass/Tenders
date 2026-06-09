@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Должности</title>
+    <title>Сотрудники</title>
     <link rel="stylesheet" href="/static/css/.css">
     <link rel="stylesheet" href="/static/css/tender.css">
     <script src="/static/js/main.js" async></script>
@@ -43,48 +43,45 @@
  
     <main>
         <div class="content-container">
-            <h2 class="content-title">Должности компании {{.Company.Name}}</h2>
+            <h2 class="content-title">Сотрудники компании {{.Company.Name}}</h2>
             <div class="content-body">
                 
 
-                {{if .Roles}}
+                {{if .Users}}
                     <div class="tenders-list" id="tendersList">
         <!-- Карточка тендера (шаблон) -->
-        {{range .Roles}}
+        {{range .Users}}
         <div class="tender-card">
             <div class="tender-header">
                 <h3 class="tender-title">{{.Name}}</h3>
             </div>
             <p class="tender-description">
-                    Права:
+                    Логин: {{.Login}}
                 </p>
-            {{if .Rights}}
-                {{range .Rights}}
-                <p class="tender-description">
-                    {{.RusName}}
+            <p class="tender-description">
+                    Почта: {{.Email}}
                 </p>
-                {{end}}
-            {{else}}
-                <p class="tender-description">
-                    У этой должности не назначенно ни одного права
+            <p class="tender-description">
+                    Должность: {{.Role}}
                 </p>
-            {{end}}
-           
             
             <div class="tender-footer">
-                <span class="tender-id">{{.ID}}</span>
-                <button class="tender-btn" onclick="DeleteRole({{.ID}})">
+                {{if eq .Role "Директор"}}
+                {{else}}
+                <button class="tender-btn" onclick="DeleteUser({{.ID}})">
                     Удалить
                 </button>
-                <button class="tender-btn" onclick="window.location.href = '/protected/lk/roles/{{.ID}}/edit'">
+                
+                <button class="tender-btn" onclick="window.location.href = '/protected/lk/users/{{.ID}}/edit'">
                     Редактировать <i class="fas fa-arrow-right"></i>
                 </button>
+                {{end}}
             </div>
         </div>{{end}}
                     </div>
                     {{else}}
                     <div class="tenders-list" id="tendersList">
-                        <span>Пока что нет должностей</span>
+                        <span>Пока что нет сотрудников</span>
                     </div>
                     {{end}}
                 </div>
@@ -101,17 +98,7 @@
                     <li><a href="/main#security"><i class="fas fa-shield-alt"></i> Безопасность</a></li>
                 </ul>
             </div>
-            
-            <div class="footer-section">
-                <h3>Участникам</h3>
-                <ul class="footer-links">
-                    <li><a href="#"><i class="fas fa-user-plus"></i> Регистрация</a></li>
-                    <li><a href="#"><i class="fas fa-file-signature"></i> Как подать заявку</a></li>
-                    <li><a href="#"><i class="fas fa-comments-dollar"></i> Финансовое обеспечение</a></li>
-                    <li><a href="#"><i class="fas fa-question"></i> Частые вопросы</a></li>
-                </ul>
-            </div>
-            
+                      
             <div class="footer-section">
                 <h3>Контакты</h3>
                 <div class="footer-contact">
@@ -128,17 +115,17 @@
         </div>
     </footer>
     <script>
-        async function DeleteRole(id){
+        async function DeleteUser(id){
     
-            const response = await fetch('/protected/lk/roles/'+ id, {
+            const response = await fetch('/protected/lk/users/'+ id, {
                 method: 'DELETE',
             });
             if (response.ok){
-                alert("Должность успешно удалена!;\nНе забудьте переназначить должности пользователям у которых была данная должность")
-                window.location.href = "/protected/lk/roles"
+                alert("Пользователь успешно удален!;")
+                window.location.href = "/protected/lk/users"
                 return
             }else{
-                alert("Ошибка: "+await response.text())
+                alert("Ошибка: " + await response.text())
             }
         }
     </script>
