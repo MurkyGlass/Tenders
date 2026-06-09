@@ -41,6 +41,9 @@ func NewRouter(h *handler.Handlers, db *sqlx.DB) *mux.Router {
 	mainRouter.HandleFunc("/password/reset", h.ResetPassword()).Methods("POST")
 	mainRouter.HandleFunc("/password/reset/form", h.GetResetForm()).Methods("GET")
 	mainRouter.HandleFunc("/password/reset/form", h.UpdatePassword()).Methods("POST")
+	// labels
+	mainRouter.HandleFunc("/help", h.HelpWindow()).Methods("GET")
+	mainRouter.HandleFunc("/contacts", h.ContacsWindow()).Methods("GET")
 	//authentification
 	r.HandleFunc("/auth/login", jwtService.LoginHandler).Methods("POST")
 	r.HandleFunc("/auth/refresh", jwtService.RefreshHandler).Methods("GET")
