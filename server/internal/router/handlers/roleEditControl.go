@@ -184,7 +184,7 @@ func (h *Handlers) EditRoleInCompany() func(w http.ResponseWriter, r *http.Reque
 			}
 			for _, ro := range roles {
 				if ro.IdCompany != nil {
-					if *ro.IdCompany == *role.IdCompany && ro.Name == role.Name {
+					if *ro.IdCompany == *role.IdCompany && ro.Name == role.Name && ro.ID != role.ID{
 						h.handleError(w, "К сожалению такая должность уже существует", fmt.Errorf("Ксожалению такая должность уже существует"), 400)
 						return
 					}
